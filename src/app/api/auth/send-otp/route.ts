@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
-    const { phone } = await request.json();
+    const { phone, fullName } = await request.json();
     const cleanPhone = phone?.toString().replace(/\D/g, '');
 
     if (!cleanPhone || cleanPhone.length !== 10) {
@@ -22,12 +22,17 @@ export async function POST(request: NextRequest) {
     try {
       await prisma.user.upsert({
         where: { phone: formattedPhone },
-        update: { otp, otpExpiresAt },
+        update: { 
+          otp, 
+          otpExpiresAt,
+          fullName: fullName ? fullName.trim() : undefined,
+        },
         create: {
           phone: formattedPhone,
           otp,
           otpExpiresAt,
           role: 'CUSTOMER',
+          fullName: fullName ? fullName.trim() : `User ${cleanPhone.slice(-4)}`,
           isVerified: false,
         },
       });

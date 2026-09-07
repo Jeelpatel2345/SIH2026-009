@@ -243,10 +243,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               </div>
 
               {/* Notification bell */}
-              <button className="relative p-2 rounded-lg text-slate-600 hover:bg-slate-100">
+              <Link href="/admin/notifications" className="relative p-2 rounded-lg text-slate-600 hover:bg-slate-100" title="System Notifications">
                 <Bell className="w-5 h-5" />
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-500 ring-2 ring-white"></span>
-              </button>
+              </Link>
             </div>
           </div>
 

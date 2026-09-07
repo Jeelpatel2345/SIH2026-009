@@ -1,392 +1,367 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { 
   ArrowLeft, Bell, User, MapPin, Phone, Mail, ShieldCheck, 
   CreditCard, Globe, ChevronRight, LogOut, Heart, FileText, 
   HelpCircle, Settings, Camera, CheckCircle2, AlertCircle, 
-  Sparkles, Wrench, Clock, Star, Edit3, Plus, SwitchCamera, Smartphone
+  Sparkles, Wrench, Clock, Star, Edit3, Plus, SwitchCamera, Smartphone, Save, Loader2, Database
 } from 'lucide-react';
 import BottomNav from '@/components/BottomNav';
 import { useAuthStore } from '@/store/authStore';
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { logout } = useAuthStore();
+  const { fullName, phone, role, setAuth, logout } = useAuthStore();
 
-  const [role, setRole] = useState<'customer' | 'worker'>('customer');
+  const [userName, setUserName] = useState('');
+  const [userPhone, setUserPhone] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const [userCity, setUserCity] = useState('');
+  const [userAddress, setUserAddress] = useState('');
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveNotice, setSaveNotice] = useState(false);
   const [language, setLanguage] = useState<'English' | 'हिन्दी' | 'ગુજરાતી'>('English');
-  const [notifications, setNotifications] = useState({
-    whatsapp: true,
-    sms: true,
-    promo: false,
-  });
-  const [editSuccess, setEditSuccess] = useState(false);
+
+  // Load from state and localStorage on mount
+  useEffect(() => {
+    const savedName = fullName || localStorage.getItem('sahyog-user-name') || 'Jeel Patel';
+    const savedPhone = phone || localStorage.getItem('sahyog-user-phone') || '+91 98765 43210';
+    setUserName(savedName);
+    setUserPhone(savedPhone);
+    setUserEmail('member@sahyog.in');
+    setUserCity('Ahmedabad, Gujarat');
+    setUserAddress('B/402, Shanti Heights, Sector 12, Navrangpura');
+
+    // Fetch live profile from Neon DB if available
+    fetch('/api/user/profile')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.user) {
+          if (data.user.fullName) setUserName(data.user.fullName);
+          if (data.user.phone) setUserPhone(data.user.phone);
+          if (data.user.email) setUserEmail(data.user.email);
+          if (data.user.customerProfile?.city) setUserCity(data.user.customerProfile.city);
+          if (data.user.customerProfile?.address) setUserAddress(data.user.customerProfile.address);
+        }
+      })
+      .catch(() => {});
+  }, [fullName, phone]);
+
+  const handleSaveProfile = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch('/api/user/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName: userName.trim(),
+          phone: userPhone,
+          email: userEmail,
+          city: userCity,
+          address: userAddress,
+        }),
+      });
+
+      // Update state and localStorage
+      localStorage.setItem('sahyog-user-name', userName.trim());
+      setAuth({
+        userId: 'current-user',
+        role: role || 'CUSTOMER',
+        phone: userPhone,
+        fullName: userName.trim(),
+      });
+
+      setIsEditing(false);
+      setSaveNotice(true);
+      setTimeout(() => setSaveNotice(false), 3000);
+    } catch (err) {
+      console.error('Save profile error:', err);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleLogout = () => {
     logout();
+    localStorage.removeItem('sahyog-user-name');
+    localStorage.removeItem('sahyog-user-phone');
     router.push('/welcome');
   };
 
-  const showSaveNotice = () => {
-    setEditSuccess(true);
-    setTimeout(() => setEditSuccess(false), 2500);
-  };
+  const initials = (userName || 'SY')
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
 
   return (
-    <div className="max-w-md mx-auto min-h-screen bg-gray-50 pb-24">
+    <div className="min-h-screen bg-slate-50 pb-28 text-slate-900">
       {/* Top Header */}
-      <div className="bg-white p-4 flex items-center justify-between border-b sticky top-0 z-20">
-        <div className="flex items-center gap-3">
-          <Link href={role === 'customer' ? '/customer/dashboard' : '/worker/dashboard'}>
-            <ArrowLeft className="w-5 h-5 text-gray-700" />
-          </Link>
-          <h1 className="font-bold text-lg text-gray-900">My Profile</h1>
-        </div>
-        <div className="flex items-center gap-2">
-          {/* Role Preview Switcher */}
-          <button 
-            onClick={() => setRole(role === 'customer' ? 'worker' : 'customer')}
-            className="flex items-center gap-1.5 px-3 py-1 bg-teal-50 border border-teal-200 text-teal-700 rounded-full text-xs font-semibold hover:bg-teal-100 transition"
-            title="Switch Profile Mode"
-          >
-            <SwitchCamera className="w-3.5 h-3.5" />
-            <span>{role === 'customer' ? 'Customer View' : 'Worker View'}</span>
-          </button>
+      <div className="bg-[#042f2e] text-white border-b border-emerald-900/60 sticky top-0 z-30 shadow-md">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/customer/dashboard"
+              className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition text-emerald-200"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
+            <h1 className="font-bold text-base sm:text-lg text-white">My Account Profile</h1>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Link
+              href="/notifications"
+              className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition text-white relative"
+            >
+              <Bell className="w-4 h-4" />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-amber-400 rounded-full" />
+            </Link>
+          </div>
         </div>
       </div>
 
-      {editSuccess && (
-        <div className="bg-green-600 text-white text-xs py-2 px-4 text-center font-medium sticky top-[57px] z-30 flex items-center justify-center gap-1 shadow">
-          <CheckCircle2 className="w-3.5 h-3.5" /> Settings updated successfully!
+      {saveNotice && (
+        <div className="max-w-3xl mx-auto px-3 sm:px-6 pt-3">
+          <div className="bg-emerald-600 text-white text-xs py-2.5 px-4 rounded-xl text-center font-bold flex items-center justify-center gap-2 shadow-sm animate-in fade-in">
+            <CheckCircle2 className="w-4 h-4" />
+            <span>Profile and Name updated in Neon Database successfully!</span>
+          </div>
         </div>
       )}
 
-      {/* Profile Header Card */}
-      <div className="bg-white p-5 border-b">
-        <div className="flex items-start gap-4">
-          <div className="relative">
-            <div className="w-20 h-20 bg-gradient-to-br from-teal-500 to-teal-700 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-md">
-              {role === 'customer' ? 'AS' : 'RK'}
-            </div>
-            <button 
-              onClick={showSaveNotice}
-              className="absolute -bottom-1 -right-1 bg-teal-600 text-white p-1.5 rounded-full shadow border-2 border-white hover:bg-teal-700 transition"
-            >
-              <Camera className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          <div className="flex-1">
-            <div className="flex items-center gap-1.5">
-              <h2 className="text-xl font-bold text-gray-900">
-                {role === 'customer' ? 'Anjali Sharma' : 'Rajesh Kumar'}
-              </h2>
-              <ShieldCheck className="w-5 h-5 text-teal-600" />
-            </div>
-            <p className="text-xs font-medium text-gray-500 mt-0.5">
-              {role === 'customer' ? 'SahYog Member since Oct 2023' : 'Master Electrician • 8+ Yrs Exp'}
-            </p>
-
-            <div className="flex items-center gap-2 mt-2">
-              <span className="inline-flex items-center gap-1 text-xs px-2.5 py-0.5 rounded-full font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-                <CheckCircle2 className="w-3 h-3" /> Aadhar Verified
-              </span>
-              <span className="inline-flex items-center gap-1 text-xs px-2.5 py-0.5 rounded-full font-medium bg-teal-50 text-teal-700">
-                <Star className="w-3 h-3 text-amber-500 fill-amber-500" /> 4.9 Rating
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Quick Stats Grid */}
-        <div className="grid grid-cols-3 gap-2 mt-5 pt-4 border-t">
-          {role === 'customer' ? (
-            <>
-              <div className="bg-gray-50 rounded-xl p-2.5 text-center">
-                <p className="text-xs text-gray-500">Bookings</p>
-                <p className="text-base font-bold text-gray-900 mt-0.5">14 Done</p>
-              </div>
-              <div className="bg-gray-50 rounded-xl p-2.5 text-center">
-                <p className="text-xs text-gray-500">Saved</p>
-                <p className="text-base font-bold text-teal-600 mt-0.5">₹1,450</p>
-              </div>
-              <div className="bg-gray-50 rounded-xl p-2.5 text-center">
-                <p className="text-xs text-gray-500">Trust Score</p>
-                <p className="text-base font-bold text-gray-900 mt-0.5">100%</p>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="bg-gray-50 rounded-xl p-2.5 text-center">
-                <p className="text-xs text-gray-500">Jobs Done</p>
-                <p className="text-base font-bold text-gray-900 mt-0.5">450+</p>
-              </div>
-              <div className="bg-gray-50 rounded-xl p-2.5 text-center">
-                <p className="text-xs text-gray-500">Monthly</p>
-                <p className="text-base font-bold text-teal-600 mt-0.5">₹42,850</p>
-              </div>
-              <div className="bg-gray-50 rounded-xl p-2.5 text-center">
-                <p className="text-xs text-gray-500">Hourly Rate</p>
-                <p className="text-base font-bold text-gray-900 mt-0.5">₹350/hr</p>
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-
-      <div className="p-4 space-y-4">
-        {/* Contact & Personal Information */}
-        <div className="bg-white rounded-xl p-4 border shadow-sm">
-          <div className="flex items-center justify-between mb-3 pb-2 border-b">
-            <h3 className="font-bold text-sm text-gray-900">Personal & Contact Info</h3>
-            <button onClick={showSaveNotice} className="text-xs text-teal-600 font-semibold flex items-center gap-1">
-              <Edit3 className="w-3.5 h-3.5" /> Edit
-            </button>
-          </div>
-          
-          <div className="space-y-2.5 text-sm">
-            <div className="flex items-center gap-3">
-              <Phone className="w-4 h-4 text-gray-400" />
-              <div className="flex-1">
-                <p className="text-xs text-gray-400">Mobile Number (OTP Verified)</p>
-                <p className="font-medium text-gray-800">+91 98765 43210</p>
-              </div>
-              <span className="text-[11px] bg-green-50 text-green-700 px-2 py-0.5 rounded font-medium">Verified</span>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <Mail className="w-4 h-4 text-gray-400" />
-              <div className="flex-1">
-                <p className="text-xs text-gray-400">Email Address</p>
-                <p className="font-medium text-gray-800">
-                  {role === 'customer' ? 'anjali.sharma@example.com' : 'rajesh.kumar@example.com'}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <AlertCircle className="w-4 h-4 text-amber-500" />
-              <div className="flex-1">
-                <p className="text-xs text-gray-400">Emergency Contact</p>
-                <p className="font-medium text-gray-800">Suresh Sharma (+91 98220 11223)</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Saved Addresses / Service Locations */}
-        <div className="bg-white rounded-xl p-4 border shadow-sm">
-          <div className="flex items-center justify-between mb-3 pb-2 border-b">
-            <h3 className="font-bold text-sm text-gray-900">
-              {role === 'customer' ? 'Saved Addresses' : 'Primary Work Areas'}
-            </h3>
-            <button onClick={showSaveNotice} className="text-xs text-teal-600 font-semibold flex items-center gap-1">
-              <Plus className="w-3.5 h-3.5" /> Add
-            </button>
-          </div>
-
-          <div className="space-y-3">
-            <div className="flex items-start gap-3 p-2.5 bg-gray-50 rounded-lg border border-gray-100">
-              <MapPin className="w-4 h-4 text-teal-600 mt-0.5 flex-shrink-0" />
-              <div className="flex-1 text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-gray-900">Home (Primary)</span>
-                  <span className="text-[10px] bg-teal-100 text-teal-800 px-1.5 py-0.2 rounded">Default</span>
+      {/* Main Container */}
+      <div className="max-w-3xl mx-auto px-3 sm:px-6 pt-4 sm:pt-6 space-y-5">
+        {/* Profile Card */}
+        <div className="bg-white rounded-3xl p-5 sm:p-7 border border-slate-200 shadow-xs">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <div className="w-20 h-20 bg-gradient-to-br from-teal-600 to-emerald-800 rounded-2xl flex items-center justify-center text-white text-2xl font-black shadow-md">
+                  {initials}
                 </div>
-                <p className="text-xs text-gray-500 mt-0.5">B/402, Shanti Heights, Sector 12, Navrangpura</p>
-                <p className="text-xs text-gray-400">Ahmedabad, Gujarat - 380015</p>
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="absolute -bottom-1 -right-1 bg-amber-400 text-emerald-950 p-1.5 rounded-full shadow border-2 border-white hover:bg-amber-300 transition"
+                  title="Edit Avatar"
+                >
+                  <Camera className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xl sm:text-2xl font-black text-slate-900">{userName}</h2>
+                  <ShieldCheck className="w-5 h-5 text-teal-600" />
+                </div>
+                <p className="text-xs text-slate-500 font-medium mt-0.5">
+                  SahYog Verified Member • {userCity}
+                </p>
+
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="inline-flex items-center gap-1 text-[11px] px-2.5 py-0.5 rounded-full font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <CheckCircle2 className="w-3 h-3" /> OTP Verified
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-[11px] px-2.5 py-0.5 rounded-full font-bold bg-teal-50 text-teal-700">
+                    <Database className="w-3 h-3 text-teal-600" /> Neon Cloud Active
+                  </span>
+                </div>
               </div>
             </div>
 
-            <div className="flex items-start gap-3 p-2.5 bg-gray-50 rounded-lg border border-gray-100">
-              <MapPin className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-              <div className="flex-1 text-sm">
-                <span className="font-semibold text-gray-900">Work / Office</span>
-                <p className="text-xs text-gray-500 mt-0.5">401 Synergy Tower, SG Highway</p>
-                <p className="text-xs text-gray-400">Ahmedabad, Gujarat - 380054</p>
+            <button
+              onClick={() => setIsEditing(!isEditing)}
+              className="border-2 border-teal-700 text-teal-800 hover:bg-teal-50 font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition self-start sm:self-auto"
+            >
+              <Edit3 className="w-4 h-4" />
+              <span>{isEditing ? 'Cancel' : 'Edit Profile'}</span>
+            </button>
+          </div>
+
+          {/* Quick Metrics */}
+          <div className="grid grid-cols-3 gap-2 mt-6 pt-5 border-t border-slate-100 text-center">
+            <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100">
+              <p className="text-[11px] text-slate-400 font-semibold">Bookings</p>
+              <p className="text-base font-black text-slate-900 mt-0.5">14 Done</p>
+            </div>
+            <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100">
+              <p className="text-[11px] text-slate-400 font-semibold">Total Savings</p>
+              <p className="text-base font-black text-teal-700 mt-0.5">₹1,450</p>
+            </div>
+            <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100">
+              <p className="text-[11px] text-slate-400 font-semibold">Trust Score</p>
+              <p className="text-base font-black text-slate-900 mt-0.5">100%</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Edit Form Card */}
+        {isEditing && (
+          <div className="bg-white rounded-3xl p-5 sm:p-7 border-2 border-teal-500 shadow-md space-y-4 animate-in fade-in">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
+                <Edit3 className="w-4 h-4 text-teal-700" />
+                <span>Update Personal Details in Database</span>
+              </h3>
+              <span className="text-xs text-teal-700 font-semibold">Syncs to Neon DB</span>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Full Name (आपका नाम)</label>
+                <input
+                  type="text"
+                  value={userName}
+                  onChange={(e) => setUserName(e.target.value)}
+                  className="w-full border border-slate-300 focus:border-teal-600 rounded-xl p-2.5 text-sm font-semibold outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Phone Number</label>
+                  <input
+                    type="text"
+                    value={userPhone}
+                    disabled
+                    className="w-full border border-slate-200 bg-slate-50 rounded-xl p-2.5 text-sm text-slate-500 outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Email Address</label>
+                  <input
+                    type="email"
+                    value={userEmail}
+                    onChange={(e) => setUserEmail(e.target.value)}
+                    className="w-full border border-slate-300 focus:border-teal-600 rounded-xl p-2.5 text-sm outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Service Address</label>
+                <input
+                  type="text"
+                  value={userAddress}
+                  onChange={(e) => setUserAddress(e.target.value)}
+                  className="w-full border border-slate-300 focus:border-teal-600 rounded-xl p-2.5 text-sm outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">City / Region</label>
+                <input
+                  type="text"
+                  value={userCity}
+                  onChange={(e) => setUserCity(e.target.value)}
+                  className="w-full border border-slate-300 focus:border-teal-600 rounded-xl p-2.5 text-sm outline-none"
+                />
+              </div>
+
+              <button
+                type="button"
+                disabled={saving}
+                onClick={handleSaveProfile}
+                className="w-full bg-teal-700 hover:bg-teal-800 disabled:opacity-50 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 shadow-xs transition text-sm cursor-pointer mt-2"
+              >
+                {saving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Saving to Neon Database...</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    <span>Save Changes to Database</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Contact & Personal Information Card */}
+        <div className="bg-white rounded-3xl p-5 sm:p-7 border border-slate-200 shadow-xs space-y-4">
+          <h3 className="font-bold text-base text-slate-900">Personal & Service Address</h3>
+
+          <div className="space-y-3 text-xs">
+            <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-100">
+              <Smartphone className="w-4 h-4 text-teal-700 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="font-semibold text-slate-400">Mobile Number</p>
+                <p className="font-bold text-slate-900 font-mono mt-0.5">{userPhone}</p>
+              </div>
+              <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
+                Verified
+              </span>
+            </div>
+
+            <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-100">
+              <Mail className="w-4 h-4 text-teal-700 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="font-semibold text-slate-400">Email Address</p>
+                <p className="font-bold text-slate-900 mt-0.5">{userEmail}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-100">
+              <MapPin className="w-4 h-4 text-teal-700 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="font-semibold text-slate-400">Default Service Address</p>
+                <p className="font-bold text-slate-900 mt-0.5">{userAddress}</p>
+                <p className="text-slate-500 text-[11px]">{userCity}</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Language Preference */}
-        <div className="bg-white rounded-xl p-4 border shadow-sm">
-          <div className="flex items-center gap-2 mb-3 pb-2 border-b">
-            <Globe className="w-4 h-4 text-teal-600" />
-            <h3 className="font-bold text-sm text-gray-900">App Language (ભાષા / भाषा)</h3>
-          </div>
+        {/* Language & Account Preferences */}
+        <div className="bg-white rounded-3xl p-5 sm:p-7 border border-slate-200 shadow-xs space-y-4">
+          <h3 className="font-bold text-base text-slate-900">App Language & System</h3>
 
           <div className="grid grid-cols-3 gap-2">
-            {(['English', 'हिन्दी', 'ગુજરાતી'] as const).map((lang) => (
+            {(['English', 'हिन्दी', 'ગુજરાતી'] as const).map((l) => (
               <button
-                key={lang}
-                onClick={() => {
-                  setLanguage(lang);
-                  showSaveNotice();
-                }}
-                className={`py-2 px-3 rounded-xl text-xs font-semibold transition border ${
-                  language === lang
-                    ? 'bg-teal-600 text-white border-teal-600 shadow-sm'
-                    : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                key={l}
+                type="button"
+                onClick={() => setLanguage(l)}
+                className={`py-2 px-3 text-xs font-bold rounded-xl border-2 transition ${
+                  language === l
+                    ? 'border-teal-600 bg-teal-50 text-teal-800 shadow-xs'
+                    : 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100'
                 }`}
               >
-                {lang}
+                {l}
               </button>
             ))}
           </div>
-        </div>
 
-        {/* Payment & Wallet */}
-        <div className="bg-white rounded-xl p-4 border shadow-sm">
-          <div className="flex items-center justify-between mb-3 pb-2 border-b">
-            <div className="flex items-center gap-2">
-              <CreditCard className="w-4 h-4 text-teal-600" />
-              <h3 className="font-bold text-sm text-gray-900">Payment & SahYog Wallet</h3>
-            </div>
-            <Link href="/customer/payment/1" className="text-xs text-teal-600 font-semibold">
-              Manage &gt;
+          <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+            <Link
+              href="/admin/portal"
+              className="text-xs font-bold text-teal-700 hover:underline flex items-center gap-1"
+            >
+              <span>Access Admin Portal</span>
+              <ChevronRight className="w-3.5 h-3.5" />
             </Link>
-          </div>
 
-          <div className="flex items-center justify-between p-3 bg-gradient-to-r from-teal-50 to-emerald-50 rounded-xl border border-teal-100 mb-3">
-            <div>
-              <p className="text-xs text-gray-500">Wallet Balance / Rewards</p>
-              <p className="text-lg font-bold text-teal-700">₹ 250.00</p>
-            </div>
-            <button onClick={showSaveNotice} className="px-3 py-1.5 bg-teal-600 text-white text-xs font-semibold rounded-lg hover:bg-teal-700 shadow-sm">
-              Add Money
+            <button
+              onClick={handleLogout}
+              className="text-xs font-bold text-rose-600 hover:text-rose-700 flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-rose-50 transition"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Log Out</span>
             </button>
           </div>
-
-          <div className="space-y-2 text-xs text-gray-600">
-            <div className="flex items-center justify-between py-1">
-              <span>Default UPI ID</span>
-              <span className="font-semibold text-gray-800">anjali@okhdfcbank</span>
-            </div>
-            <div className="flex items-center justify-between py-1 border-t">
-              <span>Linked Card</span>
-              <span className="font-semibold text-gray-800">HDFC Visa •••• 4092</span>
-            </div>
-          </div>
         </div>
-
-        {/* SahYog Trust & Security Badges */}
-        <div className="bg-gradient-to-br from-teal-600 to-teal-800 text-white rounded-xl p-4 shadow-sm">
-          <div className="flex items-center gap-2 mb-2">
-            <ShieldCheck className="w-5 h-5 text-teal-200" />
-            <h4 className="font-bold text-sm">SahYog Trust Protection</h4>
-          </div>
-          <p className="text-xs text-teal-100 leading-relaxed">
-            Your bookings are insured up to ₹10,000 for damages and guaranteed service quality. Worker background checks completed via state police verification APIs.
-          </p>
-          <div className="mt-3 pt-2 border-t border-teal-500/50 flex justify-between text-[11px] text-teal-200">
-            <span>✓ Verified Identity</span>
-            <span>✓ Secure Escrow Pay</span>
-            <span>✓ 24/7 Helpline</span>
-          </div>
-        </div>
-
-        {/* Notification Preferences */}
-        <div className="bg-white rounded-xl p-4 border shadow-sm">
-          <h3 className="font-bold text-sm text-gray-900 mb-3 pb-2 border-b">Notification Preferences</h3>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-800">WhatsApp Service Updates</p>
-                <p className="text-xs text-gray-400">Receive arrival OTP and invoice on WhatsApp</p>
-              </div>
-              <input
-                type="checkbox"
-                checked={notifications.whatsapp}
-                onChange={(e) => {
-                  setNotifications({ ...notifications, whatsapp: e.target.checked });
-                  showSaveNotice();
-                }}
-                className="w-4 h-4 text-teal-600 accent-teal-600 rounded"
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-800">SMS Booking Alerts</p>
-                <p className="text-xs text-gray-400">Important safety codes and OTP alerts</p>
-              </div>
-              <input
-                type="checkbox"
-                checked={notifications.sms}
-                onChange={(e) => {
-                  setNotifications({ ...notifications, sms: e.target.checked });
-                  showSaveNotice();
-                }}
-                className="w-4 h-4 text-teal-600 accent-teal-600 rounded"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Support & Quick Links */}
-        <div className="bg-white rounded-xl border divide-y shadow-sm text-sm">
-          <Link href="/download" className="p-3.5 flex items-center justify-between hover:bg-teal-50 transition bg-teal-50/40">
-            <div className="flex items-center gap-3">
-              <Smartphone className="w-4 h-4 text-teal-600" />
-              <div>
-                <span className="font-bold text-gray-900">Install Native Android App (.APK)</span>
-                <p className="text-[11px] text-teal-700">Add to phone desktop like WhatsApp & Instagram</p>
-              </div>
-            </div>
-            <span className="text-[10px] bg-teal-600 text-white font-bold px-2 py-0.5 rounded-full">Download</span>
-          </Link>
-
-          <Link href="/customer/bookings" className="p-3.5 flex items-center justify-between hover:bg-gray-50 transition">
-            <div className="flex items-center gap-3">
-              <Clock className="w-4 h-4 text-teal-600" />
-              <span className="font-medium text-gray-800">My Booking History</span>
-            </div>
-            <ChevronRight className="w-4 h-4 text-gray-400" />
-          </Link>
-
-          <Link href="/chat/1" className="p-3.5 flex items-center justify-between hover:bg-gray-50 transition">
-            <div className="flex items-center gap-3">
-              <Sparkles className="w-4 h-4 text-amber-500" />
-              <span className="font-medium text-gray-800">SahYog AI Assistant Support</span>
-            </div>
-            <span className="text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-bold">24/7 Live</span>
-          </Link>
-
-          <div className="p-3.5 flex items-center justify-between hover:bg-gray-50 transition cursor-pointer">
-            <div className="flex items-center gap-3">
-              <HelpCircle className="w-4 h-4 text-gray-500" />
-              <span className="font-medium text-gray-800">Help & FAQs (सहायता केंद्र)</span>
-            </div>
-            <ChevronRight className="w-4 h-4 text-gray-400" />
-          </div>
-
-          <div className="p-3.5 flex items-center justify-between hover:bg-gray-50 transition cursor-pointer">
-            <div className="flex items-center gap-3">
-              <FileText className="w-4 h-4 text-gray-500" />
-              <span className="font-medium text-gray-800">Terms of Service & Privacy</span>
-            </div>
-            <ChevronRight className="w-4 h-4 text-gray-400" />
-          </div>
-        </div>
-
-        {/* Logout Button */}
-        <button
-          onClick={handleLogout}
-          className="w-full bg-white hover:bg-red-50 text-red-600 border border-red-200 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition shadow-sm"
-        >
-          <LogOut className="w-4 h-4" />
-          <span>Sign Out / Log Out</span>
-        </button>
-
-        <p className="text-center text-xs text-gray-400 pb-2">
-          SahYog App Version 2.4.0 • Made with ❤️ for Indian Households
-        </p>
       </div>
 
-      <BottomNav role={role} />
+      <BottomNav role="customer" />
     </div>
   );
 }

@@ -23,11 +23,18 @@ export default function CustomerDashboard() {
   const { fullName, phone } = useAuthStore();
   const [activeLang, setActiveLang] = useState<'EN' | 'HI' | 'GU'>('EN');
   const [searchQuery, setSearchQuery] = useState('');
+  const [clientName, setClientName] = useState('');
+
+  // Hydrate custom user name from localStorage
+  if (typeof window !== 'undefined' && !clientName) {
+    const saved = localStorage.getItem('sahyog-user-name');
+    if (saved) setClientName(saved);
+  }
 
   // Top featured workers from the 100 workers collection
   const featuredWorkers = allWorkers.slice(0, 4);
 
-  const displayName = fullName || (phone ? `Member ${phone.slice(-4)}` : 'Friend');
+  const displayName = fullName || clientName || (phone ? `Member ${phone.slice(-4)}` : 'Friend');
 
   return (
     <div className="w-full min-h-screen bg-slate-50 pb-20 text-slate-900">
@@ -70,7 +77,7 @@ export default function CustomerDashboard() {
 
           {/* User Profile Badge */}
           <div className="flex items-center gap-3">
-            <Link href="/customer/bookings" className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition text-white relative">
+            <Link href="/notifications" className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition text-white relative" title="Notifications">
               <Bell className="w-4 h-4" />
               <span className="absolute top-1 right-1 w-2 h-2 bg-amber-400 rounded-full" />
             </Link>
@@ -104,7 +111,7 @@ export default function CustomerDashboard() {
             </div>
 
             <div className="flex items-center gap-2">
-              <Link href="/customer/bookings" className="p-2 rounded-full bg-white/10 text-white relative">
+              <Link href="/notifications" className="p-2 rounded-full bg-white/10 text-white relative" title="Notifications">
                 <Bell className="w-4 h-4" />
                 <span className="absolute top-1 right-1 w-2 h-2 bg-amber-400 rounded-full" />
               </Link>

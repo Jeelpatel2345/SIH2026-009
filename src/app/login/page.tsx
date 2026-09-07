@@ -1,15 +1,17 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { 
   Globe, ChevronRight, Shield, Lock, CheckCircle, Smartphone, 
-  Loader2, ArrowRight, Sparkles, MessageSquare, AlertCircle, RefreshCw
+  Loader2, ArrowRight, Sparkles, MessageSquare, AlertCircle, RefreshCw, User
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 
 export default function LoginPage() {
   const router = useRouter();
   const { setAuth } = useAuthStore();
+  const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState(['', '', '', '']);
@@ -41,7 +43,7 @@ export default function LoginPage() {
       const res = await fetch('/api/auth/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone }),
+        body: JSON.stringify({ phone, fullName: fullName.trim() }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -78,6 +80,7 @@ export default function LoginPage() {
           phone,
           otp: code,
           role,
+          fullName: fullName.trim() || undefined,
         }),
       });
 
@@ -86,13 +89,18 @@ export default function LoginPage() {
         throw new Error(data.error || 'Verification failed');
       }
 
-      // Store real user in auth state
+      // Store real user in auth state with their custom name
+      const userFullName = data.user.fullName || fullName.trim() || `User ${phone.slice(-4)}`;
       setAuth({
         userId: data.user.id,
         role: data.user.role,
         phone: data.user.phone,
-        fullName: data.user.fullName || `User ${phone.slice(-4)}`,
+        fullName: userFullName,
       });
+
+      // Save to localStorage for instant persistence across reloads
+      localStorage.setItem('sahyog-user-name', userFullName);
+      localStorage.setItem('sahyog-user-phone', data.user.phone);
 
       if (data.user.role === 'ADMIN') {
         router.push('/admin/overview');
@@ -135,59 +143,61 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-[#042f2e] to-slate-900 flex items-center justify-center p-3 sm:p-6 lg:p-10">
-      <div className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200/80 grid grid-cols-1 md:grid-cols-2 min-h-[540px]">
+    <div className="min-h-screen bg-white md:bg-slate-900 flex items-center justify-center md:p-6">
+      <div className="w-full max-w-4xl bg-white md:rounded-3xl md:shadow-2xl overflow-hidden md:border md:border-slate-200 grid grid-cols-1 md:grid-cols-2 min-h-[580px]">
         {/* Left Hero & Security Banner */}
-        <div className="bg-gradient-to-br from-[#042f2e] via-[#0d9488] to-[#042f2e] text-white p-8 sm:p-10 flex flex-col justify-between relative overflow-hidden">
+        <div className="bg-gradient-to-br from-[#042f2e] via-[#0d9488] to-[#042f2e] text-white p-6 sm:p-8 flex flex-col justify-between relative overflow-hidden">
           <div className="relative z-10">
-            <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 bg-amber-400 text-emerald-950 font-black rounded-xl flex items-center justify-center shadow-md text-base">
-                SY
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 bg-amber-400 text-emerald-950 font-black rounded-xl flex items-center justify-center shadow-md text-base">
+                  SY
+                </div>
+                <div>
+                  <h2 className="font-black text-lg tracking-tight text-white leading-none">SahYog</h2>
+                  <span className="text-[10px] text-emerald-200 uppercase tracking-wider font-semibold">Neon Cloud Verified</span>
+                </div>
               </div>
-              <div>
-                <h2 className="font-black text-lg tracking-tight text-white leading-none">SahYog</h2>
-                <span className="text-[10px] text-emerald-200 uppercase tracking-wider font-semibold">Real-Time Authentication</span>
-              </div>
+
+              <Link href="/welcome" className="text-xs text-emerald-200 hover:text-white font-semibold">
+                ← Back
+              </Link>
             </div>
 
             <div className="mt-8">
               <h1 className="text-2xl sm:text-3xl font-black leading-tight text-white">
-                Fast & Secure Mobile OTP Login
+                One-Time Password (OTP) Login
               </h1>
               <p className="text-xs sm:text-sm text-emerald-100/90 mt-2 leading-relaxed">
-                Experience instant verification on your phone. Connect with verified service professionals across Gujarat and India.
+                Connect your account securely to our live cloud database. Your profile data syncs in real time across devices.
               </p>
             </div>
 
-            <div className="mt-8 space-y-3">
-              <div className="flex items-center gap-3 text-xs bg-white/10 p-3 rounded-xl border border-white/10">
+            <div className="mt-6 space-y-2.5">
+              <div className="flex items-center gap-2.5 text-xs bg-white/10 p-2.5 rounded-xl border border-white/10">
                 <CheckCircle className="w-4 h-4 text-amber-300 flex-shrink-0" />
-                <span>Instant 4-digit SMS OTP to your phone</span>
+                <span>Instant 4-digit code directly to your phone</span>
               </div>
-              <div className="flex items-center gap-3 text-xs bg-white/10 p-3 rounded-xl border border-white/10">
+              <div className="flex items-center gap-2.5 text-xs bg-white/10 p-2.5 rounded-xl border border-white/10">
                 <Lock className="w-4 h-4 text-emerald-300 flex-shrink-0" />
-                <span>Encrypted real-time database synchronization</span>
-              </div>
-              <div className="flex items-center gap-3 text-xs bg-white/10 p-3 rounded-xl border border-white/10">
-                <Sparkles className="w-4 h-4 text-amber-300 flex-shrink-0" />
-                <span>100+ Background-verified partner network</span>
+                <span>Encrypted live Neon PostgreSQL synchronization</span>
               </div>
             </div>
           </div>
 
-          <div className="relative z-10 pt-6 mt-6 border-t border-white/15 flex justify-around text-center text-[10px] text-emerald-200 font-bold">
+          <div className="relative z-10 pt-4 mt-6 border-t border-white/15 flex justify-around text-center text-[10px] text-emerald-200 font-bold">
             <div><p className="text-white">VERIFIED</p><p className="text-emerald-300/80">Phone Auth</p></div>
             <div><p className="text-white">ENCRYPTED</p><p className="text-emerald-300/80">SSL 256-Bit</p></div>
-            <div><p className="text-white">CONNECTED</p><p className="text-emerald-300/80">Postgres DB</p></div>
+            <div><p className="text-white">CLOUD DB</p><p className="text-emerald-300/80">Neon Postgres</p></div>
           </div>
         </div>
 
         {/* Right Interactive Form Card */}
-        <div className="p-6 sm:p-10 flex flex-col justify-between bg-white">
+        <div className="p-5 sm:p-8 flex flex-col justify-between bg-white">
           <div>
-            <div className="flex justify-between items-center mb-6">
-              <span className="text-xs font-bold uppercase tracking-wider text-teal-800 bg-teal-50 px-2.5 py-1 rounded-md border border-teal-200">
-                {otpSent ? 'Step 2 of 2: Enter Code' : 'Step 1 of 2: Mobile Number'}
+            <div className="flex justify-between items-center mb-4">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-teal-800 bg-teal-50 px-2.5 py-1 rounded-md border border-teal-200">
+                {otpSent ? 'Step 2: Enter 4-Digit Code' : 'Step 1: Your Details'}
               </span>
               <div className="flex items-center gap-1 text-xs text-slate-500 font-semibold bg-slate-100 px-2.5 py-1 rounded-lg">
                 <Globe className="w-3.5 h-3.5 text-teal-700" />
@@ -196,16 +206,16 @@ export default function LoginPage() {
             </div>
 
             <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-              {otpSent ? 'Verify Phone Number' : 'Enter Mobile Number'}
+              {otpSent ? 'Enter Verification Code' : 'Sign In / Register'}
             </h3>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            <p className="text-xs text-slate-500 mt-0.5">
               {otpSent
-                ? `We sent a 4-digit code to +91 ${phone.slice(0, 5)} ${phone.slice(5)}`
-                : 'Enter your 10-digit number to receive your real-time 4-digit code.'}
+                ? `Enter the 4-digit code sent to +91 ${phone.slice(0, 5)} ${phone.slice(5)}`
+                : 'Enter your name and 10-digit mobile number to access your account.'}
             </p>
 
             {errorMsg && (
-              <div className="mt-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 font-semibold flex items-center gap-2 animate-in fade-in">
+              <div className="mt-3 p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 font-semibold flex items-center gap-2 animate-in fade-in">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 <span>{errorMsg}</span>
               </div>
@@ -213,7 +223,7 @@ export default function LoginPage() {
 
             {/* Real-time SMS Toast Alert (Auto-fills OTP in 1 click) */}
             {otpSent && receivedOtp && (
-              <div className="mt-4 p-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md animate-in slide-in-from-top-2">
+              <div className="mt-3.5 p-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">
                     <MessageSquare className="w-4 h-4 text-amber-300 animate-bounce" />
@@ -226,7 +236,7 @@ export default function LoginPage() {
                   </span>
                 </div>
                 <p className="text-[11px] text-emerald-100 mt-1">
-                  Your 4-digit SahYog verification code is <b className="text-white font-mono text-sm">{receivedOtp}</b>.
+                  Your SahYog code is <b className="text-white font-mono text-sm">{receivedOtp}</b>.
                 </p>
                 <button
                   type="button"
@@ -239,9 +249,27 @@ export default function LoginPage() {
             )}
 
             {!otpSent ? (
-              <div className="mt-6 space-y-4">
+              <div className="mt-5 space-y-3.5">
+                {/* Full Name Input */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                    Your Full Name (आपका नाम / તમારું નામ)
+                  </label>
+                  <div className="flex items-center border-2 border-slate-200 focus-within:border-teal-600 rounded-2xl p-2.5 transition bg-slate-50/50">
+                    <User className="w-4 h-4 text-slate-400 ml-1 mr-2 flex-shrink-0" />
+                    <input
+                      type="text"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="e.g. Jeel Patel"
+                      className="w-full bg-transparent outline-none text-sm font-semibold text-slate-900 placeholder-slate-400"
+                    />
+                  </div>
+                </div>
+
+                {/* Mobile Number Input */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                     Mobile Number (मोबाइल नंबर)
                   </label>
                   <div className="flex items-center border-2 border-slate-200 focus-within:border-teal-600 rounded-2xl p-2.5 transition bg-slate-50/50">
@@ -255,17 +283,16 @@ export default function LoginPage() {
                       onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
                       placeholder="Enter 10-digit number"
                       className="w-full bg-transparent outline-none text-sm font-semibold text-slate-900 tracking-wider placeholder-slate-400"
-                      autoFocus
                     />
                   </div>
-                  <p className="text-[11px] text-slate-400 mt-1.5">Example: 9876543210 (Direct SMS delivery)</p>
+                  <p className="text-[11px] text-slate-400 mt-1">Example: 9876543210</p>
                 </div>
 
                 <button
                   type="button"
                   disabled={phone.length !== 10 || loading}
                   onClick={handleSendOtp}
-                  className="w-full bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white font-bold py-3.5 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-teal-700/20 transition text-sm cursor-pointer"
+                  className="w-full bg-teal-700 hover:bg-teal-800 disabled:opacity-50 text-white font-bold py-3.5 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-teal-900/20 transition text-sm cursor-pointer mt-2"
                 >
                   {loading ? (
                     <>
@@ -281,10 +308,10 @@ export default function LoginPage() {
                 </button>
               </div>
             ) : (
-              <div className="mt-6 space-y-4">
+              <div className="mt-5 space-y-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                    4-Digit Verification Code
+                    Enter 4-Digit Code
                   </label>
                   <div className="flex justify-between gap-2 sm:gap-3">
                     {otp.map((d, i) => (
@@ -339,7 +366,7 @@ export default function LoginPage() {
                   type="button"
                   disabled={otp.join('').length !== 4 || loading}
                   onClick={() => handleVerifyOtp()}
-                  className="w-full bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white font-bold py-3.5 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-teal-700/20 transition text-sm cursor-pointer"
+                  className="w-full bg-teal-700 hover:bg-teal-800 disabled:opacity-50 text-white font-bold py-3.5 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-teal-900/20 transition text-sm cursor-pointer"
                 >
                   {loading ? (
                     <>
@@ -357,10 +384,10 @@ export default function LoginPage() {
             )}
           </div>
 
-          <div className="pt-6 mt-6 border-t border-slate-100">
+          <div className="pt-4 mt-4 border-t border-slate-100">
             <p className="text-[11px] text-slate-400 text-center leading-normal">
               By proceeding, you agree to SahYog's{' '}
-              <span className="text-teal-700 font-semibold underline cursor-pointer">Terms of Service</span> and{' '}
+              <span className="text-teal-700 font-semibold underline cursor-pointer">Terms</span> and{' '}
               <span className="text-teal-700 font-semibold underline cursor-pointer">Privacy Policy</span>.
             </p>
           </div>

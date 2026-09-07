@@ -74,8 +74,9 @@ function ServiceResultsContent() {
 
           <div className="flex items-center gap-2">
             <Link
-              href="/customer/bookings"
+              href="/notifications"
               className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition text-white relative"
+              title="Notifications"
             >
               <Bell className="w-4 h-4" />
               <span className="absolute top-1 right-1 w-2 h-2 bg-amber-400 rounded-full" />

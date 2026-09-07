@@ -47,8 +47,9 @@ export default function WorkerProfilePage({ params }: { params: { id: string } }
             </h1>
           </div>
           <Link
-            href="/customer/bookings"
+            href="/notifications"
             className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition text-white"
+            title="Notifications"
           >
             <Bell className="w-4 h-4" />
           </Link>
