@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Calendar, MessageSquare, User } from 'lucide-react';
+import { Home, Calendar, MessageSquare, User, Sparkles } from 'lucide-react';
 
 interface BottomNavProps {
   role?: 'customer' | 'worker' | 'admin';
@@ -26,31 +26,55 @@ export default function BottomNav({ role = 'customer' }: BottomNavProps) {
   const isProfile = pathname.startsWith('/profile') || (role === 'admin' && pathname === '/admin/users');
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-100 max-w-md mx-auto z-50">
-      <div className="flex justify-around items-center py-2.5 px-2">
-        <Link href={homeHref} className="flex flex-col items-center justify-center flex-1 py-1">
-          <Home className={`w-5 h-5 transition ${isHome ? 'text-teal-600 scale-105 stroke-[2.5]' : 'text-gray-400 hover:text-gray-600'}`} />
-          <span className={`text-[11px] mt-1 transition ${isHome ? 'text-teal-600 font-semibold' : 'text-gray-400'}`}>Home</span>
+    <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200/80 max-w-md mx-auto z-50 shadow-lg">
+      <div className="flex justify-around items-center py-2 px-3">
+        {/* Home */}
+        <Link href={homeHref} className="flex flex-col items-center justify-center flex-1 py-1 relative group">
+          <div className={`p-1 rounded-xl transition-all duration-200 ${isHome ? 'bg-emerald-50 text-emerald-700' : 'text-slate-400 group-hover:text-slate-600'}`}>
+            <Home className={`w-5 h-5 ${isHome ? 'stroke-[2.5]' : ''}`} />
+          </div>
+          <span className={`text-[10px] mt-0.5 font-bold transition-all ${isHome ? 'text-emerald-800' : 'text-slate-400'}`}>
+            Home
+          </span>
+          {isHome && <span className="w-1 h-1 bg-emerald-600 rounded-full mt-0.5" />}
         </Link>
 
-        <Link href={bookingsHref} className="flex flex-col items-center justify-center flex-1 py-1">
-          <Calendar className={`w-5 h-5 transition ${isBookings ? 'text-teal-600 scale-105 stroke-[2.5]' : 'text-gray-400 hover:text-gray-600'}`} />
-          <span className={`text-[11px] mt-1 transition ${isBookings ? 'text-teal-600 font-semibold' : 'text-gray-400'}`}>Bookings</span>
+        {/* Bookings */}
+        <Link href={bookingsHref} className="flex flex-col items-center justify-center flex-1 py-1 relative group">
+          <div className={`p-1 rounded-xl transition-all duration-200 ${isBookings ? 'bg-emerald-50 text-emerald-700' : 'text-slate-400 group-hover:text-slate-600'}`}>
+            <Calendar className={`w-5 h-5 ${isBookings ? 'stroke-[2.5]' : ''}`} />
+          </div>
+          <span className={`text-[10px] mt-0.5 font-bold transition-all ${isBookings ? 'text-emerald-800' : 'text-slate-400'}`}>
+            Bookings
+          </span>
+          {isBookings && <span className="w-1 h-1 bg-emerald-600 rounded-full mt-0.5" />}
         </Link>
 
-        <Link href="/chat/1" className="flex flex-col items-center justify-center flex-1 py-1 relative">
+        {/* Chat / AI */}
+        <Link href="/chat/1" className="flex flex-col items-center justify-center flex-1 py-1 relative group">
           <div className="relative">
-            <MessageSquare className={`w-5 h-5 transition ${isChat ? 'text-teal-600 scale-105 stroke-[2.5]' : 'text-gray-400 hover:text-gray-600'}`} />
-            <span className="absolute -top-1.5 -right-2.5 bg-red-500 text-white text-[10px] font-bold rounded-full h-4 min-w-4 px-1 flex items-center justify-center shadow-sm">
+            <div className={`p-1 rounded-xl transition-all duration-200 ${isChat ? 'bg-emerald-50 text-emerald-700' : 'text-slate-400 group-hover:text-slate-600'}`}>
+              <MessageSquare className={`w-5 h-5 ${isChat ? 'stroke-[2.5]' : ''}`} />
+            </div>
+            <span className="absolute -top-1 -right-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[9px] font-black rounded-full h-3.5 min-w-3.5 px-1 flex items-center justify-center shadow-xs">
               AI
             </span>
           </div>
-          <span className={`text-[11px] mt-1 transition ${isChat ? 'text-teal-600 font-semibold' : 'text-gray-400'}`}>Chat</span>
+          <span className={`text-[10px] mt-0.5 font-bold transition-all ${isChat ? 'text-emerald-800' : 'text-slate-400'}`}>
+            Chat
+          </span>
+          {isChat && <span className="w-1 h-1 bg-emerald-600 rounded-full mt-0.5" />}
         </Link>
 
-        <Link href="/profile" className="flex flex-col items-center justify-center flex-1 py-1">
-          <User className={`w-5 h-5 transition ${isProfile ? 'text-teal-600 scale-105 stroke-[2.5]' : 'text-gray-400 hover:text-gray-600'}`} />
-          <span className={`text-[11px] mt-1 transition ${isProfile ? 'text-teal-600 font-semibold' : 'text-gray-400'}`}>Profile</span>
+        {/* Profile */}
+        <Link href="/profile" className="flex flex-col items-center justify-center flex-1 py-1 relative group">
+          <div className={`p-1 rounded-xl transition-all duration-200 ${isProfile ? 'bg-emerald-50 text-emerald-700' : 'text-slate-400 group-hover:text-slate-600'}`}>
+            <User className={`w-5 h-5 ${isProfile ? 'stroke-[2.5]' : ''}`} />
+          </div>
+          <span className={`text-[10px] mt-0.5 font-bold transition-all ${isProfile ? 'text-emerald-800' : 'text-slate-400'}`}>
+            Profile
+          </span>
+          {isProfile && <span className="w-1 h-1 bg-emerald-600 rounded-full mt-0.5" />}
         </Link>
       </div>
     </div>
