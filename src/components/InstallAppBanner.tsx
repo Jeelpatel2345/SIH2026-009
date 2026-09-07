@@ -55,8 +55,8 @@ export default function InstallAppBanner() {
 
   return (
     <>
-      {/* Top Banner on Mobile */}
-      <div className="bg-gradient-to-r from-teal-700 to-teal-600 text-white px-3.5 py-2 flex items-center justify-between shadow-sm sticky top-0 z-40 text-xs">
+      {/* Top Banner on Mobile (Hidden on Desktop) */}
+      <div className="md:hidden bg-gradient-to-r from-teal-700 to-teal-600 text-white px-3.5 py-2 flex items-center justify-between shadow-sm sticky top-0 z-40 text-xs">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center p-1 text-teal-700 font-extrabold text-[10px] shadow-xs">
             SY

@@ -10,86 +10,166 @@ const workers = [
 
 export default function VerificationPage() {
   return (
-    <div className="max-w-md mx-auto min-h-screen bg-gray-50 pb-20">
-      <div className="bg-white p-4 flex items-center gap-3 border-b">
-        <Link href="/admin/overview"><ArrowLeft className="w-5 h-5" /></Link>
-        <h1 className="font-semibold text-lg flex-1">Worker Verification</h1>
-        <Bell className="w-5 h-5 text-gray-600" />
-        <div className="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center"><User className="w-4 h-4 text-teal-600" /></div>
-      </div>
-
-      <div className="px-4 mt-4">
-        <h2 className="text-xl font-bold mb-1">Document Review Queue</h2>
-        <p className="text-sm text-gray-500 mb-4">Maintain platform trust by verifying worker credentials and IDs.</p>
-
-        <div className="space-y-3 mb-4">
-          {[
-            { icon: Clock, label: 'PENDING REVIEW', value: '24', sub: '+3 since morning', color: 'text-yellow-600 bg-yellow-50' },
-            { icon: CheckCircle, label: 'APPROVED TODAY', value: '18', sub: '92% success rate', color: 'text-green-600 bg-green-50' },
-            { icon: XCircle, label: 'REJECTED', value: '05', sub: 'Missing documents', color: 'text-red-600 bg-red-50' },
-            { icon: Users, label: 'ACTIVE WORKERS', value: '1,240', sub: 'Live on SahYog', color: 'text-teal-600 bg-teal-50' },
-          ].map(s => (
-            <div key={s.label} className="bg-white rounded-xl p-4 border flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${s.color}`}><s.icon className="w-5 h-5" /></div>
-              <div className="flex-1"><p className="text-xs text-gray-500">{s.label}</p><p className="text-xl font-bold">{s.value}</p></div>
-              <p className="text-xs text-gray-400">{s.sub}</p>
-            </div>
-          ))}
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            Worker Verification & ID Compliance
+          </h1>
+          <p className="text-sm text-slate-500 mt-1">
+            Maintain community safety by inspecting government Aadhaar credentials and biometric matches.
+          </p>
         </div>
-
-        <div className="flex gap-2 mb-3 overflow-x-auto no-scrollbar">
-          {['Pending', 'In Review', 'Flagged', 'History'].map((t, i) => (
-            <button key={t} className={`px-4 py-2 text-sm font-medium rounded-full whitespace-nowrap ${i === 0 ? 'bg-teal-600 text-white' : 'bg-white border text-gray-600'}`}>{t}</button>
-          ))}
-        </div>
-
-        <div className="bg-gray-100 rounded-xl p-3 flex items-center gap-2 mb-4">
-          <Search className="w-4 h-4 text-gray-400" />
-          <input placeholder="Search by name or ID..." className="flex-1 bg-transparent outline-none text-sm" />
-        </div>
-
-        <div className="bg-white rounded-xl border overflow-hidden mb-4">
-          <div className="grid grid-cols-2 bg-gray-50 p-3 text-xs font-semibold text-gray-500"><span>Worker Details</span><span>Location</span></div>
-          {workers.map(w => (
-            <div key={w.id} className="grid grid-cols-2 p-3 border-t items-center">
-              <div><p className="font-semibold text-sm">{w.name}</p><p className="text-xs text-gray-400">{w.id} • {w.role}</p></div>
-              <p className="text-sm text-gray-500">{w.loc}</p>
-            </div>
-          ))}
-          <div className="p-3 border-t text-center text-xs text-gray-400">Showing 3 of 24 pending applications</div>
-        </div>
-
-        <div className="bg-white rounded-xl p-4 border mb-4">
-          <div className="flex items-center justify-between mb-3"><h3 className="font-bold">Document Inspector</h3><button className="text-teal-600 text-sm font-medium flex items-center gap-1"><Download className="w-3 h-3" />Download Original</button></div>
-          <p className="text-sm text-gray-500 mb-3">Government Identity Verification (Aadhar Card)</p>
-          <div className="h-40 bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl flex items-center justify-center mb-4 border"><p className="text-amber-600 font-bold">AADHAR CARD</p></div>
-
-          <div className="mb-3"><p className="text-xs tracking-wider text-gray-500 mb-1">WORKER CLAIMED DETAILS</p><p className="font-semibold">Rajesh Kumar</p><p className="text-sm text-gray-500">ID: 4421-XXXX-XXXX-9901</p></div>
-
-          <div className="bg-green-50 rounded-xl p-3 flex items-start gap-2 mb-4">
-            <ShieldCheck className="w-5 h-5 text-green-600 mt-0.5" />
-            <div><p className="text-xs tracking-wider text-green-700 font-semibold">AI VERIFICATION RESULT</p><p className="text-sm text-green-700 font-medium">OCR Match: 98.4%</p><p className="text-xs text-green-600">Face biometric matches profile photo.</p></div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl p-4 border">
-          <h3 className="font-bold mb-2">Decision Panel</h3>
-          <p className="text-sm text-gray-500 mb-3">Finalize onboarding for this candidate.</p>
-          <p className="text-sm text-gray-600 italic mb-4">Checked local electrical board records. Certification is valid until Dec 2025. No criminal record found in regional database.</p>
-          <div className="space-y-3">
-            <button className="w-full border rounded-xl p-3 flex items-center gap-3 text-left"><Msg className="w-5 h-5 text-blue-500" /><div><p className="font-semibold text-sm">Request Clarification</p><p className="text-xs text-gray-400">Ask for a clearer image upload</p></div></button>
-            <button className="w-full border rounded-xl p-3 flex items-center gap-3 text-left"><AlertTriangle className="w-5 h-5 text-yellow-500" /><div><p className="font-semibold text-sm">Flag for Investigation</p><p className="text-xs text-gray-400">Mark as suspicious for senior review</p></div></button>
-            <div className="flex gap-3"><button className="flex-1 bg-red-600 text-white py-3 rounded-xl font-semibold">Reject</button><button className="flex-1 bg-green-600 text-white py-3 rounded-xl font-semibold">Approve</button></div>
-          </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold text-teal-800 bg-teal-50 px-3 py-1.5 rounded-xl border border-teal-200">
+            Auto-Verify AI: Active (98.4%)
+          </span>
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t max-w-md mx-auto">
-        <div className="flex justify-around py-3">
-          <Link href="/admin/overview" className="text-center"><Home className="w-5 h-5 text-gray-400 mx-auto" /><p className="text-xs text-gray-400">Home</p></Link>
-          <Link href="/admin/bookings" className="text-center"><Calendar className="w-5 h-5 text-gray-400 mx-auto" /><p className="text-xs text-gray-400">Bookings</p></Link>
-          <Link href="/chat/1" className="text-center"><MessageSquare className="w-5 h-5 text-gray-400 mx-auto" /><p className="text-xs text-gray-400">Chat</p></Link>
-          <Link href="/admin/users" className="text-center"><User className="w-5 h-5 text-gray-400 mx-auto" /><p className="text-xs text-gray-400">Profile</p></Link>
+      {/* 4 Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { icon: Clock, label: 'Pending Review', value: '24', sub: '+3 since morning', color: 'text-amber-600 bg-amber-50 border-amber-200' },
+          { icon: CheckCircle, label: 'Approved Today', value: '18', sub: '92% approval rate', color: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
+          { icon: XCircle, label: 'Rejected / Flagged', value: '05', sub: 'Missing documents', color: 'text-rose-600 bg-rose-50 border-rose-200' },
+          { icon: Users, label: 'Active Verified', value: '1,240', sub: 'Live in marketplace', color: 'text-teal-600 bg-teal-50 border-teal-200' },
+        ].map((s) => (
+          <div key={s.label} className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex items-center gap-4">
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center border ${s.color}`}>
+              <s.icon className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{s.label}</p>
+              <p className="text-2xl font-black text-slate-900">{s.value}</p>
+              <p className="text-xs text-slate-500">{s.sub}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* 2-Column Responsive Workspace on Desktop */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left 7 Columns: Queue Table */}
+        <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
+          <div className="p-5 border-b border-slate-200 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <h2 className="text-lg font-bold text-slate-900">Document Review Queue</h2>
+              <div className="flex gap-1.5 overflow-x-auto">
+                {['Pending', 'In Review', 'Flagged', 'History'].map((t, i) => (
+                  <button
+                    key={t}
+                    className={`px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap transition ${
+                      i === 0 ? 'bg-teal-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-2.5 flex items-center gap-2">
+              <Search className="w-4 h-4 text-slate-400" />
+              <input placeholder="Search candidate by name or ID..." className="bg-transparent outline-none text-xs flex-1 text-slate-800" />
+            </div>
+          </div>
+
+          <div className="overflow-x-auto flex-1">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider font-semibold border-b border-slate-200">
+                <tr>
+                  <th className="py-3 px-5">Candidate</th>
+                  <th className="py-3 px-4">Location</th>
+                  <th className="py-3 px-4">Status</th>
+                  <th className="py-3 px-5 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-slate-700">
+                {workers.map((w) => (
+                  <tr key={w.id} className="hover:bg-slate-50/80 transition">
+                    <td className="py-3.5 px-5">
+                      <p className="font-bold text-slate-900">{w.name}</p>
+                      <p className="text-xs text-slate-400">{w.id} • {w.role}</p>
+                    </td>
+                    <td className="py-3.5 px-4 text-xs text-slate-600">{w.loc}</td>
+                    <td className="py-3.5 px-4">
+                      <span className="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                        Pending
+                      </span>
+                    </td>
+                    <td className="py-3.5 px-5 text-right">
+                      <button className="px-3 py-1.5 rounded-lg bg-teal-600 text-white font-bold text-xs hover:bg-teal-700 transition">
+                        Inspect ID
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="p-4 border-t text-center text-xs text-slate-400 bg-slate-50">
+            Showing 3 of 24 pending applications
+          </div>
+        </div>
+
+        {/* Right 5 Columns: Document Inspector */}
+        <div className="lg:col-span-5 space-y-6">
+          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-bold text-slate-900">Document Inspector</h3>
+              <button className="text-teal-600 text-xs font-bold flex items-center gap-1 hover:underline">
+                <Download className="w-3 h-3" />Download Original
+              </button>
+            </div>
+            <p className="text-xs text-slate-500 mb-4">Government Identity Verification (Aadhaar Card)</p>
+
+            {/* Aadhaar Preview Card */}
+            <div className="h-44 bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100 rounded-2xl p-4 border-2 border-dashed border-amber-300 flex flex-col justify-between shadow-inner">
+              <div className="flex justify-between items-start">
+                <span className="text-[10px] font-black text-amber-900 tracking-wider uppercase">GOVERNMENT OF INDIA • UIDAI</span>
+                <span className="text-xs font-bold text-amber-700">आधार</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-14 h-16 bg-slate-200 rounded-lg border flex items-center justify-center text-[10px] font-bold text-slate-400">
+                  PHOTO
+                </div>
+                <div>
+                  <p className="font-black text-slate-900 text-sm">Rajesh Kumar</p>
+                  <p className="text-[11px] text-slate-600">DOB: 12/04/1985 • Male</p>
+                  <p className="font-mono font-bold text-slate-800 text-xs tracking-wider mt-1">4421-XXXX-XXXX-9901</p>
+                </div>
+              </div>
+              <div className="flex justify-between text-[9px] text-amber-800 font-bold border-t border-amber-200/60 pt-1">
+                <span>मेरा आधार, मेरी पहचान</span>
+                <span>BIOMETRIC ENCRYPTED</span>
+              </div>
+            </div>
+
+            <div className="mt-4 bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-start gap-2.5">
+              <ShieldCheck className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-bold text-emerald-800">AI VERIFICATION RESULT (98.4% Match)</p>
+                <p className="text-[11px] text-emerald-700">Face biometric matches selfie photo. Name & DOB match official registry.</p>
+              </div>
+            </div>
+
+            <div className="mt-5 space-y-2">
+              <p className="text-xs font-bold text-slate-700">Decision Panel</p>
+              <div className="grid grid-cols-2 gap-2">
+                <button className="py-2.5 px-3 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-700 font-bold text-xs transition">
+                  Request Re-upload
+                </button>
+                <button className="py-2.5 px-3 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl font-bold text-xs transition">
+                  Reject Profile
+                </button>
+              </div>
+              <button className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition">
+                Approve & Activate Worker
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

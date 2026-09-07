@@ -16,188 +16,170 @@ const transactions = [
   { id: 'TX-1092', name: 'Rajesh Kumar', service: 'Deep Cleaning', amount: '₹2,499', status: 'Completed' },
   { id: 'TX-1091', name: 'Priya Shah', service: 'AC Repair', amount: '₹1,200', status: 'Pending' },
   { id: 'TX-1090', name: 'Amit Patel', service: 'Home Painting', amount: '₹15,000', status: 'Completed' },
-  { id: 'TX-1089', name: 'Sunita G.', service: 'Plumbing', amount: '₹800', status: 'Failed' },
+  { id: 'TX-1089', name: 'Sunita G.', service: 'Plumbing', amount: '₹800', status: 'Failed' }
 ];
 
 export default function FinancialDashboard() {
   const [activeTab, setActiveTab] = useState<'revenue' | 'category'>('revenue');
 
   return (
-    <div className="max-w-md mx-auto min-h-screen bg-gray-50 pb-20">
-      <div className="bg-white p-4 flex items-center gap-3 border-b">
-        <Link href="/admin/overview"><ArrowLeft className="w-5 h-5" /></Link>
-        <h1 className="font-semibold text-lg flex-1">Financial Dashboard</h1>
-        <Bell className="w-5 h-5 text-gray-600" />
-        <div className="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center">
-          <User className="w-4 h-4 text-teal-600" />
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            Financial Dashboard & Revenue Analytics
+          </h1>
+          <p className="text-sm text-slate-500 mt-1">
+            Track gross booking volume, commission revenue, and service partner disbursements.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-xs transition">
+            <Download className="w-3.5 h-3.5" />
+            <span>Export Financial Audit</span>
+          </button>
         </div>
       </div>
 
-      <div className="px-4 mt-4">
-        <div className="flex items-center justify-between mb-1">
-          <h2 className="text-xl font-bold">Revenue Analytics</h2>
-          <div className="flex items-center gap-1 border rounded-full px-3 py-1 text-xs bg-white text-gray-700">
-            <Globe className="w-3 h-3 text-teal-600" /> English (English) ✓
-          </div>
-        </div>
-        <p className="text-xs text-gray-500 mb-4">Monitoring SahYog platform growth</p>
-
-        {/* Growth Overview card */}
-        <div className="bg-gradient-to-r from-teal-700 to-teal-600 rounded-2xl p-5 mb-4 text-white">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="font-bold text-lg">Growth Overview</p>
-              <p className="text-xs text-teal-100 mt-1 max-w-[220px]">Track platform commissions and service fee distributions in real-time.</p>
-            </div>
-            <span className="text-3xl">🌿</span>
-          </div>
-        </div>
-
-        {/* 2 stat cards row */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="bg-white rounded-xl p-4 border shadow-sm">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-base font-bold text-teal-600">₹</span>
-              <span className="text-xs font-semibold text-green-600 flex items-center"><TrendingUp className="w-3 h-3 mr-0.5" />+12.5%</span>
-            </div>
-            <p className="text-2xl font-bold text-gray-900">₹8.45L</p>
-            <p className="text-xs text-gray-500 tracking-wider mt-0.5 uppercase">Total Revenue</p>
-          </div>
-
-          <div className="bg-white rounded-xl p-4 border shadow-sm">
-            <div className="flex items-center justify-between mb-1">
-              <DollarSign className="w-4 h-4 text-teal-600" />
-              <span className="text-xs font-semibold text-green-600 flex items-center"><TrendingUp className="w-3 h-3 mr-0.5" />+8.2%</span>
-            </div>
-            <p className="text-2xl font-bold text-gray-900">₹84.5K</p>
-            <p className="text-xs text-gray-500 tracking-wider mt-0.5 uppercase">Platform Fee</p>
-          </div>
-        </div>
-
-        {/* Tabs */}
-        <div className="flex border-b mb-4">
-          <button
-            onClick={() => setActiveTab('revenue')}
-            className={`flex-1 py-2.5 text-sm font-semibold text-center border-b-2 transition ${activeTab === 'revenue' ? 'border-teal-600 text-teal-600' : 'border-transparent text-gray-400'}`}
-          >
-            Revenue
-          </button>
-          <button
-            onClick={() => setActiveTab('category')}
-            className={`flex-1 py-2.5 text-sm font-semibold text-center border-b-2 transition ${activeTab === 'category' ? 'border-teal-600 text-teal-600' : 'border-transparent text-gray-400'}`}
-          >
-            Category Split
-          </button>
-        </div>
-
-        {/* Earnings Trend Chart */}
-        <div className="bg-white rounded-xl p-4 border shadow-sm mb-4">
+      {/* 4 Responsive Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
           <div className="flex items-center justify-between mb-1">
-            <h3 className="font-bold text-sm text-gray-900">Earnings Trend</h3>
-            <span className="text-xs text-teal-600 font-medium cursor-pointer">Last 6 Months &gt;</span>
+            <span className="text-base font-black text-teal-600">₹</span>
+            <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">+12.5%</span>
           </div>
-          <p className="text-xs text-gray-400 mb-3">Monthly revenue vs commission growth</p>
-          <div className="h-44">
+          <p className="text-2xl lg:text-3xl font-black text-slate-900 mt-2">₹8.45L</p>
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-1">TOTAL REVENUE (GMV)</p>
+        </div>
+
+        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+          <div className="flex items-center justify-between mb-1">
+            <DollarSign className="w-5 h-5 text-indigo-600" />
+            <span className="text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full">+8.2%</span>
+          </div>
+          <p className="text-2xl lg:text-3xl font-black text-slate-900 mt-2">₹84.5K</p>
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-1">PLATFORM COMMISSION</p>
+        </div>
+
+        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+          <div className="flex items-center justify-between mb-1">
+            <CreditCard className="w-5 h-5 text-amber-600" />
+            <span className="text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">Weekly</span>
+          </div>
+          <p className="text-2xl lg:text-3xl font-black text-slate-900 mt-2">₹7.60L</p>
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-1">WORKER EARNINGS PAID</p>
+        </div>
+
+        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+          <div className="flex items-center justify-between mb-1">
+            <Sliders className="w-5 h-5 text-teal-600" />
+            <span className="text-xs font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full">Standard</span>
+          </div>
+          <p className="text-2xl lg:text-3xl font-black text-slate-900 mt-2">10%</p>
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-1">COMMISSION RATE</p>
+        </div>
+      </div>
+
+      {/* Recharts Area Graph */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h2 className="text-lg font-bold text-slate-900">Revenue & Commission Growth</h2>
+              <p className="text-xs text-slate-500">Monthly breakdown over the last 5 operational cycles</p>
+            </div>
+            <div className="flex items-center gap-3 text-xs font-semibold">
+              <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-teal-600" /> Revenue (₹)</span>
+              <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-indigo-600" /> Commission (₹)</span>
+            </div>
+          </div>
+
+          <div className="h-72 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={revenueData}>
-                <XAxis dataKey="month" tickLine={false} axisLine={false} tick={{ fontSize: 11 }} />
-                <YAxis hide />
-                <Tooltip formatter={(val: number) => [`₹${(val / 1000).toFixed(0)}k`, 'Amount']} />
-                <Area type="monotone" dataKey="revenue" stroke="#0d9488" fill="#0d9488" fillOpacity={0.15} strokeWidth={2} />
+                <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} tickLine={false} />
+                <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderRadius: '12px', color: '#fff' }} />
+                <Area type="monotone" dataKey="revenue" stroke="#0d9488" strokeWidth={2} fill="#0d9488" fillOpacity={0.12} />
+                <Area type="monotone" dataKey="commission" stroke="#6366f1" strokeWidth={2} fill="#6366f1" fillOpacity={0.15} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Financial Tools */}
-        <h3 className="font-bold text-sm text-gray-900 mb-2">Financial Tools</h3>
-        <div className="grid grid-cols-3 gap-2 mb-4">
-          <div className="bg-white border rounded-xl p-3 text-center shadow-sm cursor-pointer hover:bg-gray-50">
-            <Download className="w-5 h-5 text-teal-600 mx-auto mb-1" />
-            <p className="text-xs font-semibold text-gray-800">Export</p>
-            <p className="text-[10px] text-gray-400">Reports</p>
-          </div>
-          <div className="bg-white border rounded-xl p-3 text-center shadow-sm cursor-pointer hover:bg-gray-50">
-            <CreditCard className="w-5 h-5 text-teal-600 mx-auto mb-1" />
-            <p className="text-xs font-semibold text-gray-800">Bulk</p>
-            <p className="text-[10px] text-gray-400">Payouts</p>
-          </div>
-          <div className="bg-white border rounded-xl p-3 text-center shadow-sm cursor-pointer hover:bg-gray-50">
-            <Sliders className="w-5 h-5 text-teal-600 mx-auto mb-1" />
-            <p className="text-xs font-semibold text-gray-800">Tax</p>
-            <p className="text-[10px] text-gray-400">Settings</p>
-          </div>
-        </div>
-
-        {/* Recent Transactions */}
-        <div className="bg-white rounded-xl p-4 border shadow-sm mb-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-bold text-sm text-gray-900">Recent Transactions</h3>
-            <span className="text-xs text-teal-600 font-medium cursor-pointer">View All</span>
+        {/* Financial Tools & Milestone Card */}
+        <div className="space-y-6">
+          <div className="bg-slate-900 text-white rounded-2xl p-6 shadow-md">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-bold">Monthly Target</p>
+              <span className="text-base font-black text-teal-400">72%</span>
+            </div>
+            <p className="text-xs text-slate-400 mb-3">Goal: ₹10,00,000 GMV</p>
+            <div className="w-full bg-slate-700 rounded-full h-2.5 mb-2 overflow-hidden">
+              <div className="bg-teal-400 h-2.5 rounded-full" style={{ width: '72%' }} />
+            </div>
+            <p className="text-[11px] text-slate-400">₹2.8L remaining to hit monthly milestone target.</p>
           </div>
 
-          <div className="space-y-3">
-            {transactions.map((tx) => (
-              <div key={tx.id} className="flex items-center justify-between pb-2 border-b last:border-0 last:pb-0">
-                <div>
-                  <p className="font-semibold text-sm text-gray-900">{tx.name}</p>
-                  <p className="text-xs text-gray-500">{tx.service} • <span className="text-gray-400">{tx.id}</span></p>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-sm text-gray-900">{tx.amount}</p>
-                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full inline-block mt-0.5 ${
-                    tx.status === 'Completed' ? 'bg-green-50 text-green-700' :
-                    tx.status === 'Pending' ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700'
-                  }`}>
-                    {tx.status}
-                  </span>
-                </div>
+          <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-3">
+            <h3 className="font-bold text-slate-900 text-sm">Quick Financial Operations</h3>
+            <button className="w-full p-3 bg-slate-50 hover:bg-slate-100 rounded-xl text-left flex items-center gap-3 transition">
+              <Download className="w-4 h-4 text-teal-600" />
+              <div>
+                <p className="text-xs font-bold text-slate-800">Export Monthly Tax Invoices</p>
+                <p className="text-[10px] text-slate-400">GST 18% compliance sheets</p>
               </div>
-            ))}
+            </button>
+            <button className="w-full p-3 bg-slate-50 hover:bg-slate-100 rounded-xl text-left flex items-center gap-3 transition">
+              <CreditCard className="w-4 h-4 text-amber-600" />
+              <div>
+                <p className="text-xs font-bold text-slate-800">Initiate Worker Payout Batch</p>
+                <p className="text-[10px] text-slate-400">12 verified partners ready</p>
+              </div>
+            </button>
           </div>
-
-          <div className="mt-3 pt-2 border-t text-center">
-            <button className="text-xs text-teal-600 font-semibold hover:underline">Load More Transactions</button>
-          </div>
-        </div>
-
-        {/* Monthly Target card */}
-        <div className="bg-gray-900 text-white rounded-2xl p-4 mb-4">
-          <div className="flex items-center justify-between mb-1">
-            <p className="text-sm font-bold">Monthly Target</p>
-            <span className="text-sm font-extrabold text-teal-400">72%</span>
-          </div>
-          <p className="text-xs text-gray-400 mb-2">Platform revenue progress • Goal: ₹10L</p>
-          <div className="w-full bg-gray-700 rounded-full h-2 mb-2">
-            <div className="bg-teal-500 h-2 rounded-full" style={{ width: '72%' }} />
-          </div>
-          <p className="text-[11px] text-gray-400">₹2.8L remaining to hit May milestone.</p>
         </div>
       </div>
 
-      <button className="fixed bottom-20 right-6 w-12 h-12 bg-teal-600 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-teal-700 transition">
-        <Plus className="w-6 h-6" />
-      </button>
+      {/* Transactions Table */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <div className="p-5 border-b border-slate-200 flex justify-between items-center">
+          <h2 className="text-lg font-bold text-slate-900">Recent Settled Transactions</h2>
+          <span className="text-xs font-bold text-teal-700">Auto UPI Settlements</span>
+        </div>
 
-      {/* Bottom Nav */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t max-w-md mx-auto">
-        <div className="flex justify-around py-3">
-          <Link href="/admin/overview" className="text-center">
-            <Home className="w-5 h-5 text-teal-600 mx-auto" />
-            <p className="text-xs text-teal-600 font-medium">Home</p>
-          </Link>
-          <Link href="/admin/bookings" className="text-center">
-            <Calendar className="w-5 h-5 text-gray-400 mx-auto" />
-            <p className="text-xs text-gray-400">Bookings</p>
-          </Link>
-          <Link href="/chat/1" className="text-center">
-            <MessageSquare className="w-5 h-5 text-gray-400 mx-auto" />
-            <p className="text-xs text-gray-400">Chat</p>
-          </Link>
-          <Link href="/admin/users" className="text-center">
-            <User className="w-5 h-5 text-gray-400 mx-auto" />
-            <p className="text-xs text-gray-400">Profile</p>
-          </Link>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider font-semibold border-b border-slate-200">
+              <tr>
+                <th className="py-3 px-6">Transaction ID</th>
+                <th className="py-3 px-4">Service</th>
+                <th className="py-3 px-4">Partner</th>
+                <th className="py-3 px-4">Status</th>
+                <th className="py-3 px-6 text-right">Settled Amount</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 text-slate-700">
+              {transactions.map((tx) => (
+                <tr key={tx.id} className="hover:bg-slate-50/80 transition">
+                  <td className="py-3.5 px-6 font-mono font-bold text-teal-700">{tx.id}</td>
+                  <td className="py-3.5 px-4 font-semibold text-slate-900">{tx.service}</td>
+                  <td className="py-3.5 px-4 text-slate-600 text-xs">{tx.name}</td>
+                  <td className="py-3.5 px-4">
+                    <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold ${
+                      tx.status === 'Completed' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                      tx.status === 'Pending' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+                      'bg-rose-50 text-rose-700 border border-rose-200'
+                    }`}>
+                      {tx.status}
+                    </span>
+                  </td>
+                  <td className="py-3.5 px-6 text-right font-black text-slate-900">{tx.amount}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
