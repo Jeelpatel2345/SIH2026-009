@@ -164,16 +164,25 @@ export default function LoginPage() {
               </Link>
             </div>
 
-            <div className="mt-8">
-              <h1 className="text-2xl sm:text-3xl font-black leading-tight text-white">
+            <div className="mt-6">
+              {/* Home Services Illustration */}
+              <div className="rounded-2xl overflow-hidden border border-white/20 shadow-lg mb-4">
+                <img
+                  src="/images/home-services-banner.png"
+                  alt="Professional Home Services - SahYog"
+                  className="w-full h-28 sm:h-32 object-cover object-center"
+                  loading="eager"
+                />
+              </div>
+              <h1 className="text-xl sm:text-2xl font-black leading-tight text-white">
                 One-Time Password (OTP) Login
               </h1>
-              <p className="text-xs sm:text-sm text-emerald-100/90 mt-2 leading-relaxed">
+              <p className="text-xs text-emerald-100/90 mt-1.5 leading-relaxed">
                 Connect your account securely to our live cloud database. Your profile data syncs in real time across devices.
               </p>
             </div>
 
-            <div className="mt-6 space-y-2.5">
+            <div className="mt-5 space-y-2.5">
               <div className="flex items-center gap-2.5 text-xs bg-white/10 p-2.5 rounded-xl border border-white/10">
                 <CheckCircle className="w-4 h-4 text-amber-300 flex-shrink-0" />
                 <span>Instant 4-digit code directly to your phone</span>

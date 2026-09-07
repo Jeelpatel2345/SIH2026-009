@@ -8,6 +8,8 @@ import {
 } from 'lucide-react';
 import BottomNav from '@/components/BottomNav';
 
+import RealTrackingMap from '@/components/RealTrackingMap';
+
 export default function JobTrackingPage() {
   const router = useRouter();
   const [isCancelled, setIsCancelled] = useState(false);
@@ -21,15 +23,19 @@ export default function JobTrackingPage() {
   };
 
   return (
-    <div className="max-w-md mx-auto min-h-screen bg-white pb-24">
+    <div className="max-w-md mx-auto min-h-screen bg-slate-50 pb-24 text-slate-900">
       {/* Header */}
-      <div className="p-4 flex items-center gap-3 border-b sticky top-0 bg-white z-20">
-        <Link href="/customer/bookings"><ArrowLeft className="w-5 h-5 text-gray-700" /></Link>
-        <h1 className="font-semibold text-lg flex-1">Job Tracking</h1>
-        <Bell className="w-5 h-5 text-gray-600" />
-        <div className="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center">
-          <User className="w-4 h-4 text-teal-600" />
-        </div>
+      <div className="p-4 flex items-center gap-3 border-b sticky top-0 bg-white z-20 shadow-xs">
+        <Link href="/customer/bookings" className="p-1.5 rounded-lg hover:bg-slate-100 transition">
+          <ArrowLeft className="w-5 h-5 text-gray-700" />
+        </Link>
+        <h1 className="font-bold text-lg flex-1 text-slate-900">Live Job Tracking</h1>
+        <Link href="/notifications" className="p-1.5 rounded-lg hover:bg-slate-100 transition text-slate-600">
+          <Bell className="w-5 h-5" />
+        </Link>
+        <Link href="/profile" className="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center text-teal-800 font-bold text-xs">
+          JP
+        </Link>
       </div>
 
       {isCancelled ? (
@@ -58,14 +64,12 @@ export default function JobTrackingPage() {
         </div>
       ) : (
         <>
-          {/* Simulated Map */}
-          <div className="h-48 bg-gradient-to-br from-teal-100 via-teal-50 to-blue-50 flex items-center justify-center relative">
-            <div className="bg-white rounded-xl shadow-lg p-3 w-44 h-32 flex flex-col items-center justify-center border">
-              <MapPin className="w-8 h-8 text-teal-600 animate-bounce" />
-              <p className="text-xs font-bold text-gray-800 mt-1">Worker Moving</p>
-              <p className="text-[10px] text-gray-400">Live GPS Connected</p>
-            </div>
-          </div>
+          {/* Real Interactive OpenStreetMap */}
+          <RealTrackingMap 
+            workerName="Rajesh Kumar (Master Plumber)" 
+            customerAddress="B/402, Shanti Heights, Navrangpura, Ahmedabad"
+            initialDistanceKm={2.4}
+          />
 
           {/* Status Card */}
           <div className="px-4 -mt-4 relative z-10">
