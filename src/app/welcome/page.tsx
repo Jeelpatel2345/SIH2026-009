@@ -37,20 +37,11 @@ export default function WelcomePage() {
               </span>
             </div>
 
-            <div className="mt-5 md:mt-7">
-              {/* Home Services Illustration - fills space naturally */}
-              <div className="rounded-2xl overflow-hidden border border-white/20 shadow-lg mb-4">
-                <img
-                  src="/images/home-services-banner.png"
-                  alt="Professional Home Services"
-                  className="w-full h-32 sm:h-36 object-cover object-center"
-                  loading="eager"
-                />
-              </div>
-              <h1 className="text-xl sm:text-2xl font-black leading-tight text-white">
+            <div className="mt-6 md:mt-10">
+              <h1 className="text-2xl sm:text-3xl font-black leading-tight text-white">
                 Connecting Communities, Empowering Skills.
               </h1>
-              <p className="text-xs text-emerald-100/90 mt-1.5 leading-relaxed">
+              <p className="text-xs sm:text-sm text-emerald-100/90 mt-2 leading-relaxed">
                 Reliable household services and verified professional opportunities across Gujarat and India.
               </p>
             </div>
