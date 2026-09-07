@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f766e" />
+      <stop offset="100%" stop-color="#0d9488" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#000000" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  
+  <!-- App Background -->
+  <rect width="512" height="512" rx="128" fill="url(#grad)" />
+  
+  <!-- Inner circular badge -->
+  <circle cx="256" cy="256" r="180" fill="#ffffff" opacity="0.1" />
+
+  <!-- SahYog Handshake & Home Emblem -->
+  <g filter="url(#shadow)" fill="#ffffff">
+    <!-- Handshake / Connectivity motif -->
+    <path d="M256 120 L160 200 L180 200 L180 340 L332 340 L332 200 L352 200 Z" opacity="0.15" />
+    <path d="M256 140 C246 140 236 144 228 152 L150 230 C140 240 140 256 150 266 L160 276 C170 286 186 286 196 276 L230 242 L230 330 C230 344 242 356 256 356 C270 356 282 344 282 330 L282 242 L316 276 C326 286 342 286 352 276 L362 266 C372 256 372 240 362 230 L284 152 C276 144 266 140 256 140 Z" />
+    
+    <!-- Heart / Trust center element -->
+    <circle cx="256" cy="205" r="28" fill="#14b8a6" />
+  </g>
+  
+  <!-- Text Label -->
+  <text x="256" y="420" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="52" font-weight="900" fill="#ffffff" letter-spacing="4">SAHYOG</text>
+</svg>
