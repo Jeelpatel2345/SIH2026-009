@@ -1,34 +1,21 @@
 import { PrismaClient } from '@prisma/client';
+import { allWorkers, serviceCategories } from '../src/data/workersData';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Seeding database...');
+  console.log('🌱 Seeding database with 6 categories & workers...');
 
-  // Service categories
-  const cleaning = await prisma.serviceCategory.upsert({
-    where: { name: 'Cleaning' },
-    update: {},
-    create: { name: 'Cleaning', icon: 'Sparkles', partnerCount: 42 },
-  });
-
-  const plumbing = await prisma.serviceCategory.upsert({
-    where: { name: 'Plumbing' },
-    update: {},
-    create: { name: 'Plumbing', icon: 'Wrench', partnerCount: 18 },
-  });
-
-  const electrician = await prisma.serviceCategory.upsert({
-    where: { name: 'Electrician' },
-    update: {},
-    create: { name: 'Electrician', icon: 'Zap', partnerCount: 25 },
-  });
-
-  const repair = await prisma.serviceCategory.upsert({
-    where: { name: 'Repair' },
-    update: {},
-    create: { name: 'Repair', icon: 'Hammer', partnerCount: 31 },
-  });
+  // Upsert all 6 service categories
+  const categoryMap: Record<string, string> = {};
+  for (const cat of serviceCategories) {
+    const record = await prisma.serviceCategory.upsert({
+      where: { name: cat.name },
+      update: { partnerCount: cat.count, icon: cat.icon },
+      create: { name: cat.name, icon: cat.icon, partnerCount: cat.count },
+    });
+    categoryMap[cat.name] = record.id;
+  }
 
   // Admin user
   await prisma.user.upsert({
@@ -42,96 +29,49 @@ async function main() {
     },
   });
 
-  // Customer user
-  const customer = await prisma.user.upsert({
-    where: { phone: '+919876543210' },
-    update: {},
-    create: {
-      phone: '+919876543210',
-      fullName: 'Anjali Sharma',
-      role: 'CUSTOMER',
-      isVerified: true,
-      customerProfile: {
-        create: {
-          address: 'B/402, Shanti Heights, Sector 12',
-          city: 'Ahmedabad',
-          state: 'Gujarat',
-          pincode: '380015',
-        },
-      },
-    },
-  });
-
-  // Worker user
-  const workerUser = await prisma.user.upsert({
-    where: { phone: '+919123456789' },
-    update: {},
-    create: {
-      phone: '+919123456789',
-      fullName: 'Rajesh Kumar',
-      role: 'WORKER',
-      isVerified: true,
-      workerProfile: {
-        create: {
-          primaryWorkArea: 'Sector 14, Gurgaon',
-          yearsExperience: 8,
-          hourlyRate: 350,
-          bio: 'Professional Electrician with 8+ years experience in wiring, MCB, inverter setup.',
-          isOnline: true,
-          isDocVerified: true,
-          verificationStatus: 'APPROVED',
-          rating: 4.8,
-          totalJobs: 450,
-          languages: 'English, Hindi, Gujarati',
-        },
-      },
-    },
-    include: { workerProfile: true },
-  });
-
-  if (workerUser.workerProfile) {
-    // Add skills
-    await prisma.workerSkill.createMany({
-      data: [
-        { workerProfileId: workerUser.workerProfile.id, skillName: 'Wiring' },
-        { workerProfileId: workerUser.workerProfile.id, skillName: 'MCB Repair' },
-        { workerProfileId: workerUser.workerProfile.id, skillName: 'Inverter Setup' },
-        { workerProfileId: workerUser.workerProfile.id, skillName: 'AC Installation' },
-        { workerProfileId: workerUser.workerProfile.id, skillName: 'LED Lighting' },
-      ],
-    });
-
-    // Link category
-    await prisma.workerServiceCategory.upsert({
-      where: {
-        workerProfileId_serviceCategoryId: {
-          workerProfileId: workerUser.workerProfile.id,
-          serviceCategoryId: electrician.id,
-        },
-      },
+  // Seed workers into database
+  for (const w of allWorkers.slice(0, 20)) {
+    const workerUser = await prisma.user.upsert({
+      where: { phone: w.phone },
       update: {},
       create: {
-        workerProfileId: workerUser.workerProfile.id,
-        serviceCategoryId: electrician.id,
+        phone: w.phone,
+        fullName: w.name,
+        role: 'WORKER',
+        isVerified: true,
+        workerProfile: {
+          create: {
+            primaryWorkArea: `${w.locality}, ${w.city}`,
+            yearsExperience: w.exp,
+            hourlyRate: w.rate,
+            bio: w.bio,
+            isOnline: true,
+            isDocVerified: true,
+            verificationStatus: 'APPROVED',
+            rating: w.rating,
+            totalJobs: w.reviewsCount,
+            languages: w.languages.join(', '),
+          },
+        },
       },
+      include: { workerProfile: true },
     });
 
-    // Create a demo booking
-    await prisma.booking.create({
-      data: {
-        bookingCode: 'SY-9021',
-        customerId: customer.id,
-        workerProfileId: workerUser.workerProfile.id,
-        serviceTitle: 'Plumbing Repair',
-        scheduledDate: new Date(),
-        scheduledTime: '10:30 AM',
-        serviceLocation: 'Sector 45, Gurgaon',
-        totalAmount: 650,
-        status: 'IN_PROGRESS',
-        workerOtp: '5821',
-        trackingProgress: 65,
-      },
-    });
+    if (workerUser.workerProfile && categoryMap[w.category]) {
+      await prisma.workerServiceCategory.upsert({
+        where: {
+          workerProfileId_serviceCategoryId: {
+            workerProfileId: workerUser.workerProfile.id,
+            serviceCategoryId: categoryMap[w.category],
+          },
+        },
+        update: {},
+        create: {
+          workerProfileId: workerUser.workerProfile.id,
+          serviceCategoryId: categoryMap[w.category],
+        },
+      });
+    }
   }
 
   // Settings
@@ -146,7 +86,7 @@ async function main() {
     },
   });
 
-  console.log('✅ Seeding complete!');
+  console.log('✅ Seeding complete with 6 categories and verified workers!');
 }
 
 main()

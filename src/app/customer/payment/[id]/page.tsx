@@ -1,13 +1,14 @@
 'use client';
-import { useState } from 'react';
+import { useState, useMemo, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { 
   ArrowLeft, Bell, Info, CheckCircle2, CreditCard, Building, 
   Banknote, ShieldCheck, ChevronRight, User, ExternalLink, 
   Smartphone, QrCode, Lock, Sparkles, Check, Loader2, ArrowUpRight
 } from 'lucide-react';
 import BottomNav from '@/components/BottomNav';
+import { allWorkers } from '@/data/workersData';
 
 interface UpiApp {
   id: string;
@@ -53,15 +54,28 @@ const upiApps: UpiApp[] = [
   }
 ];
 
-export default function PaymentPage() {
+function PaymentContent({ params }: { params: { id: string } }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Dynamic parameters passed from booking screen
+  const rawAmount = searchParams.get('amount');
+  const amount = rawAmount ? parseInt(rawAmount) : 1250;
+  const durationHours = parseInt(searchParams.get('hours') || '4');
+
+  const worker = useMemo(() => {
+    return (
+      allWorkers.find((w) => w.id === params.id || w.id === `w-${params.id}`) ||
+      allWorkers[0]
+    );
+  }, [params.id]);
+
   const [selectedMethod, setSelectedMethod] = useState<'upi' | 'card' | 'netbanking' | 'cash'>('upi');
   const [selectedUpiApp, setSelectedUpiApp] = useState<string>('gpay');
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [showQrModal, setShowQrModal] = useState(false);
 
-  const amount = 1250;
   const bookingCode = 'SY-9021';
   const upiId = 'sahyogtrust@upi';
   const upiIntentUrl = `upi://pay?pa=${upiId}&pn=SahYog%20Services&mc=0000&tid=TX${Date.now().toString().slice(-6)}&tr=${bookingCode}&tn=SahYog%20Home%20Service%20Booking&am=${amount}&cu=INR`;
@@ -73,7 +87,6 @@ export default function PaymentPage() {
       ? `${schemePrefix}?pa=${upiId}&pn=SahYog%20Services&mc=0000&tr=${bookingCode}&tn=SahYog%20Booking&am=${amount}&cu=INR`
       : upiIntentUrl;
 
-    // Try to open the native UPI intent on mobile device
     try {
       window.location.href = intentToOpen;
     } catch {
@@ -86,32 +99,44 @@ export default function PaymentPage() {
       setPaymentSuccess(true);
       setTimeout(() => {
         router.push('/customer/tracking/1');
-      }, 1800);
-    }, 2200);
+      }, 2000);
+    }, 1800);
   };
 
+  // Breakdown figures based on dynamic amount
+  const baseServiceFee = Math.round(amount * 0.78);
+  const platformSafety = Math.round(amount * 0.05);
+  const gstAmount = amount - (baseServiceFee + platformSafety);
+
   return (
-    <div className="max-w-md mx-auto min-h-screen bg-slate-50 pb-36 text-slate-900">
+    <div className="min-h-screen bg-slate-50 pb-28 text-slate-900">
       {/* Top Header */}
-      <div className="bg-white/95 backdrop-blur-md p-4 flex items-center gap-3 border-b sticky top-0 z-20 shadow-xs">
-        <Link href="/customer/booking/1" className="p-1 hover:bg-slate-100 rounded-full transition">
-          <ArrowLeft className="w-5 h-5 text-slate-700" />
-        </Link>
-        <div className="flex-1">
-          <h1 className="font-bold text-base text-slate-900 leading-tight">Payment & Confirmation</h1>
-          <p className="text-[11px] text-emerald-700 font-semibold flex items-center gap-1">
-            <Lock className="w-3 h-3 text-emerald-600" /> 256-bit Encrypted Escrow
-          </p>
-        </div>
-        <div className="w-8 h-8 bg-emerald-100/80 rounded-full flex items-center justify-center text-emerald-800 font-bold text-xs">
-          AS
+      <div className="bg-[#042f2e] text-white border-b border-emerald-900/60 sticky top-0 z-30 shadow-md">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link
+              href={`/customer/booking/${worker.id}`}
+              className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition text-emerald-200"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
+            <div>
+              <h1 className="font-bold text-base sm:text-lg text-white leading-tight">Payment & Confirmation</h1>
+              <p className="text-[11px] text-emerald-300 font-medium flex items-center gap-1">
+                <Lock className="w-3 h-3 text-emerald-400" /> 256-bit Encrypted Escrow
+              </p>
+            </div>
+          </div>
+          <span className="text-xs bg-amber-400 text-emerald-950 font-bold px-2.5 py-1 rounded-full">
+            Final Step
+          </span>
         </div>
       </div>
 
       {/* Success Overlay */}
       {paymentSuccess && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white rounded-3xl p-6 text-center max-w-xs w-full shadow-2xl space-y-3">
+          <div className="bg-white rounded-3xl p-6 text-center max-w-sm w-full shadow-2xl space-y-3">
             <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-inner animate-bounce">
               <CheckCircle2 className="w-10 h-10" />
             </div>
@@ -130,7 +155,7 @@ export default function PaymentPage() {
       {/* Processing Overlay */}
       {isProcessing && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white rounded-3xl p-6 text-center max-w-xs w-full shadow-2xl space-y-3">
+          <div className="bg-white rounded-3xl p-6 text-center max-w-sm w-full shadow-2xl space-y-3">
             <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
               <Loader2 className="w-8 h-8 animate-spin" />
             </div>
@@ -142,194 +167,114 @@ export default function PaymentPage() {
         </div>
       )}
 
-      <div className="p-4 space-y-4">
+      <div className="max-w-3xl mx-auto px-3 sm:px-6 pt-4 sm:pt-6 space-y-5">
         {/* Booking Summary Card */}
-        <div className="bg-gradient-to-br from-[#042f2e] via-[#0d9488] to-[#059669] text-white rounded-3xl p-5 shadow-lg relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-10 -mt-10 pointer-events-none" />
+        <div className="bg-gradient-to-br from-[#042f2e] via-[#0d9488] to-[#059669] text-white rounded-3xl p-5 sm:p-7 shadow-lg relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-10 -mt-10 pointer-events-none" />
           
           <div className="flex items-center justify-between text-xs font-semibold text-emerald-100 mb-2">
             <span className="uppercase tracking-wider">Booking #SY-9021</span>
-            <span className="bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full text-white">Verified Order</span>
+            <span className="bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full text-white font-bold">
+              {durationHours} {durationHours === 1 ? 'Hour' : 'Hours'} Package
+            </span>
           </div>
 
-          <h2 className="text-xl font-black tracking-tight">Deep Cleaning Service</h2>
-          <p className="text-xs text-emerald-100 mt-1">📅 Tomorrow • 10:00 AM • 📍 Sector 45, Gurgaon</p>
+          <h2 className="text-xl sm:text-2xl font-black tracking-tight">{worker.title}</h2>
+          <p className="text-xs text-emerald-100 mt-1">
+            👤 Partner: <b className="text-white">{worker.name}</b> • 📍 {worker.locality}, {worker.city}
+          </p>
 
           <div className="mt-4 pt-3 border-t border-emerald-400/30 space-y-1.5 text-xs text-emerald-50">
-            <div className="flex justify-between"><span>Base Service Fee</span><span>₹ 1,000.00</span></div>
-            <div className="flex justify-between"><span>Platform Trust & Safety</span><span>₹ 70.00</span></div>
-            <div className="flex justify-between"><span>Applicable GST (18%)</span><span>₹ 180.00</span></div>
-            <div className="flex justify-between pt-2 border-t border-emerald-400/40 text-base font-black text-white">
+            <div className="flex justify-between">
+              <span>Service Package ({durationHours} Hrs)</span>
+              <span>₹ {baseServiceFee}.00</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Platform Trust, Safety & Escrow</span>
+              <span>₹ {platformSafety}.00</span>
+            </div>
+            <div className="flex justify-between">
+              <span>GST (18% Govt Tax)</span>
+              <span>₹ {gstAmount}.00</span>
+            </div>
+            <div className="flex justify-between text-base font-black text-amber-300 pt-2 border-t border-emerald-400/30">
               <span>Total Payable</span>
-              <span className="text-amber-300">₹ 1,250.00</span>
+              <span>₹ {amount}.00</span>
             </div>
           </div>
         </div>
 
-        {/* Payment Methods Selection */}
-        <div>
-          <h3 className="font-bold text-sm text-slate-900 mb-2 flex items-center justify-between">
-            <span>Choose Payment Method</span>
-            <span className="text-[11px] text-emerald-700 font-semibold flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> 100% Buyer Protection
+        {/* UPI Payment Methods */}
+        <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-xs space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
+              <Smartphone className="w-5 h-5 text-teal-700" />
+              <span>Instant UPI Payment (PhonePe, GPay, Paytm)</span>
+            </h3>
+            <span className="text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">
+              Zero Surcharge
             </span>
-          </h3>
-
-          <div className="grid grid-cols-2 gap-2 mb-3">
-            <button
-              onClick={() => setSelectedMethod('upi')}
-              className={`p-3 rounded-2xl border-2 text-left transition flex flex-col justify-between ${
-                selectedMethod === 'upi'
-                  ? 'border-emerald-600 bg-emerald-50/70 text-emerald-950 shadow-xs'
-                  : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
-              }`}
-            >
-              <div className="flex items-center justify-between w-full">
-                <span className="text-lg">⚡</span>
-                {selectedMethod === 'upi' && <CheckCircle2 className="w-4 h-4 text-emerald-600" />}
-              </div>
-              <div className="mt-2">
-                <p className="font-bold text-xs">UPI Apps</p>
-                <p className="text-[10px] text-slate-500">Google Pay, PhonePe</p>
-              </div>
-            </button>
-
-            <button
-              onClick={() => setSelectedMethod('card')}
-              className={`p-3 rounded-2xl border-2 text-left transition flex flex-col justify-between ${
-                selectedMethod === 'card'
-                  ? 'border-emerald-600 bg-emerald-50/70 text-emerald-950 shadow-xs'
-                  : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
-              }`}
-            >
-              <div className="flex items-center justify-between w-full">
-                <CreditCard className="w-5 h-5 text-slate-700" />
-                {selectedMethod === 'card' && <CheckCircle2 className="w-4 h-4 text-emerald-600" />}
-              </div>
-              <div className="mt-2">
-                <p className="font-bold text-xs">Debit / Credit Card</p>
-                <p className="text-[10px] text-slate-500">Visa, RuPay, Mastercard</p>
-              </div>
-            </button>
           </div>
 
-          {/* UPI Apps Specific Section */}
-          {selectedMethod === 'upi' && (
-            <div className="bg-white rounded-3xl p-4 border border-slate-200 shadow-sm space-y-3">
-              <div className="flex items-center justify-between pb-2 border-b">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900">
-                  <Smartphone className="w-4 h-4 text-emerald-600" />
-                  <span>Instant Pay via Installed App</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {upiApps.map((app) => (
+              <button
+                key={app.id}
+                type="button"
+                onClick={() => {
+                  setSelectedUpiApp(app.id);
+                  handleTriggerPayment(app.scheme);
+                }}
+                className={`p-4 rounded-2xl border-2 flex items-center justify-between text-left transition ${
+                  selectedUpiApp === app.id
+                    ? 'border-teal-600 bg-teal-50/50 shadow-xs'
+                    : 'border-slate-200 hover:border-slate-300 bg-slate-50'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-white shadow-xs border border-slate-200 flex items-center justify-center font-black text-xs text-teal-900">
+                    {app.name.slice(0, 2)}
+                  </div>
+                  <div>
+                    <span className="font-bold text-sm text-slate-900 block">{app.name}</span>
+                    <span className="text-[10px] text-teal-700 font-medium">Tap to pay ₹{amount}</span>
+                  </div>
                 </div>
-                <button
-                  onClick={() => setShowQrModal(true)}
-                  className="text-[11px] text-emerald-700 font-bold hover:underline flex items-center gap-1"
-                >
-                  <QrCode className="w-3.5 h-3.5" /> Show QR
-                </button>
-              </div>
+                <ArrowUpRight className="w-4 h-4 text-slate-400" />
+              </button>
+            ))}
+          </div>
 
-              <div className="space-y-2">
-                {upiApps.map((app) => (
-                  <button
-                    key={app.id}
-                    onClick={() => {
-                      setSelectedUpiApp(app.id);
-                      handleTriggerPayment(app.scheme);
-                    }}
-                    className={`w-full p-3 rounded-2xl flex items-center justify-between transition ${app.color} shadow-2xs`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-xl bg-white border border-slate-100 flex items-center justify-center font-black text-xs text-slate-800 shadow-xs">
-                        {app.id === 'gpay' ? 'GPay' : app.id === 'phonepe' ? 'Pe' : app.id === 'paytm' ? 'PTM' : 'UPI'}
-                      </div>
-                      <div className="text-left">
-                        <p className={`font-bold text-xs ${app.textColor}`}>{app.name}</p>
-                        <p className="text-[10px] text-slate-400">Tap to open app & pay</p>
-                      </div>
-                    </div>
+          {/* Direct Trigger Button */}
+          <button
+            type="button"
+            onClick={() => handleTriggerPayment()}
+            className="w-full bg-teal-700 hover:bg-teal-800 text-white font-bold py-3.5 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-teal-900/20 transition text-sm cursor-pointer"
+          >
+            <span>Pay ₹{amount}.00 with UPI</span>
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
 
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] bg-slate-100 font-bold px-2 py-0.5 rounded-full text-slate-600">
-                        {app.badge}
-                      </span>
-                      <ArrowUpRight className="w-4 h-4 text-slate-400" />
-                    </div>
-                  </button>
-                ))}
-              </div>
-
-              <div className="p-3 bg-amber-50/80 border border-amber-200/70 rounded-2xl text-[11px] text-amber-900 flex items-start gap-2">
-                <Sparkles className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-                <span>
-                  <b>100% Safe Escrow:</b> Amount is transferred to the worker only after you verify the job and share the completion confirmation code.
-                </span>
-              </div>
-            </div>
-          )}
-
-          {selectedMethod === 'card' && (
-            <div className="bg-white rounded-3xl p-4 border border-slate-200 shadow-sm space-y-3 text-xs">
-              <div>
-                <label className="font-semibold text-slate-700 block mb-1">Card Number</label>
-                <input placeholder="4532 •••• •••• 8921" className="w-full border rounded-xl p-2.5 bg-slate-50 outline-none" />
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Expiry Date</label>
-                  <input placeholder="MM/YY" className="w-full border rounded-xl p-2.5 bg-slate-50 outline-none" />
-                </div>
-                <div>
-                  <label className="font-semibold text-slate-700 block mb-1">CVV</label>
-                  <input type="password" maxLength={3} placeholder="•••" className="w-full border rounded-xl p-2.5 bg-slate-50 outline-none" />
-                </div>
-              </div>
-            </div>
-          )}
+        {/* SahYog Escrow Guarantee Banner */}
+        <div className="bg-slate-100 rounded-2xl p-4 flex items-center gap-3 border border-slate-200 text-xs text-slate-600">
+          <ShieldCheck className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+          <div>
+            <p className="font-bold text-slate-800">100% Escrow Protection Guaranteed</p>
+            <p className="text-[11px] text-slate-500">Your ₹{amount} is held safely until you verify the service completion OTP with the partner.</p>
+          </div>
         </div>
       </div>
 
-      {/* QR Code Modal */}
-      {showQrModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white rounded-3xl p-6 text-center max-w-xs w-full shadow-2xl space-y-3">
-            <h3 className="font-bold text-sm text-slate-900">Scan to Pay with Any UPI App</h3>
-            <div className="p-4 bg-slate-100 rounded-2xl mx-auto w-48 h-48 flex items-center justify-center border-2 border-dashed border-emerald-400">
-              <QrCode className="w-36 h-36 text-emerald-800" />
-            </div>
-            <p className="text-xs font-mono font-bold text-emerald-800">{upiId}</p>
-            <p className="text-[11px] text-slate-500">Amount: ₹{amount}.00</p>
-            <button
-              onClick={() => {
-                setShowQrModal(false);
-                handleTriggerPayment();
-              }}
-              className="w-full py-2.5 bg-emerald-600 text-white font-bold rounded-xl text-xs hover:bg-emerald-700 shadow-sm"
-            >
-              I Have Paid
-            </button>
-            <button
-              onClick={() => setShowQrModal(false)}
-              className="text-xs text-slate-400 hover:text-slate-600 font-medium"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Sticky Bottom CTA */}
-      <div className="fixed bottom-[53px] left-0 right-0 max-w-md mx-auto p-3.5 bg-white/95 backdrop-blur-md border-t border-slate-100 shadow-lg z-20">
-        <button
-          onClick={() => handleTriggerPayment()}
-          className="w-full py-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white rounded-2xl font-black text-base shadow-md flex items-center justify-center gap-2 transition"
-        >
-          <span>Pay ₹1,250 via {selectedMethod === 'upi' ? 'UPI' : 'Card'}</span>
-          <ChevronRight className="w-5 h-5" />
-        </button>
-      </div>
-
-      <BottomNav />
+      <BottomNav role="customer" />
     </div>
+  );
+}
+
+export default function PaymentPage({ params }: { params: { id: string } }) {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center text-slate-500 font-bold">Loading Payment Gateway...</div>}>
+      <PaymentContent params={params} />
+    </Suspense>
   );
 }
