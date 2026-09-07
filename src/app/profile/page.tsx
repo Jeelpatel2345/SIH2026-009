@@ -341,7 +341,22 @@ export default function ProfilePage() {
             ))}
           </div>
 
-          <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+          <div className="pt-3 border-t border-slate-100">
+            <Link
+              href="/download"
+              className="flex items-center justify-between p-3 rounded-2xl bg-teal-50 hover:bg-teal-100/80 border border-teal-200 transition text-teal-900"
+            >
+              <div className="flex items-center gap-2.5">
+                <Smartphone className="w-4 h-4 text-teal-700" />
+                <span className="text-xs font-bold">Download SahYog Android App (.APK)</span>
+              </div>
+              <span className="text-[11px] font-bold text-teal-700 bg-white px-2 py-0.5 rounded-lg border border-teal-300">
+                5.4 MB
+              </span>
+            </Link>
+          </div>
+
+          <div className="pt-2 flex items-center justify-between">
             <Link
               href="/admin/portal"
               className="text-xs font-bold text-teal-700 hover:underline flex items-center gap-1"

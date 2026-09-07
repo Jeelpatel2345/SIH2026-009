@@ -184,6 +184,13 @@ export default function WelcomePage() {
             <p className="text-[11px] text-slate-400 text-center">
               By continuing, you agree to SahYog's Terms and Privacy Policy.
             </p>
+
+            <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-100">
+              <Link href="/download" className="text-teal-700 hover:underline font-bold flex items-center gap-1">
+                <span>📲 Download Android APK (5.4 MB)</span>
+              </Link>
+              <span className="text-slate-400">v2.4.0 Native</span>
+            </div>
           </div>
         </div>
       </div>
