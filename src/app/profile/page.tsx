@@ -6,7 +6,7 @@ import {
   ArrowLeft, Bell, User, MapPin, Phone, Mail, ShieldCheck, 
   CreditCard, Globe, ChevronRight, LogOut, Heart, FileText, 
   HelpCircle, Settings, Camera, CheckCircle2, AlertCircle, 
-  Sparkles, Wrench, Clock, Star, Edit3, Plus, SwitchCamera
+  Sparkles, Wrench, Clock, Star, Edit3, Plus, SwitchCamera, Smartphone
 } from 'lucide-react';
 import BottomNav from '@/components/BottomNav';
 import { useAuthStore } from '@/store/authStore';
