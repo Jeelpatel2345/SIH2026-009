@@ -25,7 +25,7 @@ Shayog/
 | Project | Target | Platform | Live URL / Access |
 |---|---|---|---|
 | 📱 **Mobile Web App** | Smartphones & Tablets | Vercel | [https://shayog-rb55.vercel.app](https://shayog-rb55.vercel.app) |
-| 🌐 **Desktop Website** | PC & Laptops | Vercel | Deploy `website/` folder (Guide below) |
+| 🌐 **Desktop Website** | PC & Laptops | Vercel |[ Deploy `website/` folder (Guide below)](https://shayog-oidc.vercel.app/) |
 | 🔧 **Admin Portal** | Operations Team | Vercel | [https://shayog-rb55.vercel.app/admin/portal](https://shayog-rb55.vercel.app/admin/portal) |
 | 📲 **Android APK** | Android Devices | Direct Download | Served via `/sahyog.apk` (5.4 MB) |
 
