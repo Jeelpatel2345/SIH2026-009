@@ -95,12 +95,20 @@ export default function ProfilePage() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (e) {
+      console.error('Logout error:', e);
+    }
     logout();
-    localStorage.removeItem('sahyog-user-name');
-    localStorage.removeItem('sahyog-user-phone');
-    localStorage.removeItem('sahyog-role');
-    router.push('/welcome');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('sahyog-user-name');
+      localStorage.removeItem('sahyog-user-phone');
+      localStorage.removeItem('sahyog-role');
+      localStorage.removeItem('sahyog-user-bookings');
+      window.location.href = '/welcome';
+    }
   };
 
   const getInitials = (name: string) => {

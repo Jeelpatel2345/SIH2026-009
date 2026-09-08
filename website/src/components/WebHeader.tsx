@@ -21,7 +21,14 @@ export default function WebHeader() {
       const saved = localStorage.getItem('sahyog-user-name');
       if (saved) setClientName(saved);
       fetch('/api/user/profile')
-        .then((res) => (res.ok ? res.json() : null))
+        .then((res) => {
+          if (!res.ok) {
+            setClientName('');
+            localStorage.removeItem('sahyog-user-name');
+            return null;
+          }
+          return res.json();
+        })
         .then((data) => {
           if (data?.user?.fullName) {
             setClientName(data.user.fullName);
@@ -43,13 +50,21 @@ export default function WebHeader() {
 
   const initials = getInitials(displayName);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (e) {
+      console.error('Logout error:', e);
+    }
     logout();
+    setClientName('');
     if (typeof window !== 'undefined') {
       localStorage.removeItem('sahyog-user-name');
       localStorage.removeItem('sahyog-user-phone');
+      localStorage.removeItem('sahyog-role');
+      localStorage.removeItem('sahyog-user-bookings');
+      window.location.href = '/';
     }
-    router.push('/');
   };
 
   return (

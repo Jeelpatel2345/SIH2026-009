@@ -21,27 +21,36 @@ export default function WebProfilePage() {
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   useEffect(() => {
-    const savedName = fullName || localStorage.getItem('sahyog-user-name') || 'Jeel Patel';
-    const savedPhone = phone || localStorage.getItem('sahyog-user-phone') || '98765 43210';
-    setUserName(savedName);
-    setUserPhone(savedPhone);
-    setUserEmail('member@sahyog.in');
-    setUserCity('Ahmedabad, Gujarat');
-    setUserAddress('B/402, Shanti Heights, Sector 12, Navrangpura');
+    const savedName = fullName || (typeof window !== 'undefined' ? localStorage.getItem('sahyog-user-name') : '');
+    const savedPhone = phone || (typeof window !== 'undefined' ? localStorage.getItem('sahyog-user-phone') : '');
+    if (savedName) setUserName(savedName);
+    if (savedPhone) setUserPhone(savedPhone);
 
     fetch('/api/user/profile')
-      .then((res) => (res.ok ? res.json() : null))
+      .then((res) => {
+        if (!res.ok) {
+          router.push('/login');
+          return null;
+        }
+        return res.json();
+      })
       .then((data) => {
         if (data?.user) {
-          if (data.user.fullName) setUserName(data.user.fullName);
-          if (data.user.phone) setUserPhone(data.user.phone);
+          if (data.user.fullName) {
+            setUserName(data.user.fullName);
+            localStorage.setItem('sahyog-user-name', data.user.fullName);
+          }
+          if (data.user.phone) {
+            setUserPhone(data.user.phone);
+            localStorage.setItem('sahyog-user-phone', data.user.phone);
+          }
           if (data.user.email) setUserEmail(data.user.email);
           if (data.user.customerProfile?.city) setUserCity(data.user.customerProfile.city);
           if (data.user.customerProfile?.address) setUserAddress(data.user.customerProfile.address);
         }
       })
       .catch(() => {});
-  }, [fullName, phone]);
+  }, [fullName, phone, router]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,11 +88,20 @@ export default function WebProfilePage() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (e) {
+      console.error('Logout error:', e);
+    }
     logout();
-    localStorage.removeItem('sahyog-user-name');
-    localStorage.removeItem('sahyog-user-phone');
-    router.push('/');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('sahyog-user-name');
+      localStorage.removeItem('sahyog-user-phone');
+      localStorage.removeItem('sahyog-role');
+      localStorage.removeItem('sahyog-user-bookings');
+      window.location.href = '/';
+    }
   };
 
   const getInitials = (name: string) => {

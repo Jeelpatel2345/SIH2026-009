@@ -15,5 +15,20 @@ export async function getSession(): Promise<SessionPayload | null> {
 export function setSessionCookie(token: string) {
   const cookieStore = cookies(); cookieStore.set(COOKIE_NAME, token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', maxAge: 60*60*24*7, path: '/' });
 }
-export function clearSessionCookie() { const cookieStore = cookies(); cookieStore.delete(COOKIE_NAME); }
+export function clearSessionCookie() {
+  const cookieStore = cookies();
+  try {
+    cookieStore.set(COOKIE_NAME, '', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 0,
+      expires: new Date(0),
+      path: '/',
+    });
+    cookieStore.delete(COOKIE_NAME);
+  } catch {
+    try { cookieStore.delete(COOKIE_NAME); } catch {}
+  }
+}
 export function generateOTP(): string { return '1234'; }

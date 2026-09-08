@@ -25,7 +25,15 @@ export default function CustomerDashboardPage() {
 
       // Fetch live user & bookings
       fetch('/api/user/profile')
-        .then((res) => (res.ok ? res.json() : null))
+        .then((res) => {
+          if (!res.ok) {
+            setClientName('');
+            localStorage.removeItem('sahyog-user-name');
+            router.push('/login');
+            return null;
+          }
+          return res.json();
+        })
         .then((data) => {
           if (data?.user?.fullName) {
             setClientName(data.user.fullName);
