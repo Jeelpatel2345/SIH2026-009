@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { 
   ArrowLeft, Bell, Calendar, MapPin, Phone, MessageSquare, 
   Navigation, CheckCircle2, Clock, Search, Filter, ChevronRight, 
-  Home, User, AlertCircle, ExternalLink, ShieldCheck, Sparkles 
+  Home, User, AlertCircle, ExternalLink, ShieldCheck, Sparkles,
+  KeyRound, QrCode, Banknote, X, Loader2
 } from 'lucide-react';
 import RealTrackingMap from '@/components/RealTrackingMap';
 
@@ -19,9 +20,10 @@ interface JobBooking {
   date: string;
   time: string;
   amount: number;
-  paymentMode: 'Online Paid' | 'Cash on Delivery';
-  status: 'ACTIVE' | 'UPCOMING' | 'COMPLETED';
+  paymentMode: string;
+  status: 'ACTIVE' | 'IN_PROGRESS' | 'UPCOMING' | 'COMPLETED';
   distance: string;
+  otpVerified?: boolean;
 }
 
 const initialJobs: JobBooking[] = [
@@ -114,10 +116,82 @@ export default function WorkerBookingsPage() {
     }
   }, [router]);
 
-  const handleMarkCompleted = (id: string) => {
+  const [otpModalJob, setOtpModalJob] = useState<JobBooking | null>(null);
+  const [enteredOtp, setEnteredOtp] = useState('');
+  const [otpError, setOtpError] = useState('');
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
+  const [collectPaymentJob, setCollectPaymentJob] = useState<JobBooking | null>(null);
+  const [paymentDoneNotice, setPaymentDoneNotice] = useState('');
+
+  // Load live bookings from API
+  useEffect(() => {
+    fetch('/api/bookings')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.bookings && data.bookings.length > 0) {
+          const mapped: JobBooking[] = data.bookings.map((b: any) => ({
+            id: b.id,
+            service: b.serviceTitle || b.serviceName || 'Home Service',
+            category: 'Service',
+            customerName: b.customer?.fullName || 'Customer',
+            customerPhone: b.customer?.phone || '+91 98765 43210',
+            address: b.serviceLocation || 'Ahmedabad, Gujarat',
+            date: new Date(b.scheduledDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }),
+            time: b.scheduledTime || '10:00 AM',
+            amount: b.totalAmount || 650,
+            paymentMode: b.paymentTiming === 'AFTER_SERVICE' ? 'Cash / UPI on Arrival' : 'Online Paid',
+            status: (b.status === 'IN_PROGRESS' ? 'IN_PROGRESS' : b.status === 'COMPLETED' ? 'COMPLETED' : 'ACTIVE') as any,
+            distance: '1.8 km',
+            otpVerified: !!b.otpVerifiedAt,
+          }));
+          setJobs([...mapped, ...initialJobs.filter(ij => !mapped.some(m => m.id === ij.id))]);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleVerifyOtpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!otpModalJob) return;
+    setOtpError('');
+    setVerifyingOtp(true);
+
+    try {
+      const res = await fetch(`/api/bookings/${otpModalJob.id}/verify-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ otp: enteredOtp }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Incorrect OTP');
+      }
+
+      setJobs((prev) =>
+        prev.map((job) => (job.id === otpModalJob.id ? { ...job, status: 'IN_PROGRESS', otpVerified: true } : job))
+      );
+      setOtpModalJob(null);
+      setEnteredOtp('');
+    } catch (err: any) {
+      setOtpError(err.message || 'Incorrect 4-digit customer code');
+    } finally {
+      setVerifyingOtp(false);
+    }
+  };
+
+  const handleFinishAndCollect = (job: JobBooking) => {
+    setCollectPaymentJob(job);
+  };
+
+  const handleConfirmCollection = (method: 'UPI' | 'CASH') => {
+    if (!collectPaymentJob) return;
     setJobs((prev) =>
-      prev.map((job) => (job.id === id ? { ...job, status: 'COMPLETED' } : job))
+      prev.map((job) => (job.id === collectPaymentJob.id ? { ...job, status: 'COMPLETED' } : job))
     );
+    setPaymentDoneNotice(`Payment of ₹${collectPaymentJob.amount} collected via ${method}!`);
+    setTimeout(() => setPaymentDoneNotice(''), 4000);
+    setCollectPaymentJob(null);
   };
 
   const filteredJobs = jobs.filter((job) => {
@@ -281,45 +355,62 @@ export default function WorkerBookingsPage() {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex items-center gap-2 pt-1">
+                <div className="flex flex-col gap-2 pt-1">
                   {job.status !== 'COMPLETED' ? (
                     <>
-                      <button
-                        type="button"
-                        onClick={() => setActiveDirectionsJob(job)}
-                        className="flex-1 py-2 px-3 bg-teal-700 hover:bg-teal-800 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-xs transition"
-                      >
-                        <Navigation className="w-3.5 h-3.5" />
-                        <span>Directions</span>
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setActiveDirectionsJob(job)}
+                          className="flex-1 py-2 px-3 bg-teal-700 hover:bg-teal-800 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-xs transition"
+                        >
+                          <Navigation className="w-3.5 h-3.5" />
+                          <span>Directions</span>
+                        </button>
 
-                      <a
-                        href={`tel:${job.customerPhone}`}
-                        className="p-2 border border-slate-200 hover:bg-slate-50 rounded-xl text-slate-700 transition"
-                        title="Call Customer"
-                      >
-                        <Phone className="w-4 h-4 text-teal-700" />
-                      </a>
+                        <a
+                          href={`tel:${job.customerPhone}`}
+                          className="p-2 border border-slate-200 hover:bg-slate-50 rounded-xl text-slate-700 transition"
+                          title="Call Customer"
+                        >
+                          <Phone className="w-4 h-4 text-teal-700" />
+                        </a>
 
-                      <Link
-                        href="/chat/1"
-                        className="p-2 border border-slate-200 hover:bg-slate-50 rounded-xl text-slate-700 transition"
-                        title="Chat"
-                      >
-                        <MessageSquare className="w-4 h-4 text-teal-700" />
-                      </Link>
+                        <Link
+                          href="/chat/1"
+                          className="p-2 border border-slate-200 hover:bg-slate-50 rounded-xl text-slate-700 transition"
+                          title="Chat"
+                        >
+                          <MessageSquare className="w-4 h-4 text-teal-700" />
+                        </Link>
+                      </div>
 
-                      <button
-                        type="button"
-                        onClick={() => handleMarkCompleted(job.id)}
-                        className="py-2 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-xs rounded-xl transition flex items-center gap-1"
-                      >
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>Complete</span>
-                      </button>
+                      {job.status === 'ACTIVE' || job.status === 'UPCOMING' ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setOtpModalJob(job);
+                            setEnteredOtp('');
+                            setOtpError('');
+                          }}
+                          className="w-full py-2.5 px-3 bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-xs rounded-xl transition flex items-center justify-center gap-2 shadow-xs cursor-pointer"
+                        >
+                          <KeyRound className="w-4 h-4 text-slate-950" />
+                          <span>Arrived? Enter Customer 4-Digit OTP</span>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleFinishAndCollect(job)}
+                          className="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-xl transition flex items-center justify-center gap-2 shadow-xs cursor-pointer"
+                        >
+                          <CheckCircle2 className="w-4 h-4 text-white" />
+                          <span>Complete Job & Collect ₹{job.amount}</span>
+                        </button>
+                      )}
                     </>
                   ) : (
-                    <div className="w-full py-2 bg-emerald-50 text-emerald-800 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 border border-emerald-200">
+                    <div className="w-full py-2.5 bg-emerald-50 text-emerald-800 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 border border-emerald-200">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                       <span>Completed & Payment Credited (₹{job.amount})</span>
                     </div>
@@ -427,6 +518,120 @@ export default function WorkerBookingsPage() {
                 className="px-5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition"
               >
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {paymentDoneNotice && (
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-emerald-700 text-white font-bold text-xs px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2 animate-in fade-in slide-in-from-bottom-4">
+          <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+          <span>{paymentDoneNotice}</span>
+        </div>
+      )}
+
+      {/* Enter Customer 4-Digit OTP Modal */}
+      {otpModalJob && (
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-slate-100 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <KeyRound className="w-5 h-5 text-amber-500" />
+                <h3 className="font-black text-slate-900 text-base">Verify Customer OTP</h3>
+              </div>
+              <button 
+                onClick={() => setOtpModalJob(null)}
+                className="p-1 text-slate-400 hover:text-slate-600 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1">
+              <p className="font-bold text-slate-800">{otpModalJob.customerName}</p>
+              <p className="text-slate-500">{otpModalJob.service}</p>
+              <p className="text-slate-400 text-[11px]">{otpModalJob.address}</p>
+            </div>
+
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Ask {otpModalJob.customerName} for the <b>4-digit code</b> shown on their SahYog tracking screen to unlock the job.
+            </p>
+
+            {otpError && (
+              <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <span>{otpError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleVerifyOtpSubmit} className="space-y-4">
+              <div>
+                <input
+                  type="text"
+                  maxLength={4}
+                  value={enteredOtp}
+                  onChange={(e) => setEnteredOtp(e.target.value.replace(/\D/g, ''))}
+                  placeholder="e.g. 5821"
+                  className="w-full text-center tracking-widest text-3xl font-mono font-black py-3 border-2 border-amber-400 rounded-xl outline-none focus:ring-2 focus:ring-amber-400/30 text-slate-900 bg-amber-50/40"
+                  autoFocus
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={verifyingOtp || enteredOtp.length !== 4}
+                className="w-full bg-teal-700 hover:bg-teal-800 disabled:opacity-50 text-white font-black py-3 rounded-xl transition shadow-md flex items-center justify-center gap-2 text-xs cursor-pointer"
+              >
+                {verifyingOtp ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                <span>Verify & Start Service</span>
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Collect Payment Modal */}
+      {collectPaymentJob && (
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-slate-100 space-y-4 animate-in fade-in zoom-in-95 duration-200 text-center">
+            <div className="flex items-center justify-between text-left">
+              <div>
+                <h3 className="font-black text-slate-900 text-base">Job Complete • Collect Payment</h3>
+                <p className="text-xs text-slate-500">{collectPaymentJob.customerName}</p>
+              </div>
+              <button 
+                onClick={() => setCollectPaymentJob(null)}
+                className="p-1 text-slate-400 hover:text-slate-600 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+              <span className="text-[11px] font-bold text-slate-400 uppercase">Amount Due</span>
+              <div className="text-3xl font-black text-slate-900 mt-1">₹{collectPaymentJob.amount}</div>
+              <p className="text-xs text-emerald-700 font-semibold mt-1">Including all service charges</p>
+            </div>
+
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={() => handleConfirmCollection('UPI')}
+                className="w-full bg-teal-700 hover:bg-teal-800 text-white font-black py-3 rounded-xl transition flex items-center justify-center gap-2 text-xs cursor-pointer shadow-md"
+              >
+                <QrCode className="w-4 h-4 text-amber-300" />
+                <span>Customer Paid via UPI QR</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleConfirmCollection('CASH')}
+                className="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-3 rounded-xl transition flex items-center justify-center gap-2 text-xs cursor-pointer border border-slate-200"
+              >
+                <Banknote className="w-4 h-4 text-emerald-600" />
+                <span>Collected ₹{collectPaymentJob.amount} in Cash</span>
               </button>
             </div>
           </div>

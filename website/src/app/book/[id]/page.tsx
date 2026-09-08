@@ -26,6 +26,7 @@ export default function BookWorkerPage() {
   const [serviceAddress, setServiceAddress] = useState('B/402, Shanti Heights, Sector 12, Navrangpura, Ahmedabad');
   const [customerPhone, setCustomerPhone] = useState(phone || '98765 43210');
   const [notes, setNotes] = useState('');
+  const [paymentTiming, setPaymentTiming] = useState<'AFTER_SERVICE' | 'PAY_NOW'>('AFTER_SERVICE');
   const [loading, setLoading] = useState(false);
 
   // Price Calculation
@@ -51,6 +52,7 @@ export default function BookWorkerPage() {
     const tempId = 'bk_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
     let finalBookingId = tempId;
     let finalBookingCode = 'SY-' + Math.floor(1000 + Math.random() * 9000);
+    const generatedOtp = String(Math.floor(1000 + Math.random() * 9000));
 
     try {
       const res = await fetch('/api/bookings', {
@@ -71,6 +73,8 @@ export default function BookWorkerPage() {
           serviceFee: calculation.serviceFee,
           platformFee: calculation.platformFee,
           gstAmount: calculation.gst,
+          workerOtp: generatedOtp,
+          paymentTiming: paymentTiming,
           status: 'CONFIRMED',
           notes: notes,
         }),
@@ -104,7 +108,9 @@ export default function BookWorkerPage() {
           serviceLocation: serviceAddress,
           totalAmount: calculation.total,
           status: 'CONFIRMED',
-          paymentStatus: 'PENDING_UPI',
+          workerOtp: generatedOtp,
+          paymentTiming: paymentTiming,
+          paymentStatus: paymentTiming === 'AFTER_SERVICE' ? 'PENDING_POST_SERVICE' : 'PENDING_UPI',
           createdAt: new Date().toISOString(),
         };
 
@@ -116,17 +122,23 @@ export default function BookWorkerPage() {
     }
 
     setLoading(false);
-    // Navigate directly to 5-Minute UPI QR Payment Screen
-    const query = new URLSearchParams({
-      workerId: worker.id,
-      amount: String(calculation.total),
-      service: worker.title,
-      date: selectedDate,
-      time: selectedTime,
-      address: serviceAddress,
-    }).toString();
 
-    router.push(`/payment/${finalBookingId}?${query}`);
+    if (paymentTiming === 'AFTER_SERVICE') {
+      // Safe Pay After Service: go straight to live tracking with 4-Digit Arrival OTP
+      router.push(`/tracking/${finalBookingId}`);
+    } else {
+      // Prepay with SahYog Escrow: navigate to 5-Minute UPI QR Payment Screen
+      const query = new URLSearchParams({
+        workerId: worker.id,
+        amount: String(calculation.total),
+        service: worker.title,
+        date: selectedDate,
+        time: selectedTime,
+        address: serviceAddress,
+      }).toString();
+
+      router.push(`/payment/${finalBookingId}?${query}`);
+    }
   };
 
   const getInitials = (name: string) => {
@@ -339,7 +351,75 @@ export default function BookWorkerPage() {
                 />
               </div>
 
-              {/* Step 5: Price Breakdown Box */}
+              {/* Step 5: Trust-First Payment & Safety Option */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-700 block">
+                    Payment Preference & Protection (भुगतान विकल्प) *
+                  </label>
+                  <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                    SahYog Safe Shield
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setPaymentTiming('AFTER_SERVICE')}
+                    className={'p-4 rounded-2xl border text-left transition relative cursor-pointer ' + (
+                      paymentTiming === 'AFTER_SERVICE'
+                        ? 'border-emerald-600 bg-emerald-50/70 shadow-sm ring-2 ring-emerald-500/20'
+                        : 'border-slate-200 bg-white hover:bg-slate-50'
+                    )}
+                  >
+                    <span className="absolute -top-2.5 right-3 bg-emerald-600 text-white font-black text-[9px] px-2 py-0.5 rounded-full shadow-xs uppercase tracking-wide flex items-center gap-1">
+                      <ShieldCheck className="w-2.5 h-2.5" />
+                      ₹0 Upfront • Recommended
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
+                        <Check className="w-4 h-4 text-emerald-700" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-black text-slate-900">Pay After Service / Upon Arrival</div>
+                        <div className="text-[11px] text-emerald-700 font-bold mt-0.5">Pay ₹0 today</div>
+                      </div>
+                    </div>
+                    <p className="text-[11px] text-slate-600 mt-2 leading-relaxed">
+                      A secret 4-Digit Arrival OTP verifies your partner at the door. Pay via 5-min UPI QR or Cash only after work is completed!
+                    </p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPaymentTiming('PAY_NOW')}
+                    className={'p-4 rounded-2xl border text-left transition relative cursor-pointer ' + (
+                      paymentTiming === 'PAY_NOW'
+                        ? 'border-teal-600 bg-teal-50/70 shadow-sm ring-2 ring-teal-500/20'
+                        : 'border-slate-200 bg-white hover:bg-slate-50'
+                    )}
+                  >
+                    <span className="absolute -top-2.5 right-3 bg-teal-700 text-white font-black text-[9px] px-2 py-0.5 rounded-full shadow-xs uppercase tracking-wide">
+                      Escrow Protection
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-xl bg-teal-100 text-teal-800 flex items-center justify-center font-bold">
+                        <CreditCard className="w-4 h-4 text-teal-700" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-black text-slate-900">Pay Online Now</div>
+                        <div className="text-[11px] text-teal-700 font-bold mt-0.5">5-Minute UPI QR Code</div>
+                      </div>
+                    </div>
+                    <p className="text-[11px] text-slate-600 mt-2 leading-relaxed">
+                      Money held in SahYog Escrow and released only after Arrival OTP is verified. 100% instant refund if worker cancels.
+                    </p>
+                  </button>
+                </div>
+              </div>
+
+              {/* Step 6: Price Breakdown Box */}
               <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200 space-y-2.5 text-xs">
                 <div className="flex justify-between text-slate-600">
                   <span>Professional Service Fee:</span>
@@ -357,6 +437,11 @@ export default function BookWorkerPage() {
                   <span>Total Amount Payable:</span>
                   <span className="text-teal-700 text-lg">₹{calculation.total}</span>
                 </div>
+                {paymentTiming === 'AFTER_SERVICE' && (
+                  <div className="text-[11px] font-bold text-emerald-800 bg-emerald-100/60 px-3 py-1.5 rounded-lg text-center mt-1">
+                    Due after service completion • ₹0 payable right now
+                  </div>
+                )}
               </div>
 
               {/* CTA Button */}
@@ -364,15 +449,26 @@ export default function BookWorkerPage() {
                 type="button"
                 disabled={loading}
                 onClick={handleProceedToPayment}
-                className="w-full bg-teal-700 hover:bg-teal-800 text-white font-black py-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-sm cursor-pointer disabled:opacity-60"
+                className={`w-full font-black py-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-sm cursor-pointer disabled:opacity-60 ${
+                  paymentTiming === 'AFTER_SERVICE'
+                    ? 'bg-emerald-700 hover:bg-emerald-800 text-white shadow-emerald-900/10'
+                    : 'bg-teal-700 hover:bg-teal-800 text-white shadow-teal-900/10'
+                }`}
               >
                 {loading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Preparing Payment Session...</span>
+                    <span>Confirming Booking with OTP Security...</span>
+                  </>
+                ) : paymentTiming === 'AFTER_SERVICE' ? (
+                  <>
+                    <ShieldCheck className="w-5 h-5 text-amber-300" />
+                    <span>Confirm Booking (Pay ₹{calculation.total} After Service)</span>
+                    <ChevronRight className="w-4 h-4" />
                   </>
                 ) : (
                   <>
+                    <Sparkles className="w-4 h-4 text-amber-300" />
                     <span>Proceed to 5-Min UPI QR Payment (₹{calculation.total})</span>
                     <ChevronRight className="w-4 h-4" />
                   </>

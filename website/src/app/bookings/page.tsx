@@ -128,6 +128,17 @@ export default function MyBookingsPage() {
                       )}>
                         {b.status}
                       </span>
+                      {b.status !== 'COMPLETED' && (
+                        <span className="text-[10px] font-mono font-bold bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded-md flex items-center gap-1">
+                          <ShieldCheck className="w-3 h-3 text-amber-600" />
+                          Arrival OTP: {b.workerOtp || '5821'}
+                        </span>
+                      )}
+                      {b.paymentTiming === 'AFTER_SERVICE' && b.status !== 'COMPLETED' && (
+                        <span className="text-[10px] font-bold bg-teal-50 text-teal-800 border border-teal-200 px-2 py-0.5 rounded-md">
+                          Pay After Service
+                        </span>
+                      )}
                     </div>
                     <h3 className="text-lg font-bold text-slate-900 mt-2">{b.serviceName || b.serviceTitle || 'Home Service'}</h3>
                   </div>

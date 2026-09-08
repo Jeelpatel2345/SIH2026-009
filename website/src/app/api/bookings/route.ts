@@ -113,7 +113,8 @@ export async function POST(request: NextRequest) {
         platformFee: platformFee,
         gstAmount: gstAmount,
         paymentMethod: body.paymentMethod || 'UPI',
-        workerOtp: '5821',
+        workerOtp: body.workerOtp || String(Math.floor(1000 + Math.random() * 9000)),
+        paymentTiming: body.paymentTiming || 'AFTER_SERVICE',
         status: body.status || 'CONFIRMED',
       },
       include: {
