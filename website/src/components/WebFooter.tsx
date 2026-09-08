@@ -8,9 +8,7 @@ export default function WebFooter() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-emerald-900/40">
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-amber-400 text-emerald-950 font-black rounded-xl flex items-center justify-center text-base shadow-md">
-                SY
-              </div>
+              <img src="/logo.png" alt="SahYog" className="w-10 h-10 rounded-full object-cover shadow-md" />
               <span className="font-black text-2xl tracking-tight text-white">SahYog</span>
             </div>
             <p className="text-sm leading-relaxed text-emerald-200/70 max-w-sm">

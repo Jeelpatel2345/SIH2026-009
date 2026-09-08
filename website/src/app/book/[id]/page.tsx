@@ -27,7 +27,6 @@ export default function BookWorkerPage() {
   const [customerPhone, setCustomerPhone] = useState(phone || '98765 43210');
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
 
   // Price Calculation
   const calculation = useMemo(() => {
@@ -47,39 +46,87 @@ export default function BookWorkerPage() {
     return { serviceFee, platformFee, gst, total };
   }, [duration, hours, worker.rate]);
 
-  const handleConfirmBooking = async () => {
+  const handleProceedToPayment = async () => {
     setLoading(true);
+    const tempId = 'bk_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    let finalBookingId = tempId;
+    let finalBookingCode = 'SY-' + Math.floor(1000 + Math.random() * 9000);
+
     try {
       const res = await fetch('/api/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          workerId: worker.id,
+          workerProfileId: worker.id,
           workerName: worker.name,
+          serviceTitle: worker.title,
           serviceName: worker.title,
           category: worker.category,
-          date: selectedDate,
-          time: selectedTime,
-          duration: duration === 'hourly' ? (hours + ' Hours') : duration === 'halfDay' ? 'Half Day (4 Hours)' : 'Full Day (8 Hours)',
-          address: serviceAddress,
+          scheduledDate: selectedDate,
+          scheduledTime: selectedTime,
+          serviceLocation: serviceAddress,
           customerPhone: customerPhone,
+          customerName: fullName || 'Jeel Patel',
           totalAmount: calculation.total,
+          serviceFee: calculation.serviceFee,
+          platformFee: calculation.platformFee,
+          gstAmount: calculation.gst,
+          status: 'CONFIRMED',
           notes: notes,
         }),
       });
 
-      setSuccess(true);
-      setTimeout(() => {
-        router.push('/bookings');
-      }, 2000);
+      const data = await res.json();
+      if (data?.booking?.id) {
+        finalBookingId = data.booking.id;
+        finalBookingCode = data.booking.bookingCode || finalBookingCode;
+      }
     } catch (err) {
-      setSuccess(true);
-      setTimeout(() => {
-        router.push('/bookings');
-      }, 2000);
-    } finally {
-      setLoading(false);
+      console.warn('Network booking sync fallback to local store');
     }
+
+    // Always store to local storage so user sees it instantly
+    if (typeof window !== 'undefined') {
+      try {
+        const newBooking = {
+          id: finalBookingId,
+          serviceCode: finalBookingCode,
+          bookingCode: finalBookingCode,
+          workerId: worker.id,
+          workerName: worker.name,
+          serviceTitle: worker.title,
+          serviceName: worker.title,
+          scheduledDate: selectedDate,
+          bookingDate: selectedDate,
+          scheduledTime: selectedTime,
+          bookingTime: selectedTime,
+          address: serviceAddress,
+          serviceLocation: serviceAddress,
+          totalAmount: calculation.total,
+          status: 'CONFIRMED',
+          paymentStatus: 'PENDING_UPI',
+          createdAt: new Date().toISOString(),
+        };
+
+        const raw = localStorage.getItem('sahyog-user-bookings');
+        const list = raw ? JSON.parse(raw) : [];
+        list.unshift(newBooking);
+        localStorage.setItem('sahyog-user-bookings', JSON.stringify(list));
+      } catch {}
+    }
+
+    setLoading(false);
+    // Navigate directly to 5-Minute UPI QR Payment Screen
+    const query = new URLSearchParams({
+      workerId: worker.id,
+      amount: String(calculation.total),
+      service: worker.title,
+      date: selectedDate,
+      time: selectedTime,
+      address: serviceAddress,
+    }).toString();
+
+    router.push(`/payment/${finalBookingId}?${query}`);
   };
 
   const getInitials = (name: string) => {
@@ -87,22 +134,6 @@ export default function BookWorkerPage() {
     if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   };
-
-  if (success) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-3xl p-10 border border-slate-200 shadow-2xl text-center max-w-md space-y-4">
-          <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
-            <Check className="w-8 h-8 stroke-[3]" />
-          </div>
-          <h2 className="text-2xl font-black text-slate-900">Booking Confirmed!</h2>
-          <p className="text-xs text-slate-600">
-            Your service request with <b>{worker.name}</b> has been booked. Redirecting to your bookings dashboard...
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-slate-50 py-10">
@@ -326,26 +357,23 @@ export default function BookWorkerPage() {
                   <span>Total Amount Payable:</span>
                   <span className="text-teal-700 text-lg">₹{calculation.total}</span>
                 </div>
-                <p className="text-[11px] text-slate-500 pt-1">
-                  * Pay after service completion via UPI or Cash directly to the verified partner.
-                </p>
               </div>
 
-              {/* Confirm Button */}
+              {/* CTA Button */}
               <button
                 type="button"
                 disabled={loading}
-                onClick={handleConfirmBooking}
+                onClick={handleProceedToPayment}
                 className="w-full bg-teal-700 hover:bg-teal-800 text-white font-black py-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-sm cursor-pointer disabled:opacity-60"
               >
                 {loading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Confirming booking...</span>
+                    <span>Preparing Payment Session...</span>
                   </>
                 ) : (
                   <>
-                    <span>Confirm & Book for ₹{calculation.total}</span>
+                    <span>Proceed to 5-Min UPI QR Payment (₹{calculation.total})</span>
                     <ChevronRight className="w-4 h-4" />
                   </>
                 )}

@@ -61,9 +61,7 @@ export default function CustomerDashboard() {
       <header className="hidden md:block bg-[#042f2e] border-b border-emerald-900/50 sticky top-0 z-30 shadow-md">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center font-black text-emerald-950 text-sm shadow-md">
-              SY
-            </div>
+            <img src="/logo.png" alt="SahYog" className="w-9 h-9 rounded-full object-cover shadow-md" />
             <div>
               <span className="font-black text-lg tracking-tight text-white">SahYog</span>
               <span className="ml-2 text-[10px] font-bold bg-amber-400/20 text-amber-300 border border-amber-400/40 px-2 py-0.5 rounded">
@@ -117,9 +115,7 @@ export default function CustomerDashboard() {
           {/* Mobile top bar */}
           <div className="md:hidden flex items-center justify-between pb-3 border-b border-white/10">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-white/15 backdrop-blur-md flex items-center justify-center font-black text-sm text-amber-300 border border-white/20">
-                SY
-              </div>
+              <img src="/logo.png" alt="SahYog" className="w-8 h-8 rounded-full object-cover shadow-sm" />
               <div>
                 <h1 className="font-black text-base tracking-tight leading-none text-white">SahYog</h1>
                 <span className="text-[9px] text-emerald-200 font-medium tracking-wider uppercase">Community Hub</span>

@@ -1,17 +1,9 @@
 'use client';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { LayoutDashboard, ShieldCheck, Calendar, DollarSign, Users, Settings, LogOut, TrendingUp, Clock, Search, Filter, Download, Info, Briefcase } from 'lucide-react';
+import { LayoutDashboard, ShieldCheck, Calendar, DollarSign, Users, Settings, LogOut, TrendingUp, Clock, Search, Filter, Download, Info, Briefcase, RefreshCw } from 'lucide-react';
 
-const sidebarItems = [
-  { icon: LayoutDashboard, label: 'Overview', href: '/admin/overview' },
-  { icon: ShieldCheck, label: 'Verification', href: '/admin/verification' },
-  { icon: Calendar, label: 'Bookings', href: '/admin/bookings', active: true },
-  { icon: DollarSign, label: 'Financials', href: '/admin/financials' },
-  { icon: Users, label: 'Users', href: '/admin/users' },
-  { icon: Settings, label: 'Settings', href: '/admin/settings' },
-];
-
-const bookings = [
+const defaultBookings = [
   { id: 'BK-8291', service: 'Deep Cleaning', customer: 'Anjali S.', status: 'Completed', amount: '₹1,250' },
   { id: 'BK-8292', service: 'Plumbing Repair', customer: 'Rahul V.', status: 'In Progress', amount: '₹650' },
   { id: 'BK-8293', service: 'Electrical Fix', customer: 'Priya P.', status: 'Pending', amount: '₹450' },
@@ -19,6 +11,33 @@ const bookings = [
 ];
 
 export default function AdminBookingsPage() {
+  const [bookingList, setBookingList] = useState(defaultBookings);
+  const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const fetchLiveBookings = () => {
+    setLoading(true);
+    fetch('/api/bookings')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.bookings && data.bookings.length > 0) {
+          const formatted = data.bookings.map((b: any) => ({
+            id: b.bookingCode || b.id.slice(0, 7).toUpperCase(),
+            service: b.serviceTitle || 'Home Service',
+            customer: b.customer?.fullName || 'Jeel Patel',
+            status: b.status === 'CONFIRMED' ? 'Confirmed' : b.status === 'IN_PROGRESS' ? 'In Progress' : 'Pending',
+            amount: '₹' + b.totalAmount,
+          }));
+          setBookingList(formatted);
+        }
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchLiveBookings();
+  }, []);
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -67,7 +86,12 @@ export default function AdminBookingsPage() {
             <div className="flex gap-2">
               <div className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 flex items-center gap-2">
                 <Search className="w-4 h-4 text-slate-400" />
-                <input placeholder="Search bookings..." className="bg-transparent outline-none text-xs text-slate-800" />
+                <input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search bookings..."
+                  className="bg-transparent outline-none text-xs text-slate-800"
+                />
               </div>
               <button className="border border-slate-200 rounded-xl px-3 flex items-center text-slate-600 hover:bg-slate-50">
                 <Filter className="w-4 h-4" />
@@ -88,7 +112,15 @@ export default function AdminBookingsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
-              {bookings.map((b) => (
+              {bookingList
+                .filter(
+                  (b) =>
+                    !search ||
+                    b.service.toLowerCase().includes(search.toLowerCase()) ||
+                    b.customer.toLowerCase().includes(search.toLowerCase()) ||
+                    b.id.toLowerCase().includes(search.toLowerCase())
+                )
+                .map((b) => (
                 <tr key={b.id} className="hover:bg-slate-50/80 transition">
                   <td className="py-3.5 px-6 font-mono font-bold text-teal-700">{b.id}</td>
                   <td className="py-3.5 px-4 font-semibold text-slate-900">{b.service}</td>

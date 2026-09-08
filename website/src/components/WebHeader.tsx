@@ -58,9 +58,7 @@ export default function WebHeader() {
         <div className="flex items-center justify-between h-20">
           {/* Brand Logo */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-11 h-11 bg-gradient-to-br from-amber-400 to-amber-500 rounded-xl flex items-center justify-center font-black text-emerald-950 text-base shadow-md group-hover:scale-105 transition">
-              SY
-            </div>
+            <img src="/logo.png" alt="SahYog" className="w-11 h-11 rounded-full object-cover shadow-md group-hover:scale-105 transition" />
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-black text-2xl tracking-tight text-white">SahYog</span>

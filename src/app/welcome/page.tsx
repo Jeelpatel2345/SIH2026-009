@@ -37,9 +37,7 @@ export default function WelcomePage() {
             {/* Top Brand Bar */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 bg-amber-400 text-emerald-950 font-black rounded-xl flex items-center justify-center shadow-md text-base">
-                  SY
-                </div>
+                <img src="/logo.png" alt="SahYog" className="w-10 h-10 rounded-full object-cover shadow-md" />
                 <div>
                   <h2 className="font-black text-lg tracking-tight text-white leading-none">SahYog</h2>
                   <span className="text-[10px] text-emerald-200 uppercase tracking-wider font-semibold">Community Hub</span>
