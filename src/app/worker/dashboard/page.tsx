@@ -302,7 +302,7 @@ export default function WorkerDashboard() {
                 </button>
 
                 <Link
-                  href="/chat/1"
+                  href="/chat/1?role=worker"
                   className="p-2.5 border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl flex items-center justify-center transition relative"
                   title="Chat with Customer"
                 >
@@ -453,7 +453,7 @@ export default function WorkerDashboard() {
           </Link>
 
           <Link 
-            href="/chat/1" 
+            href="/chat/1?role=worker" 
             className="flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-slate-600 group relative"
           >
             <div className="p-1 rounded-xl relative">
@@ -666,7 +666,7 @@ export default function WorkerDashboard() {
               </a>
 
               <Link
-                href="/chat/1"
+                href="/chat/1?role=worker"
                 className="w-full py-3 bg-teal-700 hover:bg-teal-800 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-xs transition"
               >
                 <MessageSquare className="w-4 h-4" />

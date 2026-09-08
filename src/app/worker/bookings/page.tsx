@@ -377,9 +377,9 @@ export default function WorkerBookingsPage() {
                         </a>
 
                         <Link
-                          href="/chat/1"
+                          href="/chat/1?role=worker"
                           className="p-2 border border-slate-200 hover:bg-slate-50 rounded-xl text-slate-700 transition"
-                          title="Chat"
+                          title="Chat with Customer"
                         >
                           <MessageSquare className="w-4 h-4 text-teal-700" />
                         </Link>
@@ -445,7 +445,7 @@ export default function WorkerBookingsPage() {
           </Link>
 
           <Link 
-            href="/chat/1" 
+            href="/chat/1?role=worker" 
             className="flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-slate-600 group relative"
           >
             <div className="p-1 rounded-xl relative">

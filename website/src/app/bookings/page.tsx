@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { 
   Calendar, Clock, MapPin, CheckCircle, ArrowRight, 
   ShieldCheck, AlertCircle, Sparkles, ChevronRight, Phone, 
-  Navigation, RefreshCw, MessageSquare 
+  Navigation, RefreshCw, MessageSquare, RotateCcw 
 } from 'lucide-react';
 import WorkerChatDrawer from '@/components/WorkerChatDrawer';
 
@@ -150,22 +150,63 @@ export default function MyBookingsPage() {
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => setSelectedChatBooking(b)}
-                        className="bg-slate-100 hover:bg-teal-50 hover:text-teal-700 text-slate-700 text-xs font-bold px-3 py-2.5 rounded-xl border border-slate-200 transition flex items-center gap-1.5"
-                        title="Chat with assigned partner"
-                      >
-                        <MessageSquare className="w-3.5 h-3.5 text-teal-600" />
-                        <span>Chat</span>
-                      </button>
+                      {b.status === 'COMPLETED' ? (
+                        <>
+                          <a
+                            href={`tel:${b.workerPhone || '+919876543210'}`}
+                            className="p-2.5 bg-slate-100 hover:bg-teal-50 hover:text-teal-700 text-slate-700 rounded-xl border border-slate-200 transition flex items-center gap-1.5 text-xs font-bold"
+                            title="Call Worker / Partner"
+                          >
+                            <Phone className="w-3.5 h-3.5 text-teal-600" />
+                            <span>Call</span>
+                          </a>
 
-                      <Link
-                        href={`/tracking/${b.id}`}
-                        className="bg-teal-700 hover:bg-teal-800 text-white text-xs font-black px-4 py-2.5 rounded-xl shadow-xs transition flex items-center gap-1.5"
-                      >
-                        <Navigation className="w-3.5 h-3.5" />
-                        <span>Track Live GPS</span>
-                      </Link>
+                          <button
+                            onClick={() => setSelectedChatBooking(b)}
+                            className="p-2.5 bg-slate-100 hover:bg-teal-50 hover:text-teal-700 text-slate-700 rounded-xl border border-slate-200 transition flex items-center gap-1.5 text-xs font-bold cursor-pointer"
+                            title="Chat with assigned partner"
+                          >
+                            <MessageSquare className="w-3.5 h-3.5 text-teal-600" />
+                            <span>Chat</span>
+                          </button>
+
+                          <Link
+                            href="/services"
+                            className="bg-teal-700 hover:bg-teal-800 text-white text-xs font-black px-3.5 py-2.5 rounded-xl shadow-xs transition flex items-center gap-1.5"
+                            title="Book service again"
+                          >
+                            <RotateCcw className="w-3.5 h-3.5" />
+                            <span>Re-book</span>
+                          </Link>
+                        </>
+                      ) : (
+                        <>
+                          <a
+                            href={`tel:${b.workerPhone || '+919876543210'}`}
+                            className="p-2.5 bg-slate-100 hover:bg-teal-50 hover:text-teal-700 text-slate-700 rounded-xl border border-slate-200 transition flex items-center justify-center"
+                            title="Call Worker"
+                          >
+                            <Phone className="w-3.5 h-3.5 text-teal-600" />
+                          </a>
+
+                          <button
+                            onClick={() => setSelectedChatBooking(b)}
+                            className="bg-slate-100 hover:bg-teal-50 hover:text-teal-700 text-slate-700 text-xs font-bold px-3 py-2.5 rounded-xl border border-slate-200 transition flex items-center gap-1.5 cursor-pointer"
+                            title="Chat with assigned partner"
+                          >
+                            <MessageSquare className="w-3.5 h-3.5 text-teal-600" />
+                            <span>Chat</span>
+                          </button>
+
+                          <Link
+                            href={`/tracking/${b.id}`}
+                            className="bg-teal-700 hover:bg-teal-800 text-white text-xs font-black px-4 py-2.5 rounded-xl shadow-xs transition flex items-center gap-1.5"
+                          >
+                            <Navigation className="w-3.5 h-3.5" />
+                            <span>Track Live GPS</span>
+                          </Link>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>

@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
 import { 
-  Bot, X, Send, Sparkles, Minimize2, Maximize2, RefreshCw 
+  Bot, X, Send, Sparkles, Minimize2, Maximize2, RefreshCw, ArrowRight 
 } from 'lucide-react';
+import { diagnoseUserQuery } from '@/lib/aiDiagnosticEngine';
 
 interface ChatMessage {
   id: string;
@@ -11,6 +13,9 @@ interface ChatMessage {
   senderName: string;
   text: string;
   time: string;
+  recommendedWorker?: string | null;
+  actionText?: string;
+  actionHref?: string;
 }
 
 const initialAIMessages: ChatMessage[] = [
@@ -18,17 +23,19 @@ const initialAIMessages: ChatMessage[] = [
     id: 'ai-1',
     sender: 'ai',
     senderName: 'SahYog AI Assistant',
-    text: 'Namaste! 🙏 I am your SahYog AI Assistant (सहयोग मित्र). I can help you diagnose household repair problems, calculate service charges, and assist you in English, हिन्दी, and ગુજરાતી. How can I help you today?',
-    time: 'Just now'
+    text: 'Namaste! 🙏 I am your SahYog AI Assistant (सहयोग मित्र).\n\nAsk me **ANY manual question** about home repair issues (e.g. *"my sink is leaking"*, *"fan is sparking"*, *"what type of worker should I book?"*), pricing, or 4-digit arrival OTP protection. How can I help you today?',
+    time: 'Just now',
+    actionText: 'What type of worker should I book? →',
+    actionHref: '/services'
   }
 ];
 
-const aiPrompts = [
-  '💧 Kitchen sink leaking repair cost',
-  '⚡ AC trips MCB switch repeatedly',
+const defaultPrompts = [
+  '💧 What worker to book for water leakage?',
+  '⚡ AC trips MCB repeatedly',
   '💰 3BHK Deep Cleaning estimate',
   '🛡️ How does arrival OTP protect me?',
-  '🔨 Furniture repair visit cost'
+  '🪚 Door lock is jammed repair cost'
 ];
 
 export default function FloatingChatbot() {
@@ -39,6 +46,7 @@ export default function FloatingChatbot() {
   const [aiMessages, setAiMessages] = useState<ChatMessage[]>(initialAIMessages);
   const [aiInput, setAiInput] = useState('');
   const [isAiTyping, setIsAiTyping] = useState(false);
+  const [activePrompts, setActivePrompts] = useState<string[]>(defaultPrompts);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -48,7 +56,7 @@ export default function FloatingChatbot() {
     }
   }, [isOpen, aiMessages, isAiTyping]);
 
-  // Handle AI send
+  // Handle AI send with full diagnostic intelligence
   const handleSendAI = (promptText?: string) => {
     const query = promptText || aiInput;
     if (!query.trim()) return;
@@ -65,41 +73,53 @@ export default function FloatingChatbot() {
     if (!promptText) setAiInput('');
     setIsAiTyping(true);
 
+    // Run query through our advanced multi-language diagnosis engine
     setTimeout(() => {
-      let reply = 'I understand your query! For verified service in your area, our standard rate is transparent and covered by the SahYog Protection Guarantee.';
-      const lower = query.toLowerCase();
-
-      if (lower.includes('sink') || lower.includes('leak') || lower.includes('water')) {
-        reply = '🔧 Leakage Guide:\n1. First, turn the shutoff valve clockwise under the sink to stop water flow.\n2. Most sink leaks stem from worn P-trap washers or loose compression nuts.\n3. A verified plumber carries waterproof sealant and spare fittings. Estimated fix cost: ₹350 - ₹450.';
-      } else if (lower.includes('mcb') || lower.includes('ac') || lower.includes('tripping') || lower.includes('electric')) {
-        reply = '⚡ Safety Alert:\n1. Avoid repeatedly turning the MCB on if it immediately trips—it indicates an overload or short circuit.\n2. Turn off the AC indoor unit from the remote first.\n3. A certified electrician can measure compressor amp draw and examine the wiring. Platform visit charge is ₹350 flat.';
-      } else if (lower.includes('cost') || lower.includes('rate') || lower.includes('clean') || lower.includes('price')) {
-        reply = '💰 Pricing Transparency:\n- Deep Home Cleaning (3BHK): ₹1,800 - ₹2,400\n- Single Room / Kitchen Deep Clean: ₹699 - ₹899\n- Plumbing/Electrical labor: ₹350/hr flat rate\nAll rates are GST inclusive with zero hidden visit charges!';
-      } else if (lower.includes('otp') || lower.includes('safe') || lower.includes('safety')) {
-        reply = '🛡️ SahYog Safety Protocol:\nNever share your 4-digit arrival OTP until the verified worker is physically in front of your doorstep. The OTP unlocks the escrow payment release and records the exact start time of the job.';
-      } else if (lower.includes('ગુજરાતી') || lower.includes('gujarati')) {
-        reply = '🙏 નમસ્તે! સહયોગ પ્લેટફોર્મ પર તમારું સ્વાગત છે. તમારા ઘરના સમારકામ કે પ્લમ્બિંગ માટે અમે 100% વેરિફાઇડ કારીગરો ઉપલબ્ધ કરાવીએ છીએ. તમને કઈ સેવાની જરૂર છે?';
-      } else if (lower.includes('hindi') || lower.includes('हिन्दी')) {
-        reply = '🙏 नमस्ते! सहयोग प्लेटफॉर्म आपकी सेवा में तैयार है। आप किसी भी घरेलू समस्या के लिए सीधे हमारे वेरिफाइड कारीगरों से संपर्क कर सकते हैं।';
-      } else if (lower.includes('carpenter') || lower.includes('furniture')) {
-        reply = '🪚 Carpentry Services:\n- Hinge & lock repair: ₹299\n- Custom shelf fitting: ₹499\n- Modular wardrobe repair: ₹599\nAll technicians carry high-grade hardware tools.';
-      }
+      const diagnosis = diagnoseUserQuery(query);
 
       const aiReplyMsg: ChatMessage = {
         id: (Date.now() + 1).toString(),
         sender: 'ai',
         senderName: 'SahYog AI Assistant',
-        text: reply,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        text: diagnosis.reply,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        recommendedWorker: diagnosis.recommendedWorker,
+        actionText: diagnosis.actionText,
+        actionHref: diagnosis.actionHref
       };
 
       setAiMessages(prev => [...prev, aiReplyMsg]);
+      if (diagnosis.quickFollowUps && diagnosis.quickFollowUps.length > 0) {
+        setActivePrompts(diagnosis.quickFollowUps);
+      }
       setIsAiTyping(false);
-    }, 850);
+    }, 600);
   };
 
   const handleResetChat = () => {
     setAiMessages(initialAIMessages);
+    setActivePrompts(defaultPrompts);
+  };
+
+  // Helper to render bold markdown (**bold**) cleanly
+  const renderFormattedText = (text: string) => {
+    return text.split('\n').map((line, idx) => {
+      // Split line by ** to toggle bold
+      const parts = line.split(/(\*\*.*?\*\*)/g);
+      return (
+        <span key={idx} className="block min-h-[1.1rem]">
+          {parts.map((part, pIdx) => {
+            if (part.startsWith('**') && part.endsWith('**')) {
+              return <strong key={pIdx} className="font-extrabold text-slate-900">{part.slice(2, -2)}</strong>;
+            }
+            if (part.startsWith('*') && part.endsWith('*')) {
+              return <em key={pIdx} className="italic text-slate-600">{part.slice(1, -1)}</em>;
+            }
+            return part;
+          })}
+        </span>
+      );
+    });
   };
 
   return (
@@ -132,8 +152,8 @@ export default function FloatingChatbot() {
         <div 
           className={`fixed bottom-6 right-6 z-50 bg-white rounded-3xl shadow-2xl border border-slate-200/90 flex flex-col overflow-hidden transition-all duration-300 animate-in fade-in zoom-in-95 ${
             isExpanded 
-              ? 'w-[94vw] sm:w-[480px] h-[82vh] max-h-[640px]' 
-              : 'w-[92vw] sm:w-[360px] h-[500px] max-h-[80vh]'
+              ? 'w-[94vw] sm:w-[500px] h-[85vh] max-h-[680px]' 
+              : 'w-[92vw] sm:w-[380px] h-[520px] max-h-[82vh]'
           }`}
         >
           {/* Header */}
@@ -153,7 +173,7 @@ export default function FloatingChatbot() {
                 </div>
                 <p className="text-[11px] text-emerald-200/80 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-                  Instant Repair Diagnostics & Pricing
+                  Free-Form Diagnostics & Worker Recommendations
                 </p>
               </div>
             </div>
@@ -186,7 +206,7 @@ export default function FloatingChatbot() {
           {/* Sub-banner */}
           <div className="bg-emerald-50 border-b border-emerald-100/80 px-3.5 py-1.5 flex items-center justify-between text-[11px] text-emerald-900 font-medium">
             <span className="flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-amber-500" /> Automated Home Services Support
+              <Sparkles className="w-3 h-3 text-amber-500" /> Ask any household issue or question
             </span>
             <span className="text-emerald-700 font-bold">English • हिन्दी • ગુજરાતી</span>
           </div>
@@ -201,20 +221,48 @@ export default function FloatingChatbot() {
                     {msg.senderName}
                   </span>
                   <div
-                    className={`max-w-[86%] rounded-2xl p-3 shadow-xs text-xs sm:text-sm ${
+                    className={`max-w-[88%] rounded-2xl p-3 shadow-xs text-xs sm:text-sm ${
                       isUser
                         ? 'bg-emerald-700 text-white rounded-br-xs'
                         : 'bg-white text-slate-800 border border-slate-200/80 rounded-bl-xs'
                     }`}
                   >
                     {!isUser && (
-                      <div className="flex items-center gap-1.5 mb-1 pb-1 border-b border-slate-100 text-emerald-800 text-[11px] font-bold">
+                      <div className="flex items-center gap-1.5 mb-1.5 pb-1 border-b border-slate-100 text-emerald-800 text-[11px] font-bold">
                         <Bot className="w-3.5 h-3.5 text-amber-500" />
                         <span>SahYog AI Guidance</span>
                       </div>
                     )}
-                    <p className="leading-relaxed whitespace-pre-wrap">{msg.text}</p>
-                    <div className={`flex items-center justify-end gap-1 mt-1 text-[10px] ${isUser ? 'text-emerald-200' : 'text-slate-400'}`}>
+                    
+                    <div className="leading-relaxed">
+                      {renderFormattedText(msg.text)}
+                    </div>
+
+                    {/* Action Button inside Chat Bubble */}
+                    {msg.actionText && msg.actionHref && (
+                      <div className="mt-3 pt-2.5 border-t border-slate-100">
+                        {msg.actionHref.startsWith('tel:') ? (
+                          <a
+                            href={msg.actionHref}
+                            className="inline-flex items-center gap-1.5 bg-gradient-to-r from-teal-700 to-emerald-700 hover:from-teal-800 hover:to-emerald-800 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-xs transition transform hover:scale-[1.02] active:scale-95"
+                          >
+                            <span>{msg.actionText}</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </a>
+                        ) : (
+                          <Link
+                            href={msg.actionHref}
+                            onClick={() => setIsOpen(false)}
+                            className="inline-flex items-center gap-1.5 bg-gradient-to-r from-teal-700 to-emerald-700 hover:from-teal-800 hover:to-emerald-800 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-xs transition transform hover:scale-[1.02] active:scale-95"
+                          >
+                            <span>{msg.actionText}</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </Link>
+                        )}
+                      </div>
+                    )}
+
+                    <div className={`flex items-center justify-end gap-1 mt-1.5 text-[10px] ${isUser ? 'text-emerald-200' : 'text-slate-400'}`}>
                       <span>{msg.time}</span>
                     </div>
                   </div>
@@ -223,9 +271,9 @@ export default function FloatingChatbot() {
             })}
 
             {isAiTyping && (
-              <div className="flex items-center gap-2 text-xs text-slate-500 p-2 bg-white rounded-2xl w-fit border border-slate-200">
-                <Bot className="w-3.5 h-3.5 text-emerald-600 animate-spin" />
-                <span>SahYog AI is analyzing solutions...</span>
+              <div className="flex items-center gap-2 text-xs text-slate-500 p-2.5 bg-white rounded-2xl w-fit border border-slate-200 shadow-xs">
+                <Bot className="w-4 h-4 text-emerald-600 animate-spin" />
+                <span className="font-medium">SahYog AI is diagnosing solution...</span>
               </div>
             )}
 
@@ -235,11 +283,11 @@ export default function FloatingChatbot() {
           {/* Quick reply prompt chips */}
           <div className="px-3 py-1.5 bg-white border-t border-slate-100">
             <div className="flex gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-              {aiPrompts.map((prompt) => (
+              {activePrompts.map((prompt) => (
                 <button
                   key={prompt}
                   onClick={() => handleSendAI(prompt)}
-                  className="text-[10.5px] bg-slate-100 hover:bg-emerald-50 hover:text-emerald-800 text-slate-700 px-2.5 py-1 rounded-full whitespace-nowrap transition font-medium border border-slate-200/60"
+                  className="text-[10.5px] bg-slate-100 hover:bg-emerald-50 hover:text-emerald-800 text-slate-700 px-2.5 py-1 rounded-full whitespace-nowrap transition font-medium border border-slate-200/60 cursor-pointer"
                 >
                   {prompt}
                 </button>
@@ -260,13 +308,13 @@ export default function FloatingChatbot() {
                 type="text"
                 value={aiInput}
                 onChange={(e) => setAiInput(e.target.value)}
-                placeholder="Ask SahYog AI (e.g., sink leak, AC tripping, cleaning)..."
+                placeholder="Ask any issue (e.g. 'leak in sink', 'fan spark', 'what worker to book?')..."
                 className="flex-1 bg-slate-100 rounded-xl px-3 py-2 text-xs sm:text-sm outline-none focus:bg-white focus:ring-1 focus:ring-emerald-600 transition"
               />
 
               <button
                 type="submit"
-                className="w-9 h-9 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl flex items-center justify-center transition shadow-sm flex-shrink-0"
+                className="w-9 h-9 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl flex items-center justify-center transition shadow-sm flex-shrink-0 cursor-pointer"
                 aria-label="Send message"
               >
                 <Send className="w-4 h-4" />
@@ -278,4 +326,3 @@ export default function FloatingChatbot() {
     </>
   );
 }
-

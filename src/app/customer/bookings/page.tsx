@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { 
   ArrowLeft, Bell, Calendar, MapPin, Clock, AlertTriangle, 
   CheckCircle2, XCircle, ChevronRight, ShieldCheck, User, 
-  RotateCcw, Sparkles, Wrench, Zap, Search, Filter
+  RotateCcw, Sparkles, Wrench, Zap, Search, Filter, Phone, MessageSquare
 } from 'lucide-react';
 import BottomNav from '@/components/BottomNav';
 import WorkerChatDrawer from '@/components/WorkerChatDrawer';
@@ -224,12 +224,33 @@ export default function BookingsListPage() {
                   )}
 
                   {b.status === 'COMPLETED' && (
-                    <Link
-                      href="/customer/services"
-                      className="px-3 py-1.5 border border-teal-600 text-teal-600 text-xs font-bold rounded-xl hover:bg-teal-50 flex items-center gap-1"
-                    >
-                      <RotateCcw className="w-3 h-3" /> Re-book
-                    </Link>
+                    <div className="flex items-center gap-1.5">
+                      <a
+                        href="tel:+919876543210"
+                        className="p-1.5 border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold rounded-xl flex items-center gap-1 transition"
+                        title="Call Worker"
+                      >
+                        <Phone className="w-3.5 h-3.5 text-teal-600" />
+                        <span>Call</span>
+                      </a>
+
+                      <button
+                        type="button"
+                        onClick={() => setSelectedChatBooking(b)}
+                        className="p-1.5 border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold rounded-xl flex items-center gap-1 transition cursor-pointer"
+                        title="Chat with Worker"
+                      >
+                        <MessageSquare className="w-3.5 h-3.5 text-teal-600" />
+                        <span>Chat</span>
+                      </button>
+
+                      <Link
+                        href="/customer/services"
+                        className="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl flex items-center gap-1 shadow-xs transition"
+                      >
+                        <RotateCcw className="w-3 h-3" /> Re-book
+                      </Link>
+                    </div>
                   )}
                 </div>
               </div>
