@@ -70,9 +70,6 @@ export default function CustomerDashboard() {
                 Live
               </span>
             </Link>
-            <Link href="/admin/portal" className="text-xs bg-emerald-800/80 hover:bg-emerald-700 text-emerald-200 px-3 py-1.5 rounded-lg border border-emerald-700">
-              Admin Portal →
-            </Link>
           </nav>
 
           {/* User Profile Badge */}

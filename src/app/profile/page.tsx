@@ -356,15 +356,7 @@ export default function ProfilePage() {
             </Link>
           </div>
 
-          <div className="pt-2 flex items-center justify-between">
-            <Link
-              href="/admin/portal"
-              className="text-xs font-bold text-teal-700 hover:underline flex items-center gap-1"
-            >
-              <span>Access Admin Portal</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </Link>
-
+          <div className="pt-2 flex items-center justify-end">
             <button
               onClick={handleLogout}
               className="text-xs font-bold text-rose-600 hover:text-rose-700 flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-rose-50 transition"

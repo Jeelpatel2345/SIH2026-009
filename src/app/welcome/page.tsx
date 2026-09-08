@@ -67,9 +67,6 @@ export default function WelcomePage() {
               <Users className="w-4 h-4 text-amber-300" />
               <span><b>10,000+</b> trusted households</span>
             </div>
-            <Link href="/admin/portal" className="text-amber-300 hover:underline font-bold text-xs">
-              Admin Portal →
-            </Link>
           </div>
         </div>
 

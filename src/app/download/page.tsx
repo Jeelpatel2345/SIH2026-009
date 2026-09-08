@@ -133,12 +133,9 @@ export default function DownloadAppPage() {
           </ol>
         </div>
 
-        <div className="mt-4 pt-3 border-t border-slate-100 w-full flex items-center justify-between text-[11px] text-slate-400">
-          <Link href="/welcome" className="hover:text-teal-700 font-medium">
+        <div className="mt-4 pt-3 border-t border-slate-100 w-full text-center">
+          <Link href="/welcome" className="text-[11px] hover:text-teal-700 font-medium text-slate-400">
             Open in Web Browser →
-          </Link>
-          <Link href="/admin/portal" className="hover:text-teal-700 font-medium">
-            Admin Portal →
           </Link>
         </div>
       </div>
