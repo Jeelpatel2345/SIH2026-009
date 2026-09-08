@@ -1,0 +1,183 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(cuid())
+  phone        String    @unique
+  email        String?
+  fullName     String?
+  profilePhoto String?
+  role         String    @default("CUSTOMER")
+  language     String    @default("EN")
+  isVerified   Boolean   @default(false)
+  otp          String?
+  otpExpiresAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  customerProfile CustomerProfile?
+  workerProfile   WorkerProfile?
+  bookings        Booking[]        @relation("CustomerBookings")
+  sentMessages    ChatMessage[]
+  reviews         Review[]
+}
+
+model CustomerProfile {
+  id        String  @id @default(cuid())
+  userId    String  @unique
+  address   String?
+  city      String?
+  state     String?
+  pincode   String?
+  latitude  Float?
+  longitude Float?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model WorkerProfile {
+  id                 String  @id @default(cuid())
+  userId             String  @unique
+  primaryWorkArea    String?
+  yearsExperience    Int     @default(0)
+  hourlyRate         Int     @default(0)
+  bio                String?
+  isOnline           Boolean @default(false)
+  isDocVerified      Boolean @default(false)
+  verificationStatus String  @default("PENDING")
+  aadharNumber       String?
+  rating             Float   @default(0)
+  totalJobs          Int     @default(0)
+  commissionRate     Float   @default(10)
+  languages          String  @default("English")
+
+  user              User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skills            WorkerSkill[]
+  documents         WorkerDocument[]
+  serviceCategories WorkerServiceCategory[]
+  bookings          Booking[]               @relation("WorkerBookings")
+  reviews           Review[]
+}
+
+model WorkerSkill {
+  id              String @id @default(cuid())
+  workerProfileId String
+  skillName       String
+  workerProfile WorkerProfile @relation(fields: [workerProfileId], references: [id], onDelete: Cascade)
+}
+
+model WorkerDocument {
+  id              String   @id @default(cuid())
+  workerProfileId String
+  documentType    String   @default("AADHAR")
+  documentUrl     String?
+  ocrMatchPercent Float?
+  status          String   @default("PENDING")
+  reviewNotes     String?
+  createdAt       DateTime @default(now())
+  workerProfile WorkerProfile @relation(fields: [workerProfileId], references: [id], onDelete: Cascade)
+}
+
+model ServiceCategory {
+  id           String @id @default(cuid())
+  name         String @unique
+  icon         String @default("wrench")
+  partnerCount Int    @default(0)
+  workers  WorkerServiceCategory[]
+  bookings Booking[]
+}
+
+model WorkerServiceCategory {
+  id                String @id @default(cuid())
+  workerProfileId   String
+  serviceCategoryId String
+  workerProfile   WorkerProfile   @relation(fields: [workerProfileId], references: [id], onDelete: Cascade)
+  serviceCategory ServiceCategory @relation(fields: [serviceCategoryId], references: [id], onDelete: Cascade)
+  @@unique([workerProfileId, serviceCategoryId])
+}
+
+model Booking {
+  id                String   @id @default(cuid())
+  bookingCode       String   @unique
+  customerId        String
+  workerProfileId   String
+  serviceCategoryId String?
+  serviceTitle      String
+  scheduledDate     DateTime
+  scheduledTime     String
+  serviceLocation   String
+  city              String?
+  state             String?
+  status            String   @default("PENDING")
+  serviceFee        Int      @default(0)
+  materialFee       Int      @default(0)
+  platformFee       Int      @default(0)
+  gstAmount         Int      @default(0)
+  totalAmount       Int      @default(0)
+  paymentMethod     String   @default("UPI")
+  workerOtp         String?
+  trackingProgress  Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  customer        User             @relation("CustomerBookings", fields: [customerId], references: [id])
+  workerProfile   WorkerProfile    @relation("WorkerBookings", fields: [workerProfileId], references: [id])
+  serviceCategory ServiceCategory? @relation(fields: [serviceCategoryId], references: [id])
+  payment         Payment?
+  messages        ChatMessage[]
+  review          Review?
+}
+
+model Payment {
+  id              String    @id @default(cuid())
+  bookingId       String    @unique
+  transactionCode String    @unique
+  amount          Int
+  method          String    @default("UPI")
+  status          String    @default("PENDING")
+  paidAt          DateTime?
+  createdAt       DateTime  @default(now())
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+}
+
+model ChatMessage {
+  id            String   @id @default(cuid())
+  bookingId     String
+  senderId      String
+  messageType   String   @default("TEXT")
+  content       String?
+  imageUrl      String?
+  locationLat   Float?
+  locationLng   Float?
+  locationLabel String?
+  isRead        Boolean  @default(false)
+  sentAt        DateTime @default(now())
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  sender  User    @relation(fields: [senderId], references: [id])
+}
+
+model Review {
+  id              String   @id @default(cuid())
+  bookingId       String   @unique
+  customerId      String
+  workerProfileId String
+  rating          Float
+  comment         String?
+  createdAt       DateTime @default(now())
+  booking       Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  customer      User          @relation(fields: [customerId], references: [id])
+  workerProfile WorkerProfile @relation(fields: [workerProfileId], references: [id])
+}
+
+model PlatformSettings {
+  id                String   @id @default(cuid())
+  maintenanceMode   Boolean  @default(false)
+  autoVerifyWorkers Boolean  @default(true)
+  commissionPercent Float    @default(15)
+  updatedAt         DateTime @updatedAt
+}

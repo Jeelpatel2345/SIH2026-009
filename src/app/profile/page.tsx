@@ -25,9 +25,19 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [saveNotice, setSaveNotice] = useState(false);
   const [language, setLanguage] = useState<'English' | 'हिन्दी' | 'ગુજરાતી'>('English');
+  const [showDownloadApk, setShowDownloadApk] = useState(false);
 
   // Load from state and localStorage on mount
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const ua = navigator.userAgent;
+      const isInsideApp = 
+        ua.includes('SahYogApp') || 
+        ua.includes('wv') || 
+        localStorage.getItem('sahyog_apk_downloaded') === 'true' ||
+        window.matchMedia('(display-mode: standalone)').matches;
+      if (!isInsideApp) setShowDownloadApk(true);
+    }
     const savedName = fullName || localStorage.getItem('sahyog-user-name') || 'Jeel Patel';
     const savedPhone = phone || localStorage.getItem('sahyog-user-phone') || '+91 98765 43210';
     setUserName(savedName);
@@ -341,20 +351,22 @@ export default function ProfilePage() {
             ))}
           </div>
 
-          <div className="pt-3 border-t border-slate-100">
-            <Link
-              href="/download"
-              className="flex items-center justify-between p-3 rounded-2xl bg-teal-50 hover:bg-teal-100/80 border border-teal-200 transition text-teal-900"
-            >
-              <div className="flex items-center gap-2.5">
-                <Smartphone className="w-4 h-4 text-teal-700" />
-                <span className="text-xs font-bold">Download SahYog Android App (.APK)</span>
-              </div>
-              <span className="text-[11px] font-bold text-teal-700 bg-white px-2 py-0.5 rounded-lg border border-teal-300">
-                5.4 MB
-              </span>
-            </Link>
-          </div>
+          {showDownloadApk && (
+            <div className="pt-3 border-t border-slate-100">
+              <Link
+                href="/download"
+                className="flex items-center justify-between p-3 rounded-2xl bg-teal-50 hover:bg-teal-100/80 border border-teal-200 transition text-teal-900"
+              >
+                <div className="flex items-center gap-2.5">
+                  <Smartphone className="w-4 h-4 text-teal-700" />
+                  <span className="text-xs font-bold">Download SahYog Android App (.APK)</span>
+                </div>
+                <span className="text-[11px] font-bold text-teal-700 bg-white px-2 py-0.5 rounded-lg border border-teal-300">
+                  5.4 MB
+                </span>
+              </Link>
+            </div>
+          )}
 
           <div className="pt-2 flex items-center justify-end">
             <button

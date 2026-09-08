@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   Bell, Search, MapPin, Star, ChevronRight, ShieldCheck, 
@@ -25,11 +25,22 @@ export default function CustomerDashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [clientName, setClientName] = useState('');
 
-  // Hydrate custom user name from localStorage
-  if (typeof window !== 'undefined' && !clientName) {
-    const saved = localStorage.getItem('sahyog-user-name');
-    if (saved) setClientName(saved);
-  }
+  // Hydrate custom user name from localStorage & DB
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('sahyog-user-name');
+      if (saved) setClientName(saved);
+      fetch('/api/user/profile')
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data?.user?.fullName) {
+            setClientName(data.user.fullName);
+            localStorage.setItem('sahyog-user-name', data.user.fullName);
+          }
+        })
+        .catch(() => {});
+    }
+  }, []);
 
   // Top featured workers from the 100 workers collection
   const featuredWorkers = allWorkers.slice(0, 4);
