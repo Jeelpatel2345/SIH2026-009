@@ -17,11 +17,13 @@ export default function InstallAppBanner() {
     const isDismissed = sessionStorage.getItem('sahyog_banner_dismissed') === 'true';
     if (isDismissed) return;
 
-    // 3. If running inside standalone PWA or native Android WebView, do not show
+    // 3. If running inside standalone PWA, native Android WebView, or our custom APK, do not show
+    const ua = navigator.userAgent;
     const isStandalone = 
       window.matchMedia('(display-mode: standalone)').matches ||
       (window.navigator as unknown as { standalone?: boolean }).standalone === true ||
-      navigator.userAgent.includes('wv');
+      ua.includes('wv') ||
+      ua.includes('SahYogApp');  // custom UA set in our APK
     if (isStandalone) return;
 
     // Show banner after brief mount delay

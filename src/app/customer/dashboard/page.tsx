@@ -36,6 +36,14 @@ export default function CustomerDashboard() {
 
   const displayName = fullName || clientName || (phone ? `Member ${phone.slice(-4)}` : 'Friend');
 
+  // Proper initials: "Jeel Patel" → "JP", "Anita" → "AN"
+  const getInitials = (name: string) => {
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  };
+  const initials = getInitials(displayName);
+
   return (
     <div className="w-full min-h-screen bg-slate-50 pb-20 text-slate-900">
       {/* Desktop Top Navbar */}
@@ -83,7 +91,7 @@ export default function CustomerDashboard() {
               className="flex items-center gap-2 bg-emerald-950/60 border border-emerald-700/60 px-3 py-1.5 rounded-full hover:bg-emerald-900 transition"
             >
               <div className="w-6 h-6 rounded-full bg-amber-400 text-emerald-950 font-black text-xs flex items-center justify-center">
-                {displayName.slice(0, 2).toUpperCase()}
+                {initials}
               </div>
               <span className="text-xs font-bold text-white max-w-[100px] truncate">{displayName}</span>
             </Link>
@@ -113,7 +121,7 @@ export default function CustomerDashboard() {
                 <span className="absolute top-1 right-1 w-2 h-2 bg-amber-400 rounded-full" />
               </Link>
               <Link href="/profile" className="w-8 h-8 rounded-full bg-amber-400 text-emerald-950 font-bold text-xs flex items-center justify-center">
-                {displayName.slice(0, 2).toUpperCase()}
+                {initials}
               </Link>
             </div>
           </div>

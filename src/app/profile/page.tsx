@@ -92,12 +92,12 @@ export default function ProfilePage() {
     router.push('/welcome');
   };
 
-  const initials = (userName || 'SY')
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
+  const getInitials = (name: string) => {
+    const parts = (name || 'SY').trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  };
+  const initials = getInitials(userName);
 
   return (
     <div className="min-h-screen bg-slate-50 pb-28 text-slate-900">
