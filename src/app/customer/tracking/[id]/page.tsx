@@ -9,12 +9,14 @@ import {
 import BottomNav from '@/components/BottomNav';
 
 import RealTrackingMap from '@/components/RealTrackingMap';
+import WorkerChatDrawer from '@/components/WorkerChatDrawer';
 
 export default function JobTrackingPage() {
   const router = useRouter();
   const [isCancelled, setIsCancelled] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelReason, setCancelReason] = useState('Change of plans');
+  const [isChatDrawerOpen, setIsChatDrawerOpen] = useState(false);
   const otpDigits = ['5', '8', '2', '1'];
 
   const handleConfirmCancel = () => {
@@ -105,12 +107,16 @@ export default function JobTrackingPage() {
                 </div>
               </div>
               <div className="flex gap-2">
-                <a href="tel:+919123456789" className="w-10 h-10 border rounded-xl flex items-center justify-center hover:bg-gray-50">
+                <a href="tel:+919123456789" className="w-10 h-10 border rounded-xl flex items-center justify-center hover:bg-gray-50" title="Call Worker">
                   <Phone className="w-4 h-4 text-teal-600" />
                 </a>
-                <Link href="/chat/1" className="w-10 h-10 border rounded-xl flex items-center justify-center hover:bg-gray-50">
+                <button 
+                  onClick={() => setIsChatDrawerOpen(true)}
+                  className="w-10 h-10 border rounded-xl flex items-center justify-center hover:bg-teal-50 text-teal-600 transition" 
+                  title="Chat with Worker"
+                >
                   <MessageSquare className="w-4 h-4 text-teal-600" />
-                </Link>
+                </button>
               </div>
             </div>
           </div>
@@ -222,6 +228,16 @@ export default function JobTrackingPage() {
           </div>
         </div>
       )}
+
+      {/* Side Chat Drawer */}
+      <WorkerChatDrawer
+        isOpen={isChatDrawerOpen}
+        onClose={() => setIsChatDrawerOpen(false)}
+        workerName="Rajesh Kumar"
+        workerRole="Master Plumber"
+        workerPhone="+91 91234 56789"
+        bookingCode="SY-9842"
+      />
 
       <BottomNav />
     </div>

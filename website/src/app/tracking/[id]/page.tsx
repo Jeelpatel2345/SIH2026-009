@@ -9,6 +9,7 @@ import {
   Sparkles, Check, Share2 
 } from 'lucide-react';
 import RealTrackingMap from '@/components/RealTrackingMap';
+import WorkerChatDrawer from '@/components/WorkerChatDrawer';
 import { allWorkers } from '@/data/workersData';
 
 export default function TrackingPage() {
@@ -17,6 +18,7 @@ export default function TrackingPage() {
 
   const [booking, setBooking] = useState<any>(null);
   const [copiedOtp, setCopiedOtp] = useState(false);
+  const [isChatDrawerOpen, setIsChatDrawerOpen] = useState(false);
   const workerOtp = '5821';
 
   useEffect(() => {
@@ -197,13 +199,14 @@ export default function TrackingPage() {
                   >
                     <Phone className="w-4 h-4" />
                   </a>
-                  <Link
-                    href={'/dashboard'}
-                    className="p-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 transition"
-                    title="Chat / Message"
+                  <button
+                    onClick={() => setIsChatDrawerOpen(true)}
+                    className="p-2.5 rounded-xl bg-slate-200 hover:bg-teal-50 hover:text-teal-700 text-slate-700 transition relative"
+                    title="Chat with Worker"
                   >
                     <MessageSquare className="w-4 h-4" />
-                  </Link>
+                    <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white" />
+                  </button>
                 </div>
               </div>
 
@@ -228,6 +231,16 @@ export default function TrackingPage() {
           </div>
         </div>
       </div>
+
+      {/* Side Chat Drawer */}
+      <WorkerChatDrawer
+        isOpen={isChatDrawerOpen}
+        onClose={() => setIsChatDrawerOpen(false)}
+        workerName={worker.name}
+        workerRole={worker.title}
+        workerPhone={worker.phone}
+        bookingCode={booking?.serviceCode || booking?.bookingCode || 'SY-9842'}
+      />
     </div>
   );
 }

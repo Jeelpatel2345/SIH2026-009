@@ -5,13 +5,15 @@ import Link from 'next/link';
 import { 
   Calendar, Clock, MapPin, CheckCircle, ArrowRight, 
   ShieldCheck, AlertCircle, Sparkles, ChevronRight, Phone, 
-  Navigation, RefreshCw 
+  Navigation, RefreshCw, MessageSquare 
 } from 'lucide-react';
+import WorkerChatDrawer from '@/components/WorkerChatDrawer';
 
 export default function MyBookingsPage() {
   const [bookings, setBookings] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'ALL' | 'ACTIVE' | 'COMPLETED'>('ALL');
   const [loading, setLoading] = useState(true);
+  const [selectedChatBooking, setSelectedChatBooking] = useState<any | null>(null);
 
   const loadBookings = () => {
     let localList: any[] = [];
@@ -136,13 +138,24 @@ export default function MyBookingsPage() {
                       <span className="text-xl font-black text-teal-800">₹{b.totalAmount}</span>
                     </div>
 
-                    <Link
-                      href={`/tracking/${b.id}`}
-                      className="bg-teal-700 hover:bg-teal-800 text-white text-xs font-black px-4 py-2.5 rounded-xl shadow-xs transition flex items-center gap-1.5"
-                    >
-                      <Navigation className="w-3.5 h-3.5" />
-                      <span>Track Live GPS</span>
-                    </Link>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setSelectedChatBooking(b)}
+                        className="bg-slate-100 hover:bg-teal-50 hover:text-teal-700 text-slate-700 text-xs font-bold px-3 py-2.5 rounded-xl border border-slate-200 transition flex items-center gap-1.5"
+                        title="Chat with assigned partner"
+                      >
+                        <MessageSquare className="w-3.5 h-3.5 text-teal-600" />
+                        <span>Chat</span>
+                      </button>
+
+                      <Link
+                        href={`/tracking/${b.id}`}
+                        className="bg-teal-700 hover:bg-teal-800 text-white text-xs font-black px-4 py-2.5 rounded-xl shadow-xs transition flex items-center gap-1.5"
+                      >
+                        <Navigation className="w-3.5 h-3.5" />
+                        <span>Track Live GPS</span>
+                      </Link>
+                    </div>
                   </div>
                 </div>
 
@@ -189,6 +202,17 @@ export default function MyBookingsPage() {
           </div>
         )}
       </div>
+
+      {/* Side Chat Drawer for Booking Partner */}
+      {selectedChatBooking && (
+        <WorkerChatDrawer
+          isOpen={Boolean(selectedChatBooking)}
+          onClose={() => setSelectedChatBooking(null)}
+          workerName={selectedChatBooking.workerName || 'Sunita Mehra'}
+          workerRole={selectedChatBooking.serviceName || selectedChatBooking.serviceTitle || 'Home Service Professional'}
+          bookingCode={selectedChatBooking.serviceCode || selectedChatBooking.bookingCode || selectedChatBooking.id?.slice(0, 8).toUpperCase() || 'SY-9842'}
+        />
+      )}
     </div>
   );
 }

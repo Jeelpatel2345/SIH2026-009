@@ -7,6 +7,7 @@ import {
   RotateCcw, Sparkles, Wrench, Zap, Search, Filter
 } from 'lucide-react';
 import BottomNav from '@/components/BottomNav';
+import WorkerChatDrawer from '@/components/WorkerChatDrawer';
 
 interface BookingItem {
   id: string;
@@ -67,6 +68,7 @@ export default function BookingsListPage() {
   const [bookings, setBookings] = useState<BookingItem[]>(initialBookings);
   const [activeTab, setActiveTab] = useState<'all' | 'active' | 'completed'>('all');
   const [cancellingBooking, setCancellingBooking] = useState<BookingItem | null>(null);
+  const [selectedChatBooking, setSelectedChatBooking] = useState<BookingItem | null>(null);
   const [cancelReason, setCancelReason] = useState('Change of plans');
   const [cancelNotification, setCancelNotification] = useState<string | null>(null);
 
@@ -207,12 +209,12 @@ export default function BookingsListPage() {
                   )}
 
                   {isConfirmed && (
-                    <Link
-                      href={`/chat/${b.id}`}
+                    <button
+                      onClick={() => setSelectedChatBooking(b)}
                       className="px-4 py-1.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl transition flex items-center gap-1 shadow-xs"
                     >
                       <span>Chat with Worker</span>
-                    </Link>
+                    </button>
                   )}
 
                   {isCancelled && (
@@ -296,6 +298,17 @@ export default function BookingsListPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Side Chat Drawer for Worker & Customer */}
+      {selectedChatBooking && (
+        <WorkerChatDrawer
+          isOpen={Boolean(selectedChatBooking)}
+          onClose={() => setSelectedChatBooking(null)}
+          workerName={selectedChatBooking.workerName}
+          workerRole={selectedChatBooking.workerRole}
+          bookingCode={selectedChatBooking.code}
+        />
       )}
 
       <BottomNav />
