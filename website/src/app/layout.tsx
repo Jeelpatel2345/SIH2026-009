@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import WebHeader from '@/components/WebHeader';
 import WebFooter from '@/components/WebFooter';
+import FloatingChatbot from '@/components/FloatingChatbot';
 
 export const metadata: Metadata = {
   title: 'SahYog — Verified Home Services Platform',
@@ -15,13 +16,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans antialiased">
+      <body className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans antialiased relative">
         <WebHeader />
         <main className="flex-1">
           {children}
         </main>
         <WebFooter />
+        <FloatingChatbot />
       </body>
     </html>
   );
 }
+
