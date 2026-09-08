@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
   Globe, ChevronRight, Shield, Lock, CheckCircle, Smartphone, 
-  Loader2, ArrowRight, Sparkles, MessageSquare, AlertCircle, RefreshCw, User
+  Loader2, ArrowRight, Sparkles, MessageSquare, AlertCircle, RefreshCw, User, Briefcase
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 
@@ -13,6 +13,7 @@ export default function LoginPage() {
   const { setAuth } = useAuthStore();
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
+  const [selectedRole, setSelectedRole] = useState<'CUSTOMER' | 'WORKER'>('CUSTOMER');
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState(['', '', '', '']);
   const [loading, setLoading] = useState(false);
@@ -20,6 +21,17 @@ export default function LoginPage() {
   const [receivedOtp, setReceivedOtp] = useState<string | null>(null);
   const [countdown, setCountdown] = useState(30);
   const [canResend, setCanResend] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedRole = localStorage.getItem('sahyog-role');
+      if (storedRole === 'WORKER') {
+        setSelectedRole('WORKER');
+      } else {
+        setSelectedRole('CUSTOMER');
+      }
+    }
+  }, []);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -43,7 +55,7 @@ export default function LoginPage() {
       const res = await fetch('/api/auth/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, fullName: fullName.trim() }),
+        body: JSON.stringify({ phone, fullName: fullName.trim(), role: selectedRole }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -72,14 +84,14 @@ export default function LoginPage() {
     setErrorMsg('');
 
     try {
-      const role = localStorage.getItem('sahyog-role') || 'CUSTOMER';
+      const roleToSubmit = selectedRole || localStorage.getItem('sahyog-role') || 'CUSTOMER';
       const res = await fetch('/api/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           phone,
           otp: code,
-          role,
+          role: roleToSubmit,
           fullName: fullName.trim() || undefined,
         }),
       });
@@ -91,9 +103,11 @@ export default function LoginPage() {
 
       // Store real user in auth state with their custom name
       const userFullName = data.user.fullName || fullName.trim() || `User ${phone.slice(-4)}`;
+      const assignedRole = data.user.role || roleToSubmit;
+      
       setAuth({
         userId: data.user.id,
-        role: data.user.role,
+        role: assignedRole,
         phone: data.user.phone,
         fullName: userFullName,
       });
@@ -101,10 +115,11 @@ export default function LoginPage() {
       // Save to localStorage for instant persistence across reloads
       localStorage.setItem('sahyog-user-name', userFullName);
       localStorage.setItem('sahyog-user-phone', data.user.phone);
+      localStorage.setItem('sahyog-role', assignedRole);
 
-      if (data.user.role === 'ADMIN') {
+      if (assignedRole === 'ADMIN') {
         router.push('/admin/overview');
-      } else if (data.user.role === 'WORKER') {
+      } else if (assignedRole === 'WORKER') {
         router.push('/worker/dashboard');
       } else {
         router.push('/customer/dashboard');
@@ -150,9 +165,7 @@ export default function LoginPage() {
           <div className="relative z-10">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 bg-amber-400 text-emerald-950 font-black rounded-xl flex items-center justify-center shadow-md text-base">
-                  SY
-                </div>
+                <img src="/logo.png" alt="SahYog" className="w-10 h-10 rounded-full object-cover shadow-md" />
                 <div>
                   <h2 className="font-black text-lg tracking-tight text-white leading-none">SahYog</h2>
                   <span className="text-[10px] text-emerald-200 uppercase tracking-wider font-semibold">Neon Cloud Verified</span>
@@ -213,6 +226,42 @@ export default function LoginPage() {
                 ? `Enter the 4-digit code sent to +91 ${phone.slice(0, 5)} ${phone.slice(5)}`
                 : 'Enter your name and 10-digit mobile number to access your account.'}
             </p>
+
+            {/* Role Switcher Tabs */}
+            {!otpSent && (
+              <div className="mt-3.5 p-1 bg-slate-100 rounded-2xl flex border border-slate-200 shadow-xs">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedRole('CUSTOMER');
+                    if (typeof window !== 'undefined') localStorage.setItem('sahyog-role', 'CUSTOMER');
+                  }}
+                  className={`flex-1 py-2 px-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                    selectedRole === 'CUSTOMER'
+                      ? 'bg-white text-teal-800 shadow-sm border border-slate-200'
+                      : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  <User className="w-3.5 h-3.5 text-teal-600" />
+                  <span>Customer (ग्राहक)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedRole('WORKER');
+                    if (typeof window !== 'undefined') localStorage.setItem('sahyog-role', 'WORKER');
+                  }}
+                  className={`flex-1 py-2 px-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                    selectedRole === 'WORKER'
+                      ? 'bg-teal-700 text-white shadow-sm'
+                      : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  <Briefcase className="w-3.5 h-3.5 text-amber-300" />
+                  <span>Service Partner (कामगार)</span>
+                </button>
+              </div>
+            )}
 
             {errorMsg && (
               <div className="mt-3 p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 font-semibold flex items-center gap-2 animate-in fade-in">

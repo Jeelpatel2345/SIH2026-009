@@ -70,12 +70,24 @@ export default function WorkerEarningsPage() {
         <div className="mt-3 flex items-center gap-2"><span className="bg-teal-600 text-white text-xs px-2 py-0.5 rounded">FY 2023-24</span><span className="text-gray-400 text-xs">• 12 Files Available</span></div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t max-w-md mx-auto">
+      <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 max-w-xl mx-auto z-20">
         <div className="flex justify-around py-3">
-          <Link href="/worker/dashboard" className="text-center"><Home className="w-5 h-5 text-teal-600 mx-auto" /><p className="text-xs text-teal-600">Home</p></Link>
-          <Link href="#" className="text-center"><Calendar className="w-5 h-5 text-gray-400 mx-auto" /><p className="text-xs text-gray-400">Bookings</p></Link>
-          <Link href="/chat/1" className="text-center"><MessageSquare className="w-5 h-5 text-gray-400 mx-auto" /><p className="text-xs text-gray-400">Chat</p></Link>
-          <Link href="#" className="text-center"><User className="w-5 h-5 text-gray-400 mx-auto" /><p className="text-xs text-gray-400">Profile</p></Link>
+          <Link href="/worker/dashboard" className="text-center">
+            <Home className="w-5 h-5 text-gray-400 mx-auto" />
+            <p className="text-xs text-gray-400">Home</p>
+          </Link>
+          <Link href="/worker/bookings" className="text-center">
+            <Calendar className="w-5 h-5 text-gray-400 mx-auto" />
+            <p className="text-xs text-gray-400">Bookings</p>
+          </Link>
+          <Link href="/chat/1" className="text-center">
+            <MessageSquare className="w-5 h-5 text-gray-400 mx-auto" />
+            <p className="text-xs text-gray-400">Chat</p>
+          </Link>
+          <Link href="/profile" className="text-center">
+            <User className="w-5 h-5 text-gray-400 mx-auto" />
+            <p className="text-xs text-gray-400">Profile</p>
+          </Link>
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { 
   ArrowLeft, Send, Bot, Sparkles 
 } from 'lucide-react';
@@ -32,6 +33,7 @@ const aiPrompts = [
 ];
 
 export default function ChatPage() {
+  const router = useRouter();
   // AI State
   const [aiMessages, setAiMessages] = useState<Message[]>(initialAIMessages);
   const [aiInput, setAiInput] = useState('');
@@ -98,9 +100,19 @@ export default function ChatPage() {
       <div className="bg-white border-b sticky top-0 z-20">
         <div className="p-3.5 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <Link href="/customer/dashboard" className="p-1 hover:bg-gray-100 rounded-full">
+            <button 
+              type="button"
+              onClick={() => {
+                if (typeof window !== 'undefined' && localStorage.getItem('sahyog-role') === 'WORKER') {
+                  router.push('/worker/dashboard');
+                } else {
+                  router.push('/customer/dashboard');
+                }
+              }} 
+              className="p-1 hover:bg-gray-100 rounded-full"
+            >
               <ArrowLeft className="w-5 h-5 text-gray-700" />
-            </Link>
+            </button>
             <div>
               <h1 className="font-bold text-base text-gray-900 leading-tight">
                 SahYog AI Assistant

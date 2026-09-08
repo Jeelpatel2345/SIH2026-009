@@ -10,20 +10,30 @@ interface BottomNavProps {
 export default function BottomNav({ role = 'customer' }: BottomNavProps) {
   const pathname = usePathname();
 
-  const homeHref = role === 'admin' 
+  // Auto-detect role from path or localStorage
+  const isWorkerPath = pathname.startsWith('/worker');
+  const effectiveRole = isWorkerPath 
+    ? 'worker' 
+    : (typeof window !== 'undefined' && localStorage.getItem('sahyog-role') === 'WORKER') 
+      ? 'worker' 
+      : role;
+
+  const homeHref = effectiveRole === 'admin' 
     ? '/admin/overview' 
-    : role === 'worker' 
+    : effectiveRole === 'worker' 
       ? '/worker/dashboard' 
       : '/customer/dashboard';
 
-  const bookingsHref = role === 'admin' 
+  const bookingsHref = effectiveRole === 'admin' 
     ? '/admin/bookings' 
-    : '/customer/bookings';
+    : effectiveRole === 'worker'
+      ? '/worker/bookings'
+      : '/customer/bookings';
 
   const isHome = pathname === homeHref;
   const isBookings = pathname.includes('/bookings') || pathname.includes('/tracking');
   const isChat = pathname.startsWith('/chat');
-  const isProfile = pathname.startsWith('/profile') || (role === 'admin' && pathname === '/admin/users');
+  const isProfile = pathname.startsWith('/profile') || (effectiveRole === 'admin' && pathname === '/admin/users');
 
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200/80 max-w-md mx-auto z-50 shadow-lg">

@@ -104,43 +104,42 @@ export default function FloatingChatbot() {
 
   return (
     <>
-      {/* Floating Action Button on the side */}
+      {/* Floating Action Button on the side (Clean Circular Icon) */}
       <div className="fixed bottom-6 right-6 z-40">
         {!isOpen && (
           <button
             onClick={() => setIsOpen(true)}
-            className="group relative flex items-center gap-3 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white px-4 py-3 rounded-full shadow-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 border-2 border-white/20"
+            className="group relative w-14 h-14 bg-gradient-to-tr from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-full shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-95 border-2 border-white/30 flex items-center justify-center cursor-pointer"
             aria-label="Open SahYog AI Chat"
+            title="Chat with SahYog AI Assistant"
           >
-            <div className="relative">
-              <Bot className="w-6 h-6 text-white" />
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-400 rounded-full animate-ping" />
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-400 rounded-full" />
+            <div className="relative flex items-center justify-center">
+              <Bot className="w-7 h-7 text-white" />
+              <span className="absolute -top-1 -right-1 w-3 h-3 bg-amber-400 rounded-full animate-ping" />
+              <span className="absolute -top-1 -right-1 w-3 h-3 bg-amber-400 rounded-full border-2 border-[#042f2e]" />
             </div>
-            <div className="text-left hidden sm:block pr-1">
-              <p className="text-xs font-black uppercase tracking-wider text-amber-300 leading-tight">SAHYOG AI</p>
-              <p className="text-[13px] font-bold text-white leading-tight">Need Help? Chat Now</p>
-            </div>
-            <span className="bg-white/20 text-white text-[10px] font-black px-2 py-0.5 rounded-full">
-              Live
+            
+            {/* Tooltip on hover */}
+            <span className="absolute right-16 top-1/2 -translate-y-1/2 bg-[#042f2e] text-white text-xs font-bold px-3 py-1.5 rounded-xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity shadow-lg pointer-events-none border border-emerald-800/60 hidden sm:block">
+              SahYog AI Assistant
             </span>
           </button>
         )}
       </div>
 
-      {/* Floating Chat Window (positioned nicely on the right side) */}
+      {/* Floating Chat Window (compact & well-proportioned) */}
       {isOpen && (
         <div 
-          className={`fixed bottom-6 right-6 z-50 bg-white rounded-3xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden transition-all duration-300 animate-in fade-in zoom-in-95 ${
+          className={`fixed bottom-6 right-6 z-50 bg-white rounded-3xl shadow-2xl border border-slate-200/90 flex flex-col overflow-hidden transition-all duration-300 animate-in fade-in zoom-in-95 ${
             isExpanded 
-              ? 'w-[92vw] sm:w-[500px] h-[82vh] max-h-[700px]' 
-              : 'w-[92vw] sm:w-[390px] h-[550px] max-h-[82vh]'
+              ? 'w-[94vw] sm:w-[480px] h-[82vh] max-h-[640px]' 
+              : 'w-[92vw] sm:w-[360px] h-[500px] max-h-[80vh]'
           }`}
         >
           {/* Header */}
-          <div className="bg-gradient-to-r from-[#042f2e] to-teal-900 text-white p-3.5 sm:p-4 flex items-center justify-between shadow-md">
+          <div className="bg-gradient-to-r from-[#042f2e] to-teal-900 text-white p-3 sm:p-3.5 flex items-center justify-between shadow-md">
             <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-white">
+              <div className="w-9 h-9 rounded-full bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-white flex-shrink-0">
                 <Bot className="w-5 h-5 text-amber-300" />
               </div>
               <div>

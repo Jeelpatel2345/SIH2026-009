@@ -25,14 +25,24 @@ export default function CustomerDashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [clientName, setClientName] = useState('');
 
-  // Hydrate custom user name from localStorage & DB
+  // Hydrate custom user name from localStorage & DB, and enforce role guard
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      const storedRole = localStorage.getItem('sahyog-role');
+      if (storedRole === 'WORKER') {
+        window.location.href = '/worker/dashboard';
+        return;
+      }
       const saved = localStorage.getItem('sahyog-user-name');
       if (saved) setClientName(saved);
       fetch('/api/user/profile')
         .then((res) => (res.ok ? res.json() : null))
         .then((data) => {
+          if (data?.user?.role === 'WORKER') {
+            localStorage.setItem('sahyog-role', 'WORKER');
+            window.location.href = '/worker/dashboard';
+            return;
+          }
           if (data?.user?.fullName) {
             setClientName(data.user.fullName);
             localStorage.setItem('sahyog-user-name', data.user.fullName);
