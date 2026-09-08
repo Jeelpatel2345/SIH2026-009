@@ -5,7 +5,6 @@ import {
   Users, ShieldCheck, Clock, AlertTriangle, Search, Filter, 
   Plus, RefreshCw, Smartphone, CheckCircle, UserCheck, Calendar
 } from 'lucide-react';
-import { allWorkers } from '@/data/workersData';
 
 interface UserRecord {
   id: string;
@@ -56,7 +55,8 @@ export default function UserManagementPage() {
   });
 
   const totalRegisteredUsers = users.length;
-  const verifiedWorkersCount = allWorkers.length;
+  const verifiedWorkersCount = users.filter((u) => u.role === 'WORKER').length;
+  const customersCount = users.filter((u) => u.role === 'CUSTOMER').length;
 
   return (
     <div className="space-y-6">

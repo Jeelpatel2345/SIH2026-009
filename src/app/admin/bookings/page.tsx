@@ -1,156 +1,258 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { LayoutDashboard, ShieldCheck, Calendar, DollarSign, Users, Settings, LogOut, TrendingUp, Clock, Search, Filter, Download, Info, Briefcase, RefreshCw } from 'lucide-react';
-
-const defaultBookings = [
-  { id: 'BK-8291', service: 'Deep Cleaning', customer: 'Anjali S.', status: 'Completed', amount: '₹1,250' },
-  { id: 'BK-8292', service: 'Plumbing Repair', customer: 'Rahul V.', status: 'In Progress', amount: '₹650' },
-  { id: 'BK-8293', service: 'Electrical Fix', customer: 'Priya P.', status: 'Pending', amount: '₹450' },
-  { id: 'BK-8294', service: 'AC Repair', customer: 'Amit K.', status: 'Confirmed', amount: '₹1,800' },
-];
+import { 
+  Calendar, Search, Filter, Download, RefreshCw, 
+  CheckCircle2, Clock, XCircle, AlertCircle, Phone, 
+  MapPin, User, ChevronRight, MoreVertical 
+} from 'lucide-react';
 
 export default function AdminBookingsPage() {
-  const [bookingList, setBookingList] = useState(defaultBookings);
+  const [bookingList, setBookingList] = useState<any[]>([]);
+  const [counts, setCounts] = useState({ total: 0, active: 0, completed: 0, pending: 0 });
+  const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  const fetchLiveBookings = () => {
+  const fetchLiveBookings = async () => {
     setLoading(true);
-    fetch('/api/bookings')
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data?.bookings && data.bookings.length > 0) {
-          const formatted = data.bookings.map((b: any) => ({
-            id: b.bookingCode || b.id.slice(0, 7).toUpperCase(),
-            service: b.serviceTitle || 'Home Service',
-            customer: b.customer?.fullName || 'Jeel Patel',
-            status: b.status === 'CONFIRMED' ? 'Confirmed' : b.status === 'IN_PROGRESS' ? 'In Progress' : 'Pending',
-            amount: '₹' + b.totalAmount,
-          }));
-          setBookingList(formatted);
-        }
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+    try {
+      const params = new URLSearchParams();
+      if (selectedStatus !== 'ALL') params.append('status', selectedStatus);
+      if (search.trim()) params.append('search', search.trim());
+
+      const res = await fetch(`/api/admin/bookings?${params.toString()}`);
+      const data = await res.json();
+      if (data?.bookings) {
+        setBookingList(data.bookings);
+      }
+      if (data?.counts) {
+        setCounts(data.counts);
+      }
+    } catch (err) {
+      console.error('Failed to fetch admin bookings:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     fetchLiveBookings();
-  }, []);
+  }, [selectedStatus]);
+
+  const handleUpdateStatus = async (bookingId: string, newStatus: string) => {
+    setActionLoading(bookingId);
+    try {
+      const res = await fetch('/api/admin/bookings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId, status: newStatus }),
+      });
+      if (res.ok) {
+        fetchLiveBookings();
+      }
+    } catch (err) {
+      console.error('Failed to update booking status:', err);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            Bookings & Service Orders Manager
-          </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Monitor and oversee all customer service dispatches across Gujarat & India.
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-none">
+              Bookings & Dispatch Orders
+            </h1>
+            <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+              Neon DB Live
+            </span>
+          </div>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            Real-time management of all customer service orders across Gujarat and India.
           </p>
         </div>
+
         <div className="flex items-center gap-2">
-          <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold shadow-xs transition">
-            <Download className="w-3.5 h-3.5 text-teal-600" />
-            <span>Export CSV</span>
+          <button
+            type="button"
+            onClick={fetchLiveBookings}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold shadow-xs transition cursor-pointer"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 text-teal-700 ${loading ? 'animate-spin' : ''}`} />
+            <span>Refresh</span>
           </button>
         </div>
       </div>
 
-      {/* 4 Responsive KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Metric Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
         {[
-          { label: 'TOTAL BOOKINGS', value: '1,284', sub: '+12% vs last month', icon: Calendar },
-          { label: 'ACTIVE JOBS', value: '42', sub: '8 New since yesterday', icon: Clock },
-          { label: 'GROSS VALUE', value: '₹4,20,000', sub: '₹28k today', icon: TrendingUp },
-          { label: 'CANCEL RATE', value: '3.2%', sub: '100% refund policy honored', icon: Briefcase },
-        ].map((s) => (
-          <div key={s.label} className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
-            <s.icon className="w-5 h-5 text-teal-600 mb-2" />
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{s.label}</p>
-            <p className="text-2xl font-black text-slate-900 mt-1">{s.value}</p>
-            <p className="text-xs text-slate-500 mt-1">{s.sub}</p>
-          </div>
+          { label: 'TOTAL ORDERS', val: counts.total, color: 'text-blue-600', filter: 'ALL' },
+          { label: 'ACTIVE DISPATCH', val: counts.active, color: 'text-amber-600', filter: 'IN_PROGRESS' },
+          { label: 'COMPLETED', val: counts.completed, color: 'text-emerald-600', filter: 'COMPLETED' },
+          { label: 'PENDING', val: counts.pending, color: 'text-slate-600', filter: 'PENDING' },
+        ].map((m) => (
+          <button
+            key={m.label}
+            type="button"
+            onClick={() => setSelectedStatus(m.filter)}
+            className={`p-4 rounded-2xl border text-left transition ${
+              selectedStatus === m.filter 
+                ? 'bg-white border-teal-600 shadow-sm ring-2 ring-teal-600/20' 
+                : 'bg-white border-slate-200 hover:border-slate-300'
+            }`}
+          >
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{m.label}</p>
+            <p className={`text-2xl font-black mt-1 ${m.color}`}>{m.val}</p>
+          </button>
         ))}
       </div>
 
-      {/* Booking Orders Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-        <div className="p-5 border-b border-slate-200 space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h2 className="text-lg font-bold text-slate-900">Service Request Orders</h2>
-              <p className="text-xs text-slate-500">Live feed of active appointments and job milestones</p>
-            </div>
-            <div className="flex gap-2">
-              <div className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 flex items-center gap-2">
-                <Search className="w-4 h-4 text-slate-400" />
-                <input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search bookings..."
-                  className="bg-transparent outline-none text-xs text-slate-800"
-                />
-              </div>
-              <button className="border border-slate-200 rounded-xl px-3 flex items-center text-slate-600 hover:bg-slate-50">
-                <Filter className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
+      {/* Search & Filter Bar */}
+      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="w-full sm:w-80 flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus-within:border-teal-600 transition">
+          <Search className="w-4 h-4 text-slate-400 mr-2 flex-shrink-0" />
+          <input
+            type="text"
+            placeholder="Search by code, service, or customer..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && fetchLiveBookings()}
+            className="w-full bg-transparent outline-none font-medium placeholder-slate-400"
+          />
         </div>
 
+        <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+          {(['ALL', 'CONFIRMED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'] as const).map((st) => (
+            <button
+              key={st}
+              type="button"
+              onClick={() => setSelectedStatus(st)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap ${
+                selectedStatus === st
+                  ? 'bg-teal-700 text-white shadow-xs'
+                  : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200'
+              }`}
+            >
+              {st === 'ALL' ? 'All Status' : st.replace('_', ' ')}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Live Table */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider font-semibold border-b border-slate-200">
+          <table className="w-full text-left text-xs text-slate-700">
+            <thead className="bg-slate-50 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
               <tr>
-                <th className="text-left py-3 px-6">Booking ID</th>
-                <th className="text-left py-3 px-4">Service Category</th>
-                <th className="text-left py-3 px-4">Customer</th>
-                <th className="text-left py-3 px-4">Status</th>
-                <th className="text-right py-3 px-6">Payable Amount</th>
+                <th className="py-3 px-4">Order Code</th>
+                <th className="py-3 px-4">Service Details</th>
+                <th className="py-3 px-4">Customer</th>
+                <th className="py-3 px-4">Assigned Partner</th>
+                <th className="py-3 px-4">Scheduled Slot</th>
+                <th className="py-3 px-4">Fee / Amount</th>
+                <th className="py-3 px-4">Status</th>
+                <th className="py-3 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-700">
-              {bookingList
-                .filter(
-                  (b) =>
-                    !search ||
-                    b.service.toLowerCase().includes(search.toLowerCase()) ||
-                    b.customer.toLowerCase().includes(search.toLowerCase()) ||
-                    b.id.toLowerCase().includes(search.toLowerCase())
-                )
-                .map((b) => (
-                <tr key={b.id} className="hover:bg-slate-50/80 transition">
-                  <td className="py-3.5 px-6 font-mono font-bold text-teal-700">{b.id}</td>
-                  <td className="py-3.5 px-4 font-semibold text-slate-900">{b.service}</td>
-                  <td className="py-3.5 px-4 text-slate-600 text-xs">{b.customer}</td>
-                  <td className="py-3.5 px-4">
-                    <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold ${
-                      b.status === 'Completed'
-                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                        : b.status === 'In Progress'
-                        ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                        : b.status === 'Pending'
-                        ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                        : 'bg-teal-50 text-teal-700 border border-teal-200'
-                    }`}>
-                      {b.status}
-                    </span>
+            <tbody className="divide-y divide-slate-100">
+              {loading ? (
+                <tr>
+                  <td colSpan={8} className="py-12 text-center text-slate-400">
+                    <RefreshCw className="w-5 h-5 animate-spin mx-auto text-teal-600 mb-2" />
+                    <span>Loading real bookings from Neon database...</span>
                   </td>
-                  <td className="py-3.5 px-6 text-right font-black text-slate-900">{b.amount}</td>
                 </tr>
-              ))}
+              ) : bookingList.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-12 text-center text-slate-400">
+                    <Calendar className="w-8 h-8 mx-auto text-slate-300 mb-2" />
+                    <p className="font-bold text-slate-600">No bookings found</p>
+                    <p className="text-[11px]">No records match the current filter or search criteria.</p>
+                  </td>
+                </tr>
+              ) : (
+                bookingList.map((b) => (
+                  <tr key={b.id} className="hover:bg-slate-50/80 transition">
+                    <td className="py-3.5 px-4 font-mono font-bold text-teal-800">
+                      {b.bookingCode || b.id.slice(0, 8)}
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <p className="font-bold text-slate-900">{b.serviceTitle}</p>
+                      <p className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
+                        <MapPin className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                        <span className="truncate max-w-[150px]">{b.serviceLocation}</span>
+                      </p>
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <p className="font-semibold text-slate-800">{b.customer?.fullName || 'Customer'}</p>
+                      <p className="text-[10px] text-slate-400">{b.customer?.phone || 'No phone'}</p>
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <p className="font-semibold text-slate-800">
+                        {b.workerProfile?.user?.fullName || 'Auto Dispatch'}
+                      </p>
+                      <p className="text-[10px] text-slate-400">
+                        {b.workerProfile?.user?.phone || 'Partner'}
+                      </p>
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <p className="font-medium text-slate-800">
+                        {new Date(b.scheduledDate).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                      </p>
+                      <p className="text-[10px] text-slate-400">{b.scheduledTime}</p>
+                    </td>
+                    <td className="py-3.5 px-4 font-black text-slate-900">
+                      ₹{b.totalAmount}
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                        b.status === 'COMPLETED'
+                          ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                          : b.status === 'IN_PROGRESS' || b.status === 'CONFIRMED'
+                            ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                            : b.status === 'CANCELLED'
+                              ? 'bg-rose-50 text-rose-800 border border-rose-200'
+                              : 'bg-slate-100 text-slate-700'
+                      }`}>
+                        {b.status}
+                      </span>
+                    </td>
+                    <td className="py-3.5 px-4 text-right">
+                      <div className="flex items-center justify-end gap-1.5">
+                        {b.status !== 'COMPLETED' && (
+                          <button
+                            type="button"
+                            disabled={actionLoading === b.id}
+                            onClick={() => handleUpdateStatus(b.id, 'COMPLETED')}
+                            className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg text-[10px] font-bold transition"
+                          >
+                            Mark Done
+                          </button>
+                        )}
+                        {b.status !== 'CANCELLED' && b.status !== 'COMPLETED' && (
+                          <button
+                            type="button"
+                            disabled={actionLoading === b.id}
+                            onClick={() => handleUpdateStatus(b.id, 'CANCELLED')}
+                            className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[10px] font-bold transition"
+                          >
+                            Cancel
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
-        </div>
-
-        <div className="p-4 border-t flex items-center justify-between text-xs text-slate-400 bg-slate-50">
-          <span>Showing 1-4 of 284 service requests</span>
-          <div className="flex gap-2">
-            <button className="border border-slate-200 px-3 py-1 rounded-lg hover:bg-white transition">Previous</button>
-            <button className="border border-slate-200 px-3 py-1 rounded-lg hover:bg-white transition">Next</button>
-          </div>
         </div>
       </div>
     </div>

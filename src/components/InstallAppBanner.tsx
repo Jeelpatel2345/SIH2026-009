@@ -1,14 +1,22 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { Download, X, CheckCircle } from 'lucide-react';
 
 export default function InstallAppBanner() {
+  const pathname = usePathname();
   const [visible, setVisible] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
 
   useEffect(() => {
+    // Never show inside admin portal
+    if (pathname.startsWith('/admin')) {
+      setVisible(false);
+      return;
+    }
+
     // 1. If user already downloaded the APK on this device, do not show
     const alreadyDownloaded = localStorage.getItem('sahyog_apk_downloaded') === 'true';
     if (alreadyDownloaded) return;
@@ -32,7 +40,7 @@ export default function InstallAppBanner() {
     }, 400);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [pathname]);
 
   const handleDownload = () => {
     setDownloading(true);
@@ -60,15 +68,17 @@ export default function InstallAppBanner() {
     setVisible(false);
   };
 
-  if (!visible) return null;
+  if (!visible || pathname.startsWith('/admin')) return null;
 
   return (
     <aside aria-label="Install SahYog App" className="sticky top-0 z-50 w-full bg-gradient-to-r from-[#042f2e] via-[#0d9488] to-[#042f2e] text-white shadow-md border-b border-teal-500/30">
       <div className="max-w-4xl mx-auto px-3.5 py-2.5 flex items-center justify-between gap-2.5">
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-8 h-8 rounded-lg bg-amber-400 text-emerald-950 font-black flex items-center justify-center flex-shrink-0 text-xs shadow-xs">
-            SY
-          </div>
+          <img
+            src="/logo.png"
+            alt="SahYog"
+            className="w-8 h-8 rounded-full object-cover shadow-xs border border-teal-300"
+          />
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
               <span className="font-bold text-xs sm:text-sm text-white truncate">
