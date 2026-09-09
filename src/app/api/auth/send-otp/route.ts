@@ -72,6 +72,33 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Twilio Verify Service API (No dedicated phone number required)
+    const twilioVerifySid = process.env.TWILIO_VERIFY_SERVICE_SID;
+    if (!smsSent && twilioSid && twilioAuth && twilioVerifySid) {
+      try {
+        const verifyUrl = `https://verify.twilio.com/v2/Services/${twilioVerifySid}/Verifications`;
+        const authHeader = 'Basic ' + Buffer.from(`${twilioSid}:${twilioAuth}`).toString('base64');
+        const formBody = new URLSearchParams({
+          To: formattedPhone,
+          Channel: 'sms'
+        });
+
+        const verifyRes = await fetch(verifyUrl, {
+          method: 'POST',
+          headers: {
+            'Authorization': authHeader,
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: formBody.toString()
+        });
+        if (verifyRes.ok) {
+          smsSent = true;
+        }
+      } catch (verErr) {
+        console.error('Twilio Verify dispatch error:', verErr);
+      }
+    }
+
     // Secondary fallback: Fast2SMS if provided
     if (!smsSent && process.env.FAST2SMS_API_KEY) {
       try {
