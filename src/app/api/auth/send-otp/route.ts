@@ -40,13 +40,41 @@ export async function POST(request: NextRequest) {
       console.warn('Database upsert warning (running in serverless):', dbErr);
     }
 
-    // Real SMS dispatch via Twilio API if credentials are provided in .env
+    // Real SMS dispatch via Twilio API
     let smsSent = false;
     const twilioSid = process.env.TWILIO_ACCOUNT_SID;
     const twilioAuth = process.env.TWILIO_AUTH_TOKEN;
     const twilioPhone = process.env.TWILIO_PHONE_NUMBER;
+    const twilioVerifySid = process.env.TWILIO_VERIFY_SERVICE_SID;
 
-    if (twilioSid && twilioAuth && twilioPhone) {
+    // 1. Primary: Twilio Verify Service API (highest delivery rate for Indian mobile numbers)
+    if (twilioSid && twilioAuth && twilioVerifySid) {
+      try {
+        const verifyUrl = `https://verify.twilio.com/v2/Services/${twilioVerifySid}/Verifications`;
+        const authHeader = 'Basic ' + Buffer.from(`${twilioSid}:${twilioAuth}`).toString('base64');
+        const formBody = new URLSearchParams({
+          To: formattedPhone,
+          Channel: 'sms'
+        });
+
+        const verifyRes = await fetch(verifyUrl, {
+          method: 'POST',
+          headers: {
+            'Authorization': authHeader,
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: formBody.toString()
+        });
+        if (verifyRes.ok) {
+          smsSent = true;
+        }
+      } catch (verErr) {
+        console.error('Twilio Verify dispatch error:', verErr);
+      }
+    }
+
+    // 2. Secondary: Twilio Messages API
+    if (!smsSent && twilioSid && twilioAuth && twilioPhone) {
       try {
         const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`;
         const authHeader = 'Basic ' + Buffer.from(`${twilioSid}:${twilioAuth}`).toString('base64');
@@ -69,33 +97,6 @@ export async function POST(request: NextRequest) {
         }
       } catch (twErr) {
         console.error('Twilio SMS dispatch error:', twErr);
-      }
-    }
-
-    // Twilio Verify Service API (No dedicated phone number required)
-    const twilioVerifySid = process.env.TWILIO_VERIFY_SERVICE_SID;
-    if (!smsSent && twilioSid && twilioAuth && twilioVerifySid) {
-      try {
-        const verifyUrl = `https://verify.twilio.com/v2/Services/${twilioVerifySid}/Verifications`;
-        const authHeader = 'Basic ' + Buffer.from(`${twilioSid}:${twilioAuth}`).toString('base64');
-        const formBody = new URLSearchParams({
-          To: formattedPhone,
-          Channel: 'sms'
-        });
-
-        const verifyRes = await fetch(verifyUrl, {
-          method: 'POST',
-          headers: {
-            'Authorization': authHeader,
-            'Content-Type': 'application/x-www-form-urlencoded'
-          },
-          body: formBody.toString()
-        });
-        if (verifyRes.ok) {
-          smsSent = true;
-        }
-      } catch (verErr) {
-        console.error('Twilio Verify dispatch error:', verErr);
       }
     }
 
