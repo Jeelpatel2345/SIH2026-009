@@ -352,6 +352,22 @@ export default function LoginPage() {
               </div>
             ) : (
               <div className="mt-5 space-y-4">
+                {receivedOtp && (
+                  <div className="p-3 bg-teal-50 border border-teal-200/80 rounded-2xl flex items-center justify-between">
+                    <div className="text-xs">
+                      <span className="text-teal-900 font-semibold block">Verification Code:</span>
+                      <span className="text-base font-black font-mono tracking-widest text-teal-950">{receivedOtp}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleAutoFill()}
+                      className="bg-teal-700 hover:bg-teal-800 text-white font-bold text-xs px-3 py-1.5 rounded-xl shadow-xs transition cursor-pointer"
+                    >
+                      Auto-Fill
+                    </button>
+                  </div>
+                )}
+
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                     Enter 4-Digit Code
