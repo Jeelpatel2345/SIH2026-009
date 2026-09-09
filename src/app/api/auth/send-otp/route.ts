@@ -67,6 +67,10 @@ export async function POST(request: NextRequest) {
         });
         if (verifyRes.ok) {
           smsSent = true;
+          console.log(`[Twilio Verify] Real-time SMS successfully dispatched to ${formattedPhone}`);
+        } else {
+          const errText = await verifyRes.text();
+          console.warn('[Twilio Verify] Dispatch warning:', errText);
         }
       } catch (verErr) {
         console.error('Twilio Verify dispatch error:', verErr);
@@ -134,7 +138,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: `4-digit OTP sent successfully to +91 ${cleanPhone.slice(0, 5)} ${cleanPhone.slice(5)}`,
-      otp, // Provided for live push/SMS banner notification on client
       smsSent,
       provider: twilioSid ? 'Twilio SMS' : 'SahYog Live SMS',
       expiresInSeconds: 600,
