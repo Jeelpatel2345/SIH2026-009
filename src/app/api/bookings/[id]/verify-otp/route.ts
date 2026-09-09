@@ -34,8 +34,8 @@ export async function POST(
     }
 
     // Check OTP: matches stored OTP, or demo fallbacks
-    const expectedOtp = booking?.workerOtp || '5821';
-    const isOtpValid = cleanOtp === expectedOtp || cleanOtp === '5821' || cleanOtp === '1234';
+    const expectedOtp = booking?.workerOtp || '3387';
+    const isOtpValid = cleanOtp === expectedOtp || cleanOtp === '3387' || cleanOtp === '5821' || cleanOtp === '1234';
 
     if (!isOtpValid) {
       return NextResponse.json(

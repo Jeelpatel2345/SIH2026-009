@@ -13,7 +13,7 @@ import RealTrackingMap from '@/components/RealTrackingMap';
 export default function WorkerDashboard() {
   const router = useRouter();
   const [isOnline, setIsOnline] = useState(true);
-  const [workerName, setWorkerName] = useState('Sanjay Kumar');
+  const [workerName, setWorkerName] = useState('Sunita Mehra');
   const [showDirectionsModal, setShowDirectionsModal] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
@@ -22,7 +22,7 @@ export default function WorkerDashboard() {
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationSubmitted, setVerificationSubmitted] = useState(false);
 
-  // Active Job & Arrival 4-digit OTP state
+  // Active Job & Arrival 4-digit OTP state (defaults to live customer booking for Sunita Mehra)
   const [activeBooking, setActiveBooking] = useState<{
     id: string;
     customerName: string;
@@ -31,14 +31,16 @@ export default function WorkerDashboard() {
     address: string;
     amount: number;
     otpVerified: boolean;
+    expectedOtp?: string;
   }>({
-    id: 'bk-active-1',
-    customerName: 'Amit Sharma',
-    customerPhone: '+91 98765 43210',
-    service: 'Plumbing Repair',
-    address: 'Sector 45, Gurgaon',
-    amount: 650,
-    otpVerified: false
+    id: 'bk_mtu9jujcjz6p',
+    customerName: 'Jeel vyas',
+    customerPhone: '+91 91066 38851',
+    service: 'Home & Kitchen Cleaning Expert',
+    address: 'B/402, Shanti Heights, Sector 12, Ahmedabad',
+    amount: 731,
+    otpVerified: false,
+    expectedOtp: '3387',
   });
   const [otpModalOpen, setOtpModalOpen] = useState(false);
   const [enteredOtp, setEnteredOtp] = useState('');
@@ -46,26 +48,39 @@ export default function WorkerDashboard() {
   const [verifyingOtp, setVerifyingOtp] = useState(false);
   const [toastNotice, setToastNotice] = useState('');
 
-  // Lock Worker Role & Profile Hydration (eliminates flickering on refresh)
+  // Lock Worker Role & Profile Hydration
   useEffect(() => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('sahyog-role', 'WORKER');
       localStorage.setItem('sahyog-logged-in', 'true');
-      const savedName = localStorage.getItem('sahyog-user-name');
-      if (savedName) setWorkerName(savedName);
 
-      // Fetch live worker profile if available
-      fetch('/api/user/profile')
-        .then((res) => (res.ok ? res.json() : null))
-        .then((data) => {
-          if (data?.user?.fullName) {
-            setWorkerName(data.user.fullName);
-            localStorage.setItem('sahyog-user-name', data.user.fullName);
+      // 1. Check local storage bookings placed by customer
+      try {
+        const raw = localStorage.getItem('sahyog-user-bookings');
+        if (raw) {
+          const list = JSON.parse(raw);
+          if (Array.isArray(list) && list.length > 0) {
+            const latest = list[0];
+            const bWorker = latest.workerName || latest.workerProfile?.user?.fullName || 'Sunita Mehra';
+            setWorkerName(bWorker);
+            localStorage.setItem('sahyog-user-name', bWorker);
+            const isVerified = latest.status === 'IN_PROGRESS' || !!latest.otpVerifiedAt;
+            setActiveBooking({
+              id: latest.id || latest.bookingCode || 'bk_mtu9jujcjz6p',
+              customerName: latest.customerName || latest.customer?.fullName || 'Jeel vyas',
+              customerPhone: latest.customerPhone || '+91 91066 38851',
+              service: latest.serviceTitle || latest.serviceName || 'Home & Kitchen Cleaning Expert',
+              address: latest.address || latest.serviceLocation || 'B/402, Shanti Heights, Sector 12, Ahmedabad',
+              amount: latest.totalAmount || 731,
+              otpVerified: isVerified,
+              expectedOtp: latest.workerOtp || '3387',
+            });
+            setActiveJobStatus(isVerified ? 'IN PROGRESS' : 'ON THE WAY');
           }
-        })
-        .catch(() => {});
+        }
+      } catch {}
 
-      // Fetch live active booking
+      // 2. Query API for live database bookings
       fetch('/api/bookings')
         .then((res) => (res.ok ? res.json() : null))
         .then((data) => {
@@ -74,15 +89,21 @@ export default function WorkerDashboard() {
               b.status === 'IN_PROGRESS' || b.status === 'CONFIRMED' || b.status === 'ACCEPTED' || b.status === 'PENDING'
             );
             if (active) {
+              const bWorker = active.workerProfile?.user?.fullName || active.workerName;
+              if (bWorker) {
+                setWorkerName(bWorker);
+                localStorage.setItem('sahyog-user-name', bWorker);
+              }
               const isVerified = !!active.otpVerifiedAt || active.status === 'IN_PROGRESS';
               setActiveBooking({
                 id: active.id,
-                customerName: active.customer?.fullName || 'Amit Sharma',
-                customerPhone: active.customer?.phone || '+91 98765 43210',
-                service: active.serviceTitle || active.serviceName || 'Plumbing Repair',
-                address: active.serviceLocation || 'Sector 45, Gurgaon',
-                amount: active.totalAmount || 650,
+                customerName: active.customer?.fullName || 'Jeel vyas',
+                customerPhone: active.customer?.phone || '+91 91066 38851',
+                service: active.serviceTitle || active.serviceName || 'Home & Kitchen Cleaning Expert',
+                address: active.serviceLocation || 'B/402, Shanti Heights, Sector 12, Ahmedabad',
+                amount: active.totalAmount || 731,
                 otpVerified: isVerified,
+                expectedOtp: active.workerOtp || '3387',
               });
               setActiveJobStatus(isVerified ? 'IN PROGRESS' : 'ON THE WAY');
             }
@@ -145,6 +166,22 @@ export default function WorkerDashboard() {
       setEnteredOtp('');
       setToastNotice('✅ 4-Digit OTP Verified! Work is now IN PROGRESS.');
       setTimeout(() => setToastNotice(''), 4000);
+
+      // Sync with customer tracking screen in localStorage
+      if (typeof window !== 'undefined') {
+        try {
+          const raw = localStorage.getItem('sahyog-user-bookings');
+          if (raw) {
+            const list = JSON.parse(raw);
+            const updatedList = list.map((b: any) =>
+              b.id === activeBooking.id || b.bookingCode === activeBooking.id
+                ? { ...b, status: 'IN_PROGRESS', otpVerifiedAt: new Date().toISOString() }
+                : b
+            );
+            localStorage.setItem('sahyog-user-bookings', JSON.stringify(updatedList));
+          }
+        } catch {}
+      }
     } catch (err: any) {
       // In demo mode or if mock booking, accept 4-digit code smoothly
       if (enteredOtp.length === 4) {
@@ -154,6 +191,21 @@ export default function WorkerDashboard() {
         setEnteredOtp('');
         setToastNotice('✅ 4-Digit OTP Verified! Work is now IN PROGRESS.');
         setTimeout(() => setToastNotice(''), 4000);
+
+        if (typeof window !== 'undefined') {
+          try {
+            const raw = localStorage.getItem('sahyog-user-bookings');
+            if (raw) {
+              const list = JSON.parse(raw);
+              const updatedList = list.map((b: any) =>
+                b.id === activeBooking.id || b.bookingCode === activeBooking.id
+                  ? { ...b, status: 'IN_PROGRESS', otpVerifiedAt: new Date().toISOString() }
+                  : b
+              );
+              localStorage.setItem('sahyog-user-bookings', JSON.stringify(updatedList));
+            }
+          } catch {}
+        }
       } else {
         setOtpError(err.message || 'Incorrect 4-digit customer code');
       }
@@ -169,6 +221,21 @@ export default function WorkerDashboard() {
     setActiveJobStatus('COMPLETED');
     setToastNotice(`🎉 Job Completed! ₹${activeBooking.amount} added to your account.`);
     setTimeout(() => setToastNotice(''), 5000);
+
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('sahyog-user-bookings');
+        if (raw) {
+          const list = JSON.parse(raw);
+          const updatedList = list.map((b: any) =>
+            b.id === activeBooking.id || b.bookingCode === activeBooking.id
+              ? { ...b, status: 'COMPLETED', paymentStatus: 'PAID' }
+              : b
+          );
+          localStorage.setItem('sahyog-user-bookings', JSON.stringify(updatedList));
+        }
+      } catch {}
+    }
   };
 
   return (

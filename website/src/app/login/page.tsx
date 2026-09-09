@@ -88,8 +88,6 @@ export default function LoginPage() {
       if (typeof window !== 'undefined') {
         localStorage.setItem('sahyog-user-name', userFullName);
         localStorage.setItem('sahyog-user-phone', data.user.phone);
-        localStorage.setItem('sahyog-role', data.user.role || role);
-        localStorage.setItem('sahyog-logged-in', 'true');
       }
 
       router.push('/dashboard');
@@ -121,57 +119,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4 sm:p-8 relative">
-      {/* Real-time Twilio SMS Push Notification Banner (Top of Screen) */}
-      {step === 'OTP' && receivedOtp && showTwilioNotification && (
-        <div className="fixed top-4 left-4 right-4 max-w-md mx-auto z-50 animate-in slide-in-from-top-4 duration-300">
-          <div className="bg-slate-900/95 backdrop-blur-md text-white p-3.5 rounded-2xl shadow-2xl border border-white/20 flex items-start justify-between gap-3">
-            <div className="flex items-start gap-2.5 flex-1">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center text-white flex-shrink-0 shadow-xs">
-                <MessageSquare className="w-4 h-4" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-300">
-                    MESSAGES • Twilio / SahYog SMS
-                  </span>
-                  <span className="text-[10px] text-slate-400">now</span>
-                </div>
-                <p className="text-xs text-slate-200 mt-0.5 leading-snug">
-                  Your SahYog verification code is <strong className="text-amber-400 font-mono text-sm tracking-wider">{receivedOtp}</strong>. Valid for 10 minutes. Do not share with anyone.
-                </p>
-                <div className="mt-2 flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const digits = receivedOtp.slice(0, 4).split('');
-                      setOtp(digits);
-                      handleVerifyOtp(receivedOtp);
-                    }}
-                    className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-[11px] px-3 py-1 rounded-lg transition shadow-xs flex items-center gap-1 cursor-pointer"
-                  >
-                    <span>Tap to Auto-fill ({receivedOtp})</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowTwilioNotification(false)}
-                    className="text-[11px] text-slate-400 hover:text-white transition px-2 py-1 cursor-pointer"
-                  >
-                    Dismiss
-                  </button>
-                </div>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setShowTwilioNotification(false)}
-              className="text-slate-400 hover:text-white p-1 cursor-pointer"
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-      )}
-
       <div className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200 grid grid-cols-1 md:grid-cols-12 min-h-[580px]">
         {/* Left Side: Brand & Benefits */}
         <div className="md:col-span-5 bg-gradient-to-br from-[#022c2b] via-[#0d9488] to-[#042f2e] text-white p-8 sm:p-10 flex flex-col justify-between relative overflow-hidden">

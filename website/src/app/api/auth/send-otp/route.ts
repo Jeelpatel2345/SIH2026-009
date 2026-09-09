@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
         const formBody = new URLSearchParams({
           To: formattedPhone,
           From: twilioPhone,
-          Body: `Your SahYog verification OTP is: ${otp}. Valid for 10 minutes. Do not share this OTP with anyone.`
+          Body: `Your SahYog verification OTP is: ${otp}. Valid for 10 minutes. Do not share with anyone.`
         });
 
         const twilioRes = await fetch(twilioUrl, {
@@ -69,6 +69,37 @@ export async function POST(request: NextRequest) {
         }
       } catch (twErr) {
         console.error('Twilio SMS dispatch error:', twErr);
+      }
+    }
+
+    // Secondary fallback: Fast2SMS if provided
+    if (!smsSent && process.env.FAST2SMS_API_KEY) {
+      try {
+        const smsRes = await fetch(
+          `https://www.fast2sms.com/dev/bulkV2?authorization=${process.env.FAST2SMS_API_KEY}&route=otp&variables_values=${otp}&flash=0&numbers=${cleanPhone}`,
+          { method: 'GET' }
+        );
+        const smsData = await smsRes.json();
+        if (smsData.return === true) {
+          smsSent = true;
+        }
+      } catch (smsErr) {
+        console.error('Fast2SMS dispatch error:', smsErr);
+      }
+    }
+
+    // Tertiary fallback: 2Factor.in API if provided
+    if (!smsSent && process.env.TWOFACTOR_API_KEY) {
+      try {
+        const twoFacRes = await fetch(
+          `https://2factor.in/API/V1/${process.env.TWOFACTOR_API_KEY}/SMS/${cleanPhone}/${otp}/OTP1`
+        );
+        const twoFacData = await twoFacRes.json();
+        if (twoFacData.Status === 'Success') {
+          smsSent = true;
+        }
+      } catch (twoErr) {
+        console.error('2Factor dispatch error:', twoErr);
       }
     }
 

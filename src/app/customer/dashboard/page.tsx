@@ -7,7 +7,6 @@ import {
   Paintbrush, ArrowRight, Heart, Award, Shield, CheckCircle, Clock
 } from 'lucide-react';
 import BottomNav from '@/components/BottomNav';
-import FloatingChatbot from '@/components/FloatingChatbot';
 import { useAuthStore } from '@/store/authStore';
 import { serviceCategories, allWorkers } from '@/data/workersData';
 
@@ -380,9 +379,6 @@ export default function CustomerDashboard() {
           </Link>
         </div>
       </div>
-
-      {/* SahYog AI Diagnostic Floating Chatbot */}
-      <FloatingChatbot />
 
       {/* Mobile-only Bottom Navigation */}
       <BottomNav role="customer" />

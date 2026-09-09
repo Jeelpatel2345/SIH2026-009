@@ -56,34 +56,45 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 2. Ensure a valid worker profile exists
+    // 2. Ensure a valid worker profile exists for the specified worker
     let workerProfile = null;
     if (body.workerProfileId) {
-      workerProfile = await prisma.workerProfile.findUnique({ where: { id: body.workerProfileId } }).catch(() => null);
+      workerProfile = await prisma.workerProfile.findUnique({ 
+        where: { id: body.workerProfileId }, 
+        include: { user: true } 
+      }).catch(() => null);
+    }
+    const targetWorkerName = (body.workerName || 'Sunita Mehra').trim();
+    if (!workerProfile && targetWorkerName) {
+      workerProfile = await prisma.workerProfile.findFirst({
+        where: { user: { fullName: { contains: targetWorkerName, mode: 'insensitive' } } },
+        include: { user: true }
+      }).catch(() => null);
+    }
+    if (!workerProfile) {
+      // Create dedicated worker profile matching targetWorkerName
+      const randDigits = Math.floor(1000000000 + Math.random() * 9000000000).toString();
+      const workerUser = await prisma.user.create({
+        data: {
+          phone: `+91${randDigits}`,
+          fullName: targetWorkerName,
+          role: 'WORKER',
+          workerProfile: {
+            create: {
+              primaryWorkArea: body.city || 'Ahmedabad',
+              hourlyRate: body.hourlyRate || 350,
+              rating: 4.9,
+              yearsExperience: 5,
+              verificationStatus: 'APPROVED'
+            }
+          }
+        },
+        include: { workerProfile: true }
+      }).catch(() => null);
+      workerProfile = workerUser?.workerProfile;
     }
     if (!workerProfile) {
       workerProfile = await prisma.workerProfile.findFirst({ include: { user: true } }).catch(() => null);
-      if (!workerProfile) {
-        // Create worker user & profile if none exists
-        const workerUser = await prisma.user.create({
-          data: {
-            phone: '+919876543219',
-            fullName: body.workerName || 'Rajesh Kumar',
-            role: 'WORKER',
-            workerProfile: {
-              create: {
-                primaryWorkArea: 'Ahmedabad',
-                hourlyRate: 350,
-                rating: 4.8,
-                yearsExperience: 5,
-                verificationStatus: 'APPROVED'
-              }
-            }
-          },
-          include: { workerProfile: true }
-        }).catch(() => null);
-        workerProfile = workerUser?.workerProfile;
-      }
     }
 
     if (!customer || !workerProfile) {

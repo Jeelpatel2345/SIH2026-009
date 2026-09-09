@@ -88,6 +88,21 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Tertiary fallback: 2Factor.in API if provided
+    if (!smsSent && process.env.TWOFACTOR_API_KEY) {
+      try {
+        const twoFacRes = await fetch(
+          `https://2factor.in/API/V1/${process.env.TWOFACTOR_API_KEY}/SMS/${cleanPhone}/${otp}/OTP1`
+        );
+        const twoFacData = await twoFacRes.json();
+        if (twoFacData.Status === 'Success') {
+          smsSent = true;
+        }
+      } catch (twoErr) {
+        console.error('2Factor dispatch error:', twoErr);
+      }
+    }
+
     return NextResponse.json({
       success: true,
       message: `4-digit OTP sent successfully to +91 ${cleanPhone.slice(0, 5)} ${cleanPhone.slice(5)}`,
