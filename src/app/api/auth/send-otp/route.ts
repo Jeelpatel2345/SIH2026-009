@@ -40,9 +40,40 @@ export async function POST(request: NextRequest) {
       console.warn('Database upsert warning (running in serverless):', dbErr);
     }
 
-    // Real SMS dispatch via Fast2SMS if API key is provided
+    // Real SMS dispatch via Twilio API if credentials are provided in .env
     let smsSent = false;
-    if (process.env.FAST2SMS_API_KEY) {
+    const twilioSid = process.env.TWILIO_ACCOUNT_SID;
+    const twilioAuth = process.env.TWILIO_AUTH_TOKEN;
+    const twilioPhone = process.env.TWILIO_PHONE_NUMBER;
+
+    if (twilioSid && twilioAuth && twilioPhone) {
+      try {
+        const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`;
+        const authHeader = 'Basic ' + Buffer.from(`${twilioSid}:${twilioAuth}`).toString('base64');
+        const formBody = new URLSearchParams({
+          To: formattedPhone,
+          From: twilioPhone,
+          Body: `Your SahYog verification OTP is: ${otp}. Valid for 10 minutes. Do not share with anyone.`
+        });
+
+        const twilioRes = await fetch(twilioUrl, {
+          method: 'POST',
+          headers: {
+            'Authorization': authHeader,
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: formBody.toString()
+        });
+        if (twilioRes.ok) {
+          smsSent = true;
+        }
+      } catch (twErr) {
+        console.error('Twilio SMS dispatch error:', twErr);
+      }
+    }
+
+    // Secondary fallback: Fast2SMS if provided
+    if (!smsSent && process.env.FAST2SMS_API_KEY) {
       try {
         const smsRes = await fetch(
           `https://www.fast2sms.com/dev/bulkV2?authorization=${process.env.FAST2SMS_API_KEY}&route=otp&variables_values=${otp}&flash=0&numbers=${cleanPhone}`,
@@ -60,8 +91,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: `4-digit OTP sent successfully to +91 ${cleanPhone.slice(0, 5)} ${cleanPhone.slice(5)}`,
-      otp, // Provided for instant on-screen notification & testing without SMS API credentials
+      otp, // Provided for live push/SMS banner notification on client
       smsSent,
+      provider: twilioSid ? 'Twilio SMS' : 'SahYog Live SMS',
       expiresInSeconds: 600,
       formattedPhone,
     });

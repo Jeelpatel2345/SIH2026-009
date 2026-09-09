@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import InstallAppBanner from "@/components/InstallAppBanner";
+import OfflineBanner from "@/components/OfflineBanner";
 
 export const metadata: Metadata = {
   title: "SahYog - Connecting Communities",
@@ -39,6 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="theme-color" content="#0d9488" />
       </head>
       <body className="antialiased bg-gray-50 min-h-screen">
+        <OfflineBanner />
         <InstallAppBanner />
         {children}
       </body>

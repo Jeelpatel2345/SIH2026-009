@@ -38,24 +38,43 @@ export default function ProfilePage() {
         window.matchMedia('(display-mode: standalone)').matches;
       if (!isInsideApp) setShowDownloadApk(true);
     }
-    const savedName = fullName || localStorage.getItem('sahyog-user-name') || 'Jeel Patel';
-    const savedPhone = phone || localStorage.getItem('sahyog-user-phone') || '+91 98765 43210';
+    const savedName = fullName || (typeof window !== 'undefined' ? localStorage.getItem('sahyog-user-name') : '') || 'Jeel Patel';
+    const savedPhone = phone || (typeof window !== 'undefined' ? localStorage.getItem('sahyog-user-phone') : '') || '+91 98765 43210';
+    const savedEmail = (typeof window !== 'undefined' ? localStorage.getItem('sahyog-user-email') : '') || 'jeel.patel@sahyog.in';
+    const savedCity = (typeof window !== 'undefined' ? localStorage.getItem('sahyog-user-city') : '') || 'Ahmedabad, Gujarat';
+    const savedAddress = (typeof window !== 'undefined' ? localStorage.getItem('sahyog-user-address') : '') || 'B/402, Shanti Heights, Sector 12, Navrangpura';
+
     setUserName(savedName);
     setUserPhone(savedPhone);
-    setUserEmail('member@sahyog.in');
-    setUserCity('Ahmedabad, Gujarat');
-    setUserAddress('B/402, Shanti Heights, Sector 12, Navrangpura');
+    setUserEmail(savedEmail);
+    setUserCity(savedCity);
+    setUserAddress(savedAddress);
 
-    // Fetch live profile from Neon DB if available
+    // Fetch live profile from Neon DB
     fetch('/api/user/profile')
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data?.user) {
-          if (data.user.fullName) setUserName(data.user.fullName);
-          if (data.user.phone) setUserPhone(data.user.phone);
-          if (data.user.email) setUserEmail(data.user.email);
-          if (data.user.customerProfile?.city) setUserCity(data.user.customerProfile.city);
-          if (data.user.customerProfile?.address) setUserAddress(data.user.customerProfile.address);
+          if (data.user.fullName) {
+            setUserName(data.user.fullName);
+            localStorage.setItem('sahyog-user-name', data.user.fullName);
+          }
+          if (data.user.phone) {
+            setUserPhone(data.user.phone);
+            localStorage.setItem('sahyog-user-phone', data.user.phone);
+          }
+          if (data.user.email) {
+            setUserEmail(data.user.email);
+            localStorage.setItem('sahyog-user-email', data.user.email);
+          }
+          if (data.user.customerProfile?.city) {
+            setUserCity(data.user.customerProfile.city);
+            localStorage.setItem('sahyog-user-city', data.user.customerProfile.city);
+          }
+          if (data.user.customerProfile?.address) {
+            setUserAddress(data.user.customerProfile.address);
+            localStorage.setItem('sahyog-user-address', data.user.customerProfile.address);
+          }
         }
       })
       .catch(() => {});
@@ -76,8 +95,12 @@ export default function ProfilePage() {
         }),
       });
 
-      // Update state and localStorage
+      // Update state and localStorage for real-time instant sync
       localStorage.setItem('sahyog-user-name', userName.trim());
+      localStorage.setItem('sahyog-user-phone', userPhone);
+      localStorage.setItem('sahyog-user-email', userEmail.trim());
+      localStorage.setItem('sahyog-user-city', userCity.trim());
+      localStorage.setItem('sahyog-user-address', userAddress.trim());
       setAuth({
         userId: 'current-user',
         role: role || 'CUSTOMER',

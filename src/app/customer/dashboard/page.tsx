@@ -7,6 +7,7 @@ import {
   Paintbrush, ArrowRight, Heart, Award, Shield, CheckCircle, Clock
 } from 'lucide-react';
 import BottomNav from '@/components/BottomNav';
+import FloatingChatbot from '@/components/FloatingChatbot';
 import { useAuthStore } from '@/store/authStore';
 import { serviceCategories, allWorkers } from '@/data/workersData';
 
@@ -25,14 +26,11 @@ export default function CustomerDashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [clientName, setClientName] = useState('');
 
-  // Hydrate custom user name from localStorage & DB, and enforce role guard
+  // Lock Customer Role & Hydrate profile
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const storedRole = localStorage.getItem('sahyog-role');
-      if (storedRole === 'WORKER') {
-        window.location.href = '/worker/dashboard';
-        return;
-      }
+      localStorage.setItem('sahyog-role', 'CUSTOMER');
+      localStorage.setItem('sahyog-logged-in', 'true');
       const saved = localStorage.getItem('sahyog-user-name');
       if (saved) setClientName(saved);
       fetch('/api/user/profile')
@@ -382,6 +380,9 @@ export default function CustomerDashboard() {
           </Link>
         </div>
       </div>
+
+      {/* SahYog AI Diagnostic Floating Chatbot */}
+      <FloatingChatbot />
 
       {/* Mobile-only Bottom Navigation */}
       <BottomNav role="customer" />

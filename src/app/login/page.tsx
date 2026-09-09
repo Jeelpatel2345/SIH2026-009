@@ -19,6 +19,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [receivedOtp, setReceivedOtp] = useState<string | null>(null);
+  const [showTwilioNotification, setShowTwilioNotification] = useState(false);
   const [countdown, setCountdown] = useState(30);
   const [canResend, setCanResend] = useState(false);
 
@@ -64,6 +65,7 @@ export default function LoginPage() {
 
       setOtpSent(true);
       setReceivedOtp(data.otp);
+      setShowTwilioNotification(true);
       setCountdown(30);
       setCanResend(false);
     } catch (err: any) {
@@ -158,7 +160,54 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white md:bg-slate-900 flex items-center justify-center md:p-6">
+    <div className="min-h-screen bg-white md:bg-slate-900 flex items-center justify-center md:p-6 relative">
+      {/* Real-time Twilio SMS Push Notification Banner (Top of Screen) */}
+      {otpSent && receivedOtp && showTwilioNotification && (
+        <div className="fixed top-4 left-4 right-4 max-w-md mx-auto z-50 animate-in slide-in-from-top-4 duration-300">
+          <div className="bg-slate-900/95 backdrop-blur-md text-white p-3.5 rounded-2xl shadow-2xl border border-white/20 flex items-start justify-between gap-3">
+            <div className="flex items-start gap-2.5 flex-1">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center text-white flex-shrink-0 shadow-xs">
+                <MessageSquare className="w-4 h-4" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-300">
+                    MESSAGES • Twilio / SahYog SMS
+                  </span>
+                  <span className="text-[10px] text-slate-400">now</span>
+                </div>
+                <p className="text-xs text-slate-200 mt-0.5 leading-snug">
+                  Your SahYog verification code is <strong className="text-amber-400 font-mono text-sm tracking-wider">{receivedOtp}</strong>. Valid for 10 minutes. Do not share with anyone.
+                </p>
+                <div className="mt-2 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleAutoFill}
+                    className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-[11px] px-3 py-1 rounded-lg transition shadow-xs flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>Tap to Auto-fill ({receivedOtp})</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowTwilioNotification(false)}
+                    className="text-[11px] text-slate-400 hover:text-white transition px-2 py-1 cursor-pointer"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowTwilioNotification(false)}
+              className="text-slate-400 hover:text-white p-1 cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="w-full max-w-4xl bg-white md:rounded-3xl md:shadow-2xl overflow-hidden md:border md:border-slate-200 grid grid-cols-1 md:grid-cols-2 min-h-[580px]">
         {/* Left Hero & Security Banner */}
         <div className="bg-gradient-to-br from-[#042f2e] via-[#0d9488] to-[#042f2e] text-white p-6 sm:p-8 flex flex-col justify-between relative overflow-hidden">
@@ -270,32 +319,6 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* Real-time SMS Toast Alert (Auto-fills OTP in 1 click) */}
-            {otpSent && receivedOtp && (
-              <div className="mt-3.5 p-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2">
-                    <MessageSquare className="w-4 h-4 text-amber-300 animate-bounce" />
-                    <span className="text-xs font-bold uppercase tracking-wider text-amber-200">
-                      Live SMS OTP Received
-                    </span>
-                  </div>
-                  <span className="font-mono text-xs bg-emerald-950/40 px-2 py-0.5 rounded text-amber-300 font-bold">
-                    Code: {receivedOtp}
-                  </span>
-                </div>
-                <p className="text-[11px] text-emerald-100 mt-1">
-                  Your SahYog code is <b className="text-white font-mono text-sm">{receivedOtp}</b>.
-                </p>
-                <button
-                  type="button"
-                  onClick={handleAutoFill}
-                  className="mt-2 w-full py-1.5 bg-amber-400 hover:bg-amber-300 text-emerald-950 font-black text-xs rounded-lg transition shadow-xs"
-                >
-                  ⚡ One-Tap Auto-fill & Login ({receivedOtp})
-                </button>
-              </div>
-            )}
 
             {!otpSent ? (
               <div className="mt-5 space-y-3.5">

@@ -106,15 +106,13 @@ export default function WorkerBookingsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeDirectionsJob, setActiveDirectionsJob] = useState<JobBooking | null>(null);
 
-  // Role Guard
+  // Lock Worker Role
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const storedRole = localStorage.getItem('sahyog-role');
-      if (storedRole === 'CUSTOMER') {
-        router.replace('/customer/dashboard');
-      }
+      localStorage.setItem('sahyog-role', 'WORKER');
+      localStorage.setItem('sahyog-logged-in', 'true');
     }
-  }, [router]);
+  }, []);
 
   const [otpModalJob, setOtpModalJob] = useState<JobBooking | null>(null);
   const [enteredOtp, setEnteredOtp] = useState('');
