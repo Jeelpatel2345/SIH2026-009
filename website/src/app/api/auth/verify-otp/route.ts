@@ -28,11 +28,60 @@ export async function POST(request: NextRequest) {
       console.warn('DB lookup warning:', dbErr);
     }
 
-    // Verify OTP: either matches user.otp in DB, or demo fallbacks, or any 4-digit code
-    const isOtpValid = (user && user.otp === cleanOtp) || cleanOtp === '1234' || cleanOtp === '0000' || cleanOtp.length === 4;
+    let isOtpValid = false;
+
+    // 1. Verify via Twilio Verify Service if configured
+    const twilioSid = process.env.TWILIO_ACCOUNT_SID;
+    const twilioAuth = process.env.TWILIO_AUTH_TOKEN;
+    const twilioVerifySid = process.env.TWILIO_VERIFY_SERVICE_SID;
+
+    if (twilioSid && twilioAuth && twilioVerifySid) {
+      try {
+        const verifyCheckUrl = `https://verify.twilio.com/v2/Services/${twilioVerifySid}/VerificationCheck`;
+        const authHeader = 'Basic ' + Buffer.from(`${twilioSid}:${twilioAuth}`).toString('base64');
+        const formBody = new URLSearchParams({
+          To: formattedPhone,
+          Code: cleanOtp,
+        });
+
+        const checkRes = await fetch(verifyCheckUrl, {
+          method: 'POST',
+          headers: {
+            'Authorization': authHeader,
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: formBody.toString(),
+        });
+
+        if (checkRes.ok) {
+          const checkData = await checkRes.json();
+          if (checkData.status === 'approved') {
+            isOtpValid = true;
+          }
+        }
+      } catch (twCheckErr) {
+        console.warn('Twilio verification check error:', twCheckErr);
+      }
+    }
+
+    // 2. Verify via Database OTP matching
+    if (!isOtpValid && user && user.otp === cleanOtp) {
+      const isNotExpired = !user.otpExpiresAt || new Date(user.otpExpiresAt).getTime() > Date.now();
+      if (isNotExpired) {
+        isOtpValid = true;
+      }
+    }
+
+    // 3. Fallback master demo PIN (1234) reserved solely for emergency presentation backup
+    if (!isOtpValid && cleanOtp === '1234') {
+      isOtpValid = true;
+    }
 
     if (!isOtpValid) {
-      return NextResponse.json({ error: 'Invalid or expired OTP. Please try again.' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'Invalid or expired OTP. Please enter the correct code received on your phone.' },
+        { status: 401 }
+      );
     }
 
     const assignedRole = role || user?.role || 'CUSTOMER';

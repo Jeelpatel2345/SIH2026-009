@@ -1,0 +1,301 @@
+﻿Worker_ID,Name,Primary_Service,Rating,Total_Reviews,Experience_Years,City,Hourly_Rate_INR,Availability,Phone
+WRK0001,Rohan Sharma,Painting,3.6,83,9,Ahmedabad,502,Available,+91 95741 21395
+WRK0002,Vihaan Yadav,Plumbing,4.1,25,8,Delhi,559,Available,+91 73031 95181
+WRK0003,Vikas Jat,Carpentry,4.7,15,9,Vadodara,342,Available,+91 87696 54597
+WRK0004,Radha Mishra,Cleaning,3.4,445,13,Mumbai,222,Available,+91 99565 44671
+WRK0005,Rakesh Gupta,Appliance Repair,4.2,436,3,Hyderabad,298,Available,+91 83700 85674
+WRK0006,Sai Prajapati,Electrician,4.7,455,3,Ahmedabad,432,Available,+91 84911 46434
+WRK0007,Ritu Chauhan,Electrician,3.6,148,12,Ahmedabad,287,Available,+91 99920 93227
+WRK0008,Vijay Chauhan,Appliance Repair,3.7,339,13,Delhi,366,Busy,+91 74392 99733
+WRK0009,Ayaan Prajapati,Cleaning,3.9,45,11,Rajkot,308,Available,+91 97170 51245
+WRK0010,Manish Gurjar,Plumbing,3.5,393,9,Delhi,582,Available,+91 95322 44438
+WRK0011,Ashok Makwana,Plumbing,4.1,58,5,Surat,521,Available,+91 67185 30033
+WRK0012,Santosh Vyas,Cleaning,3.9,251,13,Delhi,205,Available,+91 76476 82512
+WRK0013,Rohan Trivedi,Electrician,3.4,234,11,Vadodara,569,Busy,+91 89735 10425
+WRK0014,Pooja Dutt,Plumbing,4.8,457,17,Gandhinagar,301,Available,+91 93270 89818
+WRK0015,Mahesh Trivedi,Carpentry,4.3,262,1,Surat,357,Available,+91 67331 57576
+WRK0016,Sanjay Pandya,Cleaning,4.5,429,3,Ahmedabad,265,Available,+91 94911 26483
+WRK0017,Ganesh Panchal,Carpentry,4.0,120,20,Delhi,404,On Leave,+91 73182 50857
+WRK0018,Preeti Jat,Carpentry,3.4,127,15,Ahmedabad,501,Available,+91 82156 12757
+WRK0019,Vikas Patel,Cleaning,3.6,475,2,Surat,463,Available,+91 81654 19287
+WRK0020,Hardik Rathore,Carpentry,4.5,463,5,Hyderabad,324,Busy,+91 97762 71953
+WRK0021,Kishore Thakur,Cleaning,4.4,193,4,Pune,573,Available,+91 86941 71213
+WRK0022,Dhruv Singh,Appliance Repair,4.6,67,11,Rajkot,474,Available,+91 72556 34931
+WRK0023,Santosh Pandey,Electrician,3.6,50,15,Bengaluru,225,Available,+91 96066 22833
+WRK0024,Tushar Patel,Cleaning,3.5,260,8,Bengaluru,230,Available,+91 74008 62565
+WRK0025,Aarav Zala,Electrician,3.7,368,15,Delhi,297,Available,+91 91894 30289
+WRK0026,Ayaan Dave,Painting,3.3,172,18,Surat,444,Available,+91 63286 86569
+WRK0027,Paresh Chauhan,Cleaning,3.3,107,17,Ahmedabad,545,Busy,+91 98996 18907
+WRK0028,Ashok Gupta,Carpentry,4.2,32,8,Hyderabad,536,Available,+91 65372 64948
+WRK0029,Nilesh Solanki,Electrician,4.4,172,7,Rajkot,267,Available,+91 77407 61876
+WRK0030,Anita Gurjar,Electrician,3.2,330,3,Hyderabad,475,Available,+91 66552 19602
+WRK0031,Pooja Joshi,Electrician,4.8,201,3,Gandhinagar,478,Available,+91 70338 67433
+WRK0032,Paresh Patel,Painting,3.7,351,18,Ahmedabad,259,Busy,+91 68800 44664
+WRK0033,Dinesh Gajjar,Electrician,3.6,187,20,Rajkot,450,Available,+91 77300 76244
+WRK0034,Reyansh Yadav,Painting,4.7,34,14,Surat,526,On Leave,+91 81859 27146
+WRK0035,Mahesh Jat,Carpentry,4.2,69,14,Ahmedabad,218,Busy,+91 69768 81511
+WRK0036,Ramesh Meena,Plumbing,3.8,472,2,Surat,549,Available,+91 83449 37535
+WRK0037,Kabir Vaghela,Carpentry,5.0,395,14,Vadodara,290,Busy,+91 75514 31299
+WRK0038,Vihaan Pandey,Painting,4.6,222,11,Rajkot,559,Available,+91 77485 30866
+WRK0039,Arjun Bishnoi,Plumbing,4.7,247,7,Mumbai,314,Available,+91 80000 39831
+WRK0040,Anil Koli,Electrician,4.8,407,9,Gandhinagar,460,Available,+91 83012 94080
+WRK0041,Rakesh Parmar,Cleaning,4.8,145,4,Vadodara,219,Available,+91 98049 44795
+WRK0042,Vinod Vaghela,Painting,4.0,273,11,Ahmedabad,297,Available,+91 85244 85574
+WRK0043,Vinod Patel,Carpentry,4.4,391,18,Rajkot,235,Busy,+91 83869 66531
+WRK0044,Sita Jani,Electrician,4.5,165,4,Delhi,409,Available,+91 80269 97410
+WRK0045,Sunita Shukla,Plumbing,4.0,206,7,Vadodara,407,Available,+91 97296 49446
+WRK0046,Aarav Luhar,Electrician,4.0,308,7,Hyderabad,426,Available,+91 81118 70946
+WRK0047,Pankaj Dutt,Appliance Repair,4.4,157,6,Delhi,584,Available,+91 81966 22240
+WRK0048,Kavita Prajapati,Plumbing,3.2,137,5,Bengaluru,412,Busy,+91 64772 69692
+WRK0049,Anil Zala,Appliance Repair,3.6,347,13,Surat,312,Available,+91 66985 65724
+WRK0050,Nilesh Gurjar,Cleaning,3.6,446,18,Ahmedabad,437,Available,+91 89914 27477
+WRK0051,Rekha Jat,Carpentry,4.0,476,17,Delhi,580,Busy,+91 89223 30861
+WRK0052,Satish Panchal,Plumbing,4.6,278,9,Bengaluru,425,Available,+91 75679 45992
+WRK0053,Anjali Soni,Electrician,3.8,288,11,Ahmedabad,318,Available,+91 69068 29769
+WRK0054,Dinesh Rathore,Cleaning,3.9,289,14,Bengaluru,305,Busy,+91 87248 18161
+WRK0055,Kiran Dave,Painting,4.7,403,1,Hyderabad,203,Busy,+91 84928 72518
+WRK0056,Anita Zala,Appliance Repair,4.5,291,18,Hyderabad,312,Available,+91 74453 73993
+WRK0057,Hardik Sharma,Appliance Repair,4.4,420,11,Pune,265,On Leave,+91 70816 71261
+WRK0058,Rakesh Sharma,Appliance Repair,4.2,25,19,Ahmedabad,436,Available,+91 88089 27786
+WRK0059,Pooja Zala,Electrician,4.0,184,7,Pune,329,Busy,+91 78235 65255
+WRK0060,Bhavesh Sharma,Painting,3.3,191,18,Rajkot,220,Busy,+91 64496 95426
+WRK0061,Vijay Thakur,Cleaning,3.5,76,20,Bengaluru,311,Available,+91 67496 83920
+WRK0062,Ajay Makwana,Plumbing,4.3,394,20,Ahmedabad,255,Available,+91 70732 50768
+WRK0063,Kavita Pandya,Painting,3.9,378,13,Rajkot,553,Busy,+91 64980 87607
+WRK0064,Vijay Mishra,Painting,4.7,319,10,Ahmedabad,377,Available,+91 97088 15383
+WRK0065,Preeti Kumar,Carpentry,3.2,227,11,Bengaluru,385,Available,+91 66916 66822
+WRK0066,Hemant Shah,Appliance Repair,4.5,345,6,Gandhinagar,438,Available,+91 95269 73372
+WRK0067,Priya Solanki,Plumbing,3.7,242,3,Rajkot,512,Available,+91 90455 84691
+WRK0068,Radha Sharma,Appliance Repair,3.5,120,11,Mumbai,343,Busy,+91 76931 54608
+WRK0069,Neha Shukla,Cleaning,4.9,55,17,Rajkot,484,Busy,+91 86635 74038
+WRK0070,Bhavesh Choudhary,Appliance Repair,3.4,125,1,Pune,539,Available,+91 75945 50135
+WRK0071,Bhavesh Shukla,Carpentry,4.0,393,12,Delhi,559,Available,+91 81678 56112
+WRK0072,Kavita Panchal,Plumbing,4.5,173,4,Ahmedabad,298,Available,+91 95118 34267
+WRK0073,Chetan Gajjar,Painting,5.0,280,19,Hyderabad,299,Available,+91 78546 23176
+WRK0074,Ritu Pandey,Electrician,4.5,76,1,Gandhinagar,483,Available,+91 62982 17146
+WRK0075,Amit Choudhary,Cleaning,4.2,252,1,Bengaluru,294,On Leave,+91 88866 54657
+WRK0076,Ajay Bishnoi,Cleaning,3.9,49,3,Hyderabad,276,Busy,+91 63513 29887
+WRK0077,Anita Yadav,Plumbing,4.2,225,4,Hyderabad,315,Busy,+91 99067 91057
+WRK0078,Suman Jat,Appliance Repair,4.7,231,10,Gandhinagar,230,Available,+91 97265 91399
+WRK0079,Dhruv Rathore,Painting,3.7,53,7,Vadodara,482,Available,+91 75719 32782
+WRK0080,Aarav Rawat,Appliance Repair,4.0,28,20,Rajkot,559,Busy,+91 78881 47056
+WRK0081,Ishaan Prajapati,Electrician,4.4,113,19,Pune,315,Available,+91 67521 81376
+WRK0082,Priya Shah,Cleaning,3.5,169,2,Hyderabad,424,Available,+91 97303 47828
+WRK0083,Anita Koli,Electrician,4.2,236,17,Ahmedabad,421,Available,+91 99192 15224
+WRK0084,Ajay Sharma,Cleaning,4.9,440,8,Hyderabad,591,Available,+91 98477 12719
+WRK0085,Priya Pandya,Cleaning,4.0,345,6,Bengaluru,499,Available,+91 78229 33788
+WRK0086,Hardik Yadav,Appliance Repair,3.9,176,12,Ahmedabad,410,Available,+91 70539 53228
+WRK0087,Anjali Koli,Carpentry,4.0,173,2,Gandhinagar,595,Available,+91 81186 25194
+WRK0088,Mayur Patel,Painting,4.0,39,18,Rajkot,518,Busy,+91 93976 57419
+WRK0089,Pradeep Singh,Plumbing,4.2,159,9,Bengaluru,214,On Leave,+91 91766 25915
+WRK0090,Sanjay Chauhan,Electrician,3.2,220,18,Ahmedabad,436,Busy,+91 74725 24871
+WRK0091,Dinesh Choudhary,Painting,4.1,151,10,Pune,324,Available,+91 91621 71894
+WRK0092,Ramesh Zala,Plumbing,4.1,462,20,Vadodara,595,Busy,+91 64575 46208
+WRK0093,Naresh Parmar,Carpentry,4.7,156,9,Gandhinagar,537,Available,+91 98465 86011
+WRK0094,Dinesh Jat,Carpentry,3.8,294,16,Delhi,364,Busy,+91 84720 69682
+WRK0095,Sanjay Pandya,Appliance Repair,4.7,222,8,Surat,561,Busy,+91 80852 71993
+WRK0096,Suman Zala,Painting,4.1,30,5,Vadodara,369,Busy,+91 92918 87356
+WRK0097,Pradeep Mishra,Carpentry,3.2,85,15,Pune,440,Busy,+91 70116 19807
+WRK0098,Pooja Parmar,Carpentry,4.4,448,13,Mumbai,362,Available,+91 94971 59808
+WRK0099,Hardik Trivedi,Cleaning,3.3,335,20,Gandhinagar,422,On Leave,+91 74908 21846
+WRK0100,Dhruv Jat,Plumbing,4.8,35,10,Mumbai,383,Available,+91 63677 48452
+WRK0101,Ramesh Soni,Carpentry,4.2,417,14,Vadodara,240,Available,+91 71140 32946
+WRK0102,Suman Jani,Painting,4.1,310,8,Vadodara,526,Available,+91 75216 70443
+WRK0103,Ajay Patel,Appliance Repair,4.4,92,10,Ahmedabad,500,Available,+91 88949 55293
+WRK0104,Santosh Panchal,Appliance Repair,3.6,208,10,Bengaluru,395,Available,+91 66989 41091
+WRK0105,Sunita Mistry,Cleaning,3.7,301,13,Surat,346,Busy,+91 99741 75107
+WRK0106,Deepak Vyas,Electrician,4.3,329,8,Gandhinagar,249,Busy,+91 68963 92345
+WRK0107,Sai Luhar,Appliance Repair,4.2,386,2,Vadodara,367,Available,+91 65906 48680
+WRK0108,Rajesh Thakur,Plumbing,4.8,199,18,Delhi,284,Available,+91 92885 45720
+WRK0109,Chetan Mistry,Painting,4.6,251,11,Ahmedabad,546,Available,+91 69224 39571
+WRK0110,Manish Shukla,Electrician,4.6,19,3,Gandhinagar,432,Available,+91 95164 26199
+WRK0111,Pooja Dave,Appliance Repair,3.4,131,12,Bengaluru,487,Available,+91 61640 91205
+WRK0112,Vikas Kumar,Painting,4.8,166,15,Pune,223,Busy,+91 67646 28320
+WRK0113,Anita Choudhary,Cleaning,3.6,287,4,Vadodara,389,Available,+91 85470 69459
+WRK0114,Tushar Rawat,Carpentry,4.8,347,5,Ahmedabad,408,Busy,+91 92069 90694
+WRK0115,Neha Verma,Painting,3.6,239,12,Rajkot,551,Available,+91 83768 23022
+WRK0116,Shweta Singh,Appliance Repair,3.5,74,9,Bengaluru,308,Available,+91 66007 96870
+WRK0117,Aditya Singh,Electrician,5.0,414,8,Hyderabad,591,Available,+91 73448 18992
+WRK0118,Pankaj Prajapati,Electrician,4.6,317,5,Surat,266,Available,+91 78171 28964
+WRK0119,Rajesh Gupta,Painting,3.4,195,1,Rajkot,208,Available,+91 98591 52437
+WRK0120,Reyansh Joshi,Painting,4.1,393,14,Ahmedabad,598,Available,+91 91211 68756
+WRK0121,Kabir Jat,Carpentry,4.9,34,8,Delhi,529,On Leave,+91 79767 70036
+WRK0122,Ayaan Bishnoi,Appliance Repair,4.4,263,14,Bengaluru,364,Available,+91 64816 20589
+WRK0123,Krishna Joshi,Electrician,4.3,292,20,Mumbai,471,Available,+91 84962 88301
+WRK0124,Kalpesh Vyas,Appliance Repair,4.6,70,4,Delhi,431,Busy,+91 74091 66370
+WRK0125,Kishore Parmar,Appliance Repair,3.9,60,13,Mumbai,540,Available,+91 87968 50963
+WRK0126,Dinesh Bishnoi,Cleaning,4.7,59,3,Pune,266,Available,+91 66328 58843
+WRK0127,Sita Gupta,Appliance Repair,4.8,396,12,Pune,507,Available,+91 63371 47700
+WRK0128,Kabir Pandya,Carpentry,3.5,258,7,Rajkot,484,Available,+91 67092 55890
+WRK0129,Neha Pandya,Plumbing,4.7,404,14,Hyderabad,511,Busy,+91 96486 13441
+WRK0130,Priya Sharma,Plumbing,4.5,170,9,Mumbai,292,Busy,+91 83004 10800
+WRK0131,Ashok Kumar,Plumbing,3.4,283,1,Rajkot,432,Available,+91 84654 65028
+WRK0132,Preeti Luhar,Painting,4.6,302,11,Hyderabad,279,Available,+91 65567 16895
+WRK0133,Reyansh Yadav,Electrician,4.4,260,15,Hyderabad,339,Available,+91 88969 64287
+WRK0134,Mayur Gupta,Electrician,3.4,359,14,Hyderabad,541,Available,+91 91891 79066
+WRK0135,Vikas Koli,Carpentry,3.2,166,2,Rajkot,348,Available,+91 68993 43491
+WRK0136,Aarav Choudhary,Painting,3.5,206,14,Delhi,486,Busy,+91 75080 75570
+WRK0137,Shweta Kumar,Appliance Repair,4.0,247,2,Ahmedabad,419,Available,+91 80516 85465
+WRK0138,Naresh Mistry,Cleaning,3.2,178,13,Vadodara,245,Available,+91 90152 57428
+WRK0139,Kabir Soni,Appliance Repair,3.9,52,19,Pune,313,Available,+91 80334 54500
+WRK0140,Ganesh Kumar,Carpentry,4.2,111,4,Mumbai,275,Available,+91 83009 94599
+WRK0141,Ramesh Panchal,Plumbing,4.3,401,6,Ahmedabad,452,Available,+91 71609 92306
+WRK0142,Satish Pandya,Painting,3.8,333,20,Mumbai,234,Available,+91 69893 67640
+WRK0143,Anita Gajjar,Carpentry,3.8,49,2,Gandhinagar,219,Available,+91 90260 69233
+WRK0144,Anjali Kumar,Painting,4.3,271,3,Pune,483,On Leave,+91 90324 86064
+WRK0145,Sai Jat,Carpentry,3.8,255,7,Delhi,430,Available,+91 69886 18109
+WRK0146,Radha Yadav,Carpentry,3.3,374,6,Bengaluru,467,Available,+91 88797 78690
+WRK0147,Ritu Makwana,Electrician,3.9,185,13,Hyderabad,531,Available,+91 63431 92691
+WRK0148,Sita Mishra,Carpentry,3.7,382,13,Hyderabad,241,Available,+91 69854 53694
+WRK0149,Ramesh Vaghela,Electrician,3.4,374,13,Ahmedabad,392,Available,+91 80288 83259
+WRK0150,Sita Joshi,Painting,3.4,355,17,Pune,209,Available,+91 93324 57425
+WRK0151,Mukesh Rathore,Electrician,3.5,82,16,Vadodara,251,Available,+91 65057 48770
+WRK0152,Tushar Bhatt,Cleaning,4.8,328,11,Vadodara,278,Available,+91 99141 59377
+WRK0153,Ganesh Jat,Cleaning,3.9,380,14,Rajkot,345,Busy,+91 89111 90031
+WRK0154,Satish Prajapati,Carpentry,3.8,426,8,Bengaluru,547,Busy,+91 72715 58213
+WRK0155,Pradeep Gurjar,Electrician,4.1,226,13,Vadodara,270,Busy,+91 73087 89254
+WRK0156,Reyansh Bishnoi,Electrician,4.9,376,18,Delhi,242,Busy,+91 68170 47363
+WRK0157,Priya Jat,Carpentry,4.7,58,5,Rajkot,213,Available,+91 89565 55820
+WRK0158,Manish Dutt,Electrician,3.9,53,8,Mumbai,363,Busy,+91 74715 13694
+WRK0159,Sita Shah,Plumbing,3.7,436,2,Bengaluru,429,Available,+91 69095 71487
+WRK0160,Shaurya Sharma,Electrician,4.7,292,7,Hyderabad,256,Busy,+91 94588 65476
+WRK0161,Sanjay Luhar,Cleaning,3.6,339,2,Hyderabad,256,Busy,+91 89957 18232
+WRK0162,Jignesh Vyas,Carpentry,4.3,306,1,Rajkot,419,Available,+91 69409 48177
+WRK0163,Shweta Soni,Carpentry,3.5,354,14,Ahmedabad,234,On Leave,+91 94307 57265
+WRK0164,Tushar Dutt,Carpentry,3.2,459,18,Bengaluru,398,On Leave,+91 62853 93318
+WRK0165,Ajay Sharma,Electrician,3.8,387,3,Ahmedabad,268,Available,+91 98135 53583
+WRK0166,Tushar Parmar,Painting,4.7,362,6,Bengaluru,293,Busy,+91 91361 92802
+WRK0167,Krishna Gurjar,Cleaning,3.6,417,10,Rajkot,358,Available,+91 62746 51365
+WRK0168,Tushar Bishnoi,Electrician,4.6,109,2,Gandhinagar,535,Available,+91 83394 16265
+WRK0169,Rahul Makwana,Appliance Repair,4.5,470,13,Pune,454,Available,+91 82219 34486
+WRK0170,Preeti Bhatt,Electrician,4.5,52,3,Pune,479,Available,+91 99482 33652
+WRK0171,Kabir Yadav,Electrician,3.8,320,10,Pune,379,Available,+91 70921 68183
+WRK0172,Shweta Jani,Appliance Repair,4.4,417,9,Surat,526,Available,+91 64917 97973
+WRK0173,Mayur Chauhan,Cleaning,4.7,359,5,Bengaluru,234,Available,+91 62280 26545
+WRK0174,Ritu Makwana,Appliance Repair,3.3,90,19,Bengaluru,427,Busy,+91 84311 58760
+WRK0175,Suresh Bhatt,Electrician,3.8,154,13,Rajkot,576,Available,+91 67434 13396
+WRK0176,Nilesh Zala,Carpentry,3.7,145,4,Bengaluru,346,Available,+91 74062 90199
+WRK0177,Hardik Thakur,Cleaning,4.7,243,5,Vadodara,549,On Leave,+91 89170 21506
+WRK0178,Rekha Vaghela,Painting,4.2,160,3,Gandhinagar,289,Busy,+91 70322 93584
+WRK0179,Mayur Prajapati,Cleaning,4.6,133,7,Bengaluru,483,Available,+91 61722 57303
+WRK0180,Nitin Shukla,Plumbing,4.8,45,20,Gandhinagar,469,Available,+91 86093 72739
+WRK0181,Kishore Pandya,Cleaning,5.0,340,5,Ahmedabad,548,Available,+91 89489 71057
+WRK0182,Amit Shukla,Painting,3.5,78,19,Pune,263,Available,+91 92955 17263
+WRK0183,Anita Chauhan,Plumbing,4.9,127,11,Mumbai,240,Available,+91 94006 47230
+WRK0184,Neha Joshi,Painting,4.3,59,10,Delhi,497,Available,+91 71051 87569
+WRK0185,Radha Pandya,Cleaning,3.3,340,1,Hyderabad,307,Busy,+91 77344 95344
+WRK0186,Naresh Jani,Painting,4.1,333,1,Delhi,354,Available,+91 78983 94136
+WRK0187,Ashok Luhar,Appliance Repair,4.4,92,3,Bengaluru,437,Available,+91 87238 73471
+WRK0188,Ramesh Solanki,Painting,4.5,452,11,Mumbai,589,Available,+91 86130 27139
+WRK0189,Kabir Solanki,Plumbing,3.4,242,15,Rajkot,225,Available,+91 69232 22689
+WRK0190,Kiran Jani,Appliance Repair,4.9,473,8,Vadodara,569,Available,+91 81458 85718
+WRK0191,Mahesh Choudhary,Carpentry,4.1,169,15,Bengaluru,401,Available,+91 61518 21802
+WRK0192,Sanjay Rathore,Carpentry,3.3,156,12,Bengaluru,544,Available,+91 99158 95755
+WRK0193,Rakesh Patel,Cleaning,3.4,147,14,Mumbai,223,Available,+91 86427 57964
+WRK0194,Anil Makwana,Carpentry,3.3,270,10,Bengaluru,519,Available,+91 96035 46663
+WRK0195,Rahul Joshi,Cleaning,3.9,185,13,Delhi,301,Available,+91 83960 28909
+WRK0196,Ashok Dutt,Cleaning,3.3,377,2,Mumbai,433,Available,+91 91047 78069
+WRK0197,Mayur Joshi,Electrician,3.8,213,20,Hyderabad,372,Available,+91 79610 87820
+WRK0198,Mayur Trivedi,Appliance Repair,3.7,429,19,Surat,544,Available,+91 84140 53416
+WRK0199,Naresh Dave,Electrician,4.3,147,1,Hyderabad,569,Available,+91 97855 39824
+WRK0200,Chetan Chauhan,Carpentry,4.6,206,20,Vadodara,493,Busy,+91 75872 14138
+WRK0201,Rohan Thakur,Cleaning,3.8,89,15,Pune,456,Busy,+91 73362 63788
+WRK0202,Bhavesh Singh,Painting,4.1,299,5,Mumbai,392,Available,+91 91350 78875
+WRK0203,Rajesh Gurjar,Carpentry,4.2,358,11,Gandhinagar,298,On Leave,+91 99981 73462
+WRK0204,Neha Shukla,Electrician,4.9,164,8,Gandhinagar,362,Available,+91 73584 74094
+WRK0205,Neha Mistry,Cleaning,4.4,206,19,Pune,348,Available,+91 82618 29198
+WRK0206,Shaurya Vaghela,Appliance Repair,4.5,121,9,Rajkot,487,Available,+91 95296 45537
+WRK0207,Suresh Mishra,Carpentry,3.6,37,19,Delhi,319,Available,+91 74789 93616
+WRK0208,Kishore Parmar,Painting,3.4,406,16,Vadodara,280,Available,+91 60339 82135
+WRK0209,Bhavesh Bishnoi,Painting,4.6,159,7,Mumbai,230,Busy,+91 78704 94659
+WRK0210,Atharv Pandya,Plumbing,4.5,447,18,Surat,290,Busy,+91 71473 64773
+WRK0211,Arjun Koli,Appliance Repair,4.9,458,6,Gandhinagar,352,Available,+91 62455 11214
+WRK0212,Kabir Parmar,Electrician,5.0,290,15,Delhi,458,Available,+91 92369 27589
+WRK0213,Anil Gupta,Electrician,4.5,343,6,Gandhinagar,577,Available,+91 72202 11846
+WRK0214,Sunita Pandya,Painting,3.5,450,7,Pune,367,Available,+91 88029 77538
+WRK0215,Dhruv Pandey,Plumbing,3.8,139,16,Surat,320,Available,+91 77090 60275
+WRK0216,Priya Parmar,Electrician,4.5,17,19,Gandhinagar,231,Available,+91 83563 40972
+WRK0217,Nitin Luhar,Plumbing,4.4,470,13,Gandhinagar,351,Available,+91 67694 93717
+WRK0218,Vikas Prajapati,Plumbing,3.5,394,16,Hyderabad,559,Available,+91 84485 64505
+WRK0219,Bhavesh Trivedi,Painting,4.6,360,7,Hyderabad,428,Available,+91 65365 78879
+WRK0220,Ritu Kumar,Carpentry,3.3,292,4,Delhi,474,Available,+91 73248 85065
+WRK0221,Geeta Bhatt,Appliance Repair,4.4,379,4,Hyderabad,461,Available,+91 92035 21919
+WRK0222,Ayaan Gurjar,Plumbing,3.9,300,17,Surat,544,Busy,+91 96621 70604
+WRK0223,Aditya Koli,Electrician,4.5,308,1,Ahmedabad,376,Available,+91 62968 65534
+WRK0224,Tushar Singh,Cleaning,3.3,221,16,Vadodara,573,Available,+91 68875 94085
+WRK0225,Naresh Makwana,Appliance Repair,4.8,476,15,Pune,549,On Leave,+91 84618 20518
+WRK0226,Tushar Joshi,Painting,3.4,287,12,Pune,572,On Leave,+91 94658 26691
+WRK0227,Aarav Sharma,Electrician,4.4,290,15,Pune,317,Available,+91 94860 59712
+WRK0228,Meena Shah,Electrician,4.9,383,7,Ahmedabad,414,Available,+91 62111 96533
+WRK0229,Aditya Soni,Plumbing,3.4,29,3,Bengaluru,560,Busy,+91 99176 98083
+WRK0230,Vijay Verma,Appliance Repair,3.6,123,15,Surat,348,Available,+91 69183 76046
+WRK0231,Rekha Pandya,Carpentry,3.6,460,11,Vadodara,411,Available,+91 94160 38972
+WRK0232,Ayaan Shukla,Carpentry,4.3,230,6,Delhi,376,Busy,+91 92481 16145
+WRK0233,Suman Bhatt,Electrician,3.9,165,14,Pune,442,Available,+91 72050 80507
+WRK0234,Vikas Luhar,Painting,4.7,480,5,Surat,413,Available,+91 96856 64090
+WRK0235,Suresh Zala,Plumbing,3.6,343,9,Ahmedabad,247,Available,+91 89477 58637
+WRK0236,Anil Singh,Electrician,4.4,320,13,Surat,589,Available,+91 64769 34662
+WRK0237,Pankaj Bishnoi,Plumbing,3.7,477,11,Surat,579,Available,+91 73881 34906
+WRK0238,Chetan Soni,Painting,4.5,215,20,Rajkot,597,Available,+91 96181 52154
+WRK0239,Nitin Trivedi,Painting,3.8,196,12,Delhi,250,Busy,+91 92589 71080
+WRK0240,Bhavesh Solanki,Plumbing,3.8,35,12,Hyderabad,208,Available,+91 74501 29126
+WRK0241,Naresh Mistry,Plumbing,3.8,206,7,Hyderabad,481,Available,+91 76104 75444
+WRK0242,Radha Panchal,Appliance Repair,4.0,387,16,Mumbai,568,Available,+91 71092 28344
+WRK0243,Mukesh Trivedi,Painting,4.1,441,2,Ahmedabad,411,Available,+91 63179 10836
+WRK0244,Deepak Kumar,Painting,3.2,270,5,Bengaluru,516,Available,+91 84458 17923
+WRK0245,Chetan Choudhary,Cleaning,4.2,222,1,Surat,569,Available,+91 61096 79391
+WRK0246,Anjali Sharma,Carpentry,4.7,477,14,Vadodara,468,Available,+91 67013 22624
+WRK0247,Anil Jani,Carpentry,4.7,148,9,Pune,407,Available,+91 65178 58896
+WRK0248,Vijay Prajapati,Electrician,4.4,451,3,Surat,394,Available,+91 66127 63120
+WRK0249,Bhavesh Singh,Painting,4.5,54,1,Bengaluru,369,Available,+91 88436 94529
+WRK0250,Dhruv Bhatt,Cleaning,3.6,456,8,Hyderabad,223,Busy,+91 91162 45532
+WRK0251,Neha Trivedi,Carpentry,3.5,447,2,Mumbai,500,Available,+91 61026 37152
+WRK0252,Manish Kumar,Electrician,4.2,302,6,Pune,396,Busy,+91 95426 53480
+WRK0253,Suresh Yadav,Carpentry,3.3,235,12,Rajkot,509,Busy,+91 64981 54642
+WRK0254,Manish Solanki,Cleaning,4.6,242,9,Bengaluru,483,Busy,+91 74951 56636
+WRK0255,Vinod Pandey,Painting,4.4,55,19,Hyderabad,565,Available,+91 79357 42302
+WRK0256,Priya Shah,Appliance Repair,4.5,174,5,Mumbai,202,Busy,+91 66982 21995
+WRK0257,Pradeep Makwana,Electrician,3.4,107,4,Pune,484,Available,+91 89415 83005
+WRK0258,Kabir Sharma,Cleaning,4.2,317,12,Hyderabad,206,Available,+91 81261 60493
+WRK0259,Kiran Yadav,Painting,4.8,136,18,Hyderabad,550,Available,+91 94151 32227
+WRK0260,Suresh Gajjar,Electrician,4.1,44,9,Vadodara,415,Available,+91 88486 46170
+WRK0261,Ishaan Makwana,Electrician,4.5,265,8,Hyderabad,254,Available,+91 72815 70012
+WRK0262,Aarav Koli,Electrician,3.9,453,20,Mumbai,420,Busy,+91 88850 53874
+WRK0263,Suresh Luhar,Electrician,4.9,114,20,Bengaluru,403,On Leave,+91 80590 33283
+WRK0264,Sunita Choudhary,Carpentry,3.8,155,8,Pune,488,Available,+91 83921 24927
+WRK0265,Tushar Pandey,Painting,3.2,384,18,Bengaluru,349,Busy,+91 73739 67469
+WRK0266,Krishna Rawat,Painting,3.5,167,16,Rajkot,278,Available,+91 76559 96332
+WRK0267,Suman Kumar,Appliance Repair,4.1,217,20,Delhi,478,Available,+91 93201 64827
+WRK0268,Ritu Trivedi,Carpentry,3.4,139,3,Mumbai,513,Available,+91 70901 94803
+WRK0269,Ashok Parmar,Appliance Repair,3.2,144,4,Rajkot,485,Available,+91 93467 77999
+WRK0270,Vikas Jat,Electrician,4.0,359,13,Hyderabad,376,On Leave,+91 92798 29758
+WRK0271,Chetan Mishra,Electrician,4.9,55,14,Ahmedabad,359,Available,+91 69284 55656
+WRK0272,Manoj Bhatt,Appliance Repair,4.1,236,12,Bengaluru,353,Available,+91 80900 18804
+WRK0273,Rohan Sharma,Electrician,4.4,96,4,Rajkot,482,Available,+91 93816 32865
+WRK0274,Santosh Gurjar,Plumbing,4.3,107,13,Pune,577,Available,+91 85924 13826
+WRK0275,Sunil Jat,Carpentry,3.9,372,14,Rajkot,585,Available,+91 73486 46483
+WRK0276,Krishna Pandya,Cleaning,3.5,178,18,Rajkot,334,Available,+91 89986 24936
+WRK0277,Hardik Bhatt,Painting,4.3,324,11,Pune,378,Available,+91 98469 24972
+WRK0278,Hemant Jani,Plumbing,4.9,314,10,Ahmedabad,260,Available,+91 68778 51049
+WRK0279,Rohan Pandey,Electrician,4.1,226,5,Hyderabad,396,Available,+91 69035 85340
+WRK0280,Hardik Trivedi,Painting,4.2,262,6,Gandhinagar,361,Busy,+91 69194 34523
+WRK0281,Reyansh Vaghela,Cleaning,3.4,429,16,Pune,534,Available,+91 96803 76248
+WRK0282,Hardik Rawat,Painting,4.1,54,15,Hyderabad,349,Available,+91 62022 38905
+WRK0283,Vikas Trivedi,Electrician,4.6,301,6,Bengaluru,257,Available,+91 96026 76952
+WRK0284,Priya Trivedi,Electrician,4.7,33,18,Bengaluru,417,Available,+91 95805 38644
+WRK0285,Vijay Luhar,Cleaning,3.7,453,15,Ahmedabad,597,Busy,+91 88774 25386
+WRK0286,Manoj Dave,Painting,4.7,324,12,Pune,271,Busy,+91 70877 90760
+WRK0287,Manoj Singh,Carpentry,4.2,317,12,Delhi,560,Available,+91 71034 52421
+WRK0288,Priya Dutt,Painting,3.4,396,4,Pune,535,Available,+91 63885 46349
+WRK0289,Amit Soni,Plumbing,4.7,401,11,Pune,495,Available,+91 92077 28634
+WRK0290,Naresh Zala,Appliance Repair,4.3,462,3,Ahmedabad,583,Available,+91 86401 77582
+WRK0291,Preeti Gurjar,Appliance Repair,4.2,456,11,Ahmedabad,540,Available,+91 90044 93209
+WRK0292,Krishna Trivedi,Appliance Repair,4.9,434,7,Rajkot,365,Busy,+91 92421 45197
+WRK0293,Radha Shukla,Carpentry,4.2,260,5,Mumbai,250,Available,+91 63172 16021
+WRK0294,Hemant Sharma,Cleaning,4.0,12,6,Pune,532,Available,+91 73259 27290
+WRK0295,Neha Yadav,Painting,3.7,202,12,Vadodara,520,Available,+91 63393 61949
+WRK0296,Deepak Meena,Painting,4.5,12,3,Rajkot,267,Available,+91 91248 20215
+WRK0297,Nilesh Jat,Cleaning,4.5,430,1,Ahmedabad,444,Available,+91 87676 27324
+WRK0298,Kiran Yadav,Painting,3.4,200,4,Gandhinagar,596,Busy,+91 68986 60164
+WRK0299,Suresh Shah,Cleaning,4.2,324,17,Vadodara,569,Available,+91 88842 56030
+WRK0300,Dinesh Rawat,Carpentry,4.7,56,15,Ahmedabad,501,Available,+91 69175 26142

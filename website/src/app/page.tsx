@@ -21,6 +21,7 @@ const iconMap: Record<string, any> = {
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState('All Cities');
+  const [scope, setScope] = useState<'INDIVIDUAL' | 'COMMUNITY'>('INDIVIDUAL');
 
   const featuredWorkers = allWorkers.slice(0, 6);
 
@@ -56,6 +57,32 @@ export default function HomePage() {
                 Transparent hourly rates, direct UPI payments, and guaranteed satisfaction across Gujarat.
               </p>
 
+              {/* Scope Selector: Individual vs Community */}
+              <div className="inline-flex bg-white/15 p-1 rounded-2xl border border-white/20 backdrop-blur-md">
+                <button
+                  type="button"
+                  onClick={() => setScope('INDIVIDUAL')}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
+                    scope === 'INDIVIDUAL'
+                      ? 'bg-white text-teal-900 shadow-md'
+                      : 'text-white/80 hover:text-white'
+                  }`}
+                >
+                  <span>👤 Individual Home Service</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setScope('COMMUNITY')}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
+                    scope === 'COMMUNITY'
+                      ? 'bg-amber-400 text-teal-950 shadow-md'
+                      : 'text-white/80 hover:text-white'
+                  }`}
+                >
+                  <span>🏢 Community & Society Service</span>
+                </button>
+              </div>
+
               {/* Desktop Search Box */}
               <div className="bg-white rounded-2xl p-2.5 shadow-2xl border border-emerald-800/30 flex flex-col sm:flex-row items-center gap-2 text-slate-800">
                 <div className="flex items-center gap-2 px-3 py-2 border-b sm:border-b-0 sm:border-r border-slate-200 w-full sm:w-auto flex-shrink-0">
@@ -70,6 +97,7 @@ export default function HomePage() {
                     <option value="Surat">Surat</option>
                     <option value="Vadodara">Vadodara</option>
                     <option value="Rajkot">Rajkot</option>
+                    <option value="Gandhinagar">Gandhinagar</option>
                   </select>
                 </div>
 
@@ -79,13 +107,17 @@ export default function HomePage() {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search 'Plumber', 'Deep Cleaning', 'AC Repair'..."
+                    placeholder={
+                      scope === 'COMMUNITY'
+                        ? "Search 'Society Water Tank Cleaning', 'Apartment AMC', 'Streetlight Maintenance'..."
+                        : "Search 'Plumber', 'Sofa Deep Cleaning', 'AC Repair', 'Fan Fitting'..."
+                    }
                     className="w-full text-xs sm:text-sm font-medium outline-none text-slate-900 placeholder-slate-400"
                   />
                 </div>
 
                 <Link
-                  href={'/services?search=' + encodeURIComponent(searchQuery) + (selectedCity !== 'All Cities' ? '&city=' + encodeURIComponent(selectedCity) : '')}
+                  href={'/services?search=' + encodeURIComponent(searchQuery || (scope === 'COMMUNITY' ? 'Society' : '')) + (selectedCity !== 'All Cities' ? '&city=' + encodeURIComponent(selectedCity) : '')}
                   className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs sm:text-sm px-6 py-3 rounded-xl transition flex-shrink-0 w-full sm:w-auto text-center flex items-center justify-center gap-1.5 shadow-md"
                 >
                   <span>Search</span>
@@ -96,7 +128,10 @@ export default function HomePage() {
               {/* Quick Tags */}
               <div className="flex items-center gap-2 flex-wrap text-xs text-emerald-100">
                 <span className="font-bold text-amber-300">Popular:</span>
-                {['Home Cleaning', 'AC Repair', 'Pipe Leak', 'Fan Fitting', 'Painting'].map((tag) => (
+                {(scope === 'COMMUNITY' 
+                  ? ['Society Water Tank Cleaning', 'Apartment Electrical AMC', 'Common Area Sanitization', 'Central Pump Maintenance']
+                  : ['Home Cleaning', 'Sofa Shampooing', 'Pipe Leak', 'Fan Fitting', 'Painting']
+                ).map((tag) => (
                   <Link
                     key={tag}
                     href={'/services?search=' + encodeURIComponent(tag)}
