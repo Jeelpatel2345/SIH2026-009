@@ -45,8 +45,9 @@ export default function LoginPage() {
   }, [otpSent, countdown]);
 
   const handleSendOtp = async () => {
-    if (phone.length !== 10) {
-      setErrorMsg('Please enter a 10-digit mobile number');
+    const cleanPhone = phone.replace(/\D/g, '').slice(-10);
+    if (cleanPhone.length !== 10) {
+      setErrorMsg('Please enter a valid 10-digit mobile number');
       return;
     }
     setLoading(true);
@@ -56,7 +57,7 @@ export default function LoginPage() {
       const res = await fetch('/api/auth/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, fullName: fullName.trim(), role: selectedRole }),
+        body: JSON.stringify({ phone: cleanPhone, fullName: fullName.trim(), role: selectedRole }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -67,19 +68,20 @@ export default function LoginPage() {
       setReceivedOtp(data.otp);
       setCountdown(30);
       setCanResend(false);
+      setShowTwilioNotification(true);
 
       // Trigger genuine system notification if permitted
       if (typeof window !== 'undefined' && 'Notification' in window) {
         if (Notification.permission === 'granted') {
           new Notification('SahYog Verification', {
-            body: `Your SahYog verification code is ${data.otp}. Valid for 10 minutes.`,
+            body: `Your SahYog verification code is dispatched via Twilio SMS. Valid for 10 minutes.`,
             icon: '/logo.png',
           });
         } else if (Notification.permission !== 'denied') {
           Notification.requestPermission().then((permission) => {
             if (permission === 'granted') {
               new Notification('SahYog Verification', {
-                body: `Your SahYog verification code is ${data.otp}. Valid for 10 minutes.`,
+                body: `Your SahYog verification code is dispatched via Twilio SMS. Valid for 10 minutes.`,
                 icon: '/logo.png',
               });
             }
@@ -104,12 +106,13 @@ export default function LoginPage() {
     setErrorMsg('');
 
     try {
+      const cleanPhone = phone.replace(/\D/g, '').slice(-10);
       const roleToSubmit = selectedRole || localStorage.getItem('sahyog-role') || 'CUSTOMER';
       const res = await fetch('/api/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          phone,
+          phone: cleanPhone,
           otp: code,
           role: roleToSubmit,
           fullName: fullName.trim() || undefined,
@@ -179,6 +182,30 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-white md:bg-slate-900 flex items-center justify-center md:p-6 relative">
+      {/* Live Twilio SMS Notification Toast */}
+      {showTwilioNotification && (
+        <div className="fixed top-4 right-4 z-50 max-w-sm bg-slate-900 text-white p-4 rounded-2xl shadow-2xl border border-emerald-500/40 animate-in slide-in-from-top-4 flex items-start gap-3">
+          <div className="p-2 bg-emerald-500/20 text-emerald-400 rounded-xl flex-shrink-0">
+            <CheckCircle className="w-5 h-5" />
+          </div>
+          <div className="flex-1 text-xs">
+            <p className="font-bold text-white flex items-center justify-between">
+              <span>Twilio SMS Dispatched</span>
+              <span className="text-[10px] text-emerald-400 bg-emerald-950/80 px-1.5 py-0.5 rounded font-mono">Live SMS</span>
+            </p>
+            <p className="text-slate-300 mt-0.5 leading-relaxed">
+              A 4-digit verification code has been dispatched to <b>+91 {phone.replace(/\D/g, '').slice(-10)}</b> via Twilio SMS Gateway.
+            </p>
+          </div>
+          <button
+            onClick={() => setShowTwilioNotification(false)}
+            className="text-slate-400 hover:text-white p-1"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       <div className="w-full max-w-4xl bg-white md:rounded-3xl md:shadow-2xl overflow-hidden md:border md:border-slate-200 grid grid-cols-1 md:grid-cols-2 min-h-[580px]">
         {/* Left Hero & Security Banner */}
         <div className="bg-gradient-to-br from-[#042f2e] via-[#0d9488] to-[#042f2e] text-white p-6 sm:p-8 flex flex-col justify-between relative overflow-hidden">
@@ -321,9 +348,9 @@ export default function LoginPage() {
                     </span>
                     <input
                       type="tel"
-                      maxLength={10}
+                      maxLength={14}
                       value={phone}
-                      onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+                      onChange={(e) => setPhone(e.target.value)}
                       placeholder="Enter 10-digit number"
                       className="w-full bg-transparent outline-none text-sm font-semibold text-slate-900 tracking-wider placeholder-slate-400"
                     />
@@ -333,7 +360,7 @@ export default function LoginPage() {
 
                 <button
                   type="button"
-                  disabled={phone.length !== 10 || loading}
+                  disabled={phone.replace(/\D/g, '').length < 10 || loading}
                   onClick={handleSendOtp}
                   className="w-full bg-teal-700 hover:bg-teal-800 disabled:opacity-50 text-white font-bold py-3.5 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-teal-900/20 transition text-sm cursor-pointer mt-2"
                 >

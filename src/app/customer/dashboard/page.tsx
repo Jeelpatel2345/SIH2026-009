@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { 
   Bell, Search, MapPin, Star, ChevronRight, ShieldCheck, 
   Calendar, User, Sparkles, Wrench, Zap, Cpu, Hammer, 
-  Paintbrush, ArrowRight, Heart, Award, Shield, CheckCircle, Clock
+  Paintbrush, ArrowRight, Heart, Award, Shield, CheckCircle, Clock,
+  ThumbsUp, X, MessageSquare, CheckCircle2
 } from 'lucide-react';
 import BottomNav from '@/components/BottomNav';
 import { useAuthStore } from '@/store/authStore';
@@ -24,6 +25,70 @@ export default function CustomerDashboard() {
   const [activeLang, setActiveLang] = useState<'EN' | 'HI' | 'GU'>('EN');
   const [searchQuery, setSearchQuery] = useState('');
   const [clientName, setClientName] = useState('');
+
+  // Feedback & Worker Rating State
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const [selectedRating, setSelectedRating] = useState(5);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [selectedTags, setSelectedTags] = useState<string[]>(['On-Time Arrival', 'Expert Workmanship']);
+  const [feedbackText, setFeedbackText] = useState('');
+  const [recommended, setRecommended] = useState(true);
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+  const [hasRated, setHasRated] = useState(false);
+  const [ratedWorker] = useState({
+    id: 1,
+    name: 'Amir Khan',
+    service: 'Deep Home Cleaning Specialist',
+    completedDate: 'Completed Today, 2:30 PM'
+  });
+
+  const ratingLabels: Record<number, string> = {
+    1: 'Poor (खराब अनुभव) 👎',
+    2: 'Fair (सुधार की आवश्यकता) ⚠️',
+    3: 'Good (संतोषजनक काम) 👌',
+    4: 'Very Good (बहुत बढ़िया काम) 👍',
+    5: 'Exceptional (अति उत्तम / શાનદાર અનુભવ) 🌟'
+  };
+
+  const complimentTagOptions = [
+    '⏱️ On-Time Arrival',
+    '🛠️ Expert Workmanship',
+    '🧹 Clean & Tidy',
+    '🤝 Polite & Respectful',
+    '💰 Fair & Transparent Price',
+    '🛡️ Safe & Trustworthy'
+  ];
+
+  const toggleTag = (tag: string) => {
+    setSelectedTags(prev => 
+      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+    );
+  };
+
+  const handleRatingSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (typeof window !== 'undefined') {
+      const reviewObj = {
+        workerId: ratedWorker.id,
+        workerName: ratedWorker.name,
+        service: ratedWorker.service,
+        rating: selectedRating,
+        tags: selectedTags,
+        feedback: feedbackText.trim() || 'Excellent service and courteous behavior.',
+        recommended,
+        createdAt: new Date().toISOString()
+      };
+      const existing = JSON.parse(localStorage.getItem('sahyog-customer-reviews') || '[]');
+      existing.unshift(reviewObj);
+      localStorage.setItem('sahyog-customer-reviews', JSON.stringify(existing));
+    }
+    setFeedbackSubmitted(true);
+    setHasRated(true);
+    setTimeout(() => {
+      setIsFeedbackOpen(false);
+      setFeedbackSubmitted(false);
+    }, 2000);
+  };
 
   // Lock Customer Role & Hydrate profile
   useEffect(() => {
@@ -301,6 +366,58 @@ export default function CustomerDashboard() {
                 </Link>
               </div>
             </div>
+
+            {/* Completed Job - Worker Feedback & Rating Card */}
+            <div className="bg-gradient-to-br from-amber-500/10 via-amber-100/30 to-teal-50/50 rounded-2xl p-4 border border-amber-300/80 shadow-xs space-y-3">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-black shadow-sm">
+                    <Star className="w-5 h-5 fill-white" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] font-black uppercase tracking-wider bg-amber-500 text-white px-2 py-0.5 rounded-full">
+                        {hasRated ? 'Review Submitted' : 'Rate Your Partner'}
+                      </span>
+                      {hasRated && (
+                        <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" /> ★ {selectedRating}.0
+                        </span>
+                      )}
+                    </div>
+                    <h4 className="font-bold text-sm text-slate-900 mt-1">Deep Home Cleaning</h4>
+                    <p className="text-[11px] text-slate-500">{ratedWorker.completedDate}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl p-3 border border-amber-200/70 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-full bg-teal-800 text-amber-300 font-bold flex items-center justify-center text-xs">
+                    AK
+                  </div>
+                  <div>
+                    <p className="font-bold text-xs text-slate-900">{ratedWorker.name}</p>
+                    <p className="text-[10px] text-teal-700 font-medium">
+                      {hasRated ? 'Thank you for your rating!' : 'How was your experience?'}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsFeedbackOpen(true)}
+                  className={`font-black text-xs px-3.5 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5 cursor-pointer ${
+                    hasRated
+                      ? 'bg-teal-50 text-teal-800 hover:bg-teal-100 border border-teal-200'
+                      : 'bg-amber-500 hover:bg-amber-600 text-white'
+                  }`}
+                >
+                  <Star className={`w-3.5 h-3.5 ${hasRated ? 'text-amber-500 fill-amber-500' : 'fill-white'}`} />
+                  <span>{hasRated ? 'Edit Rating' : 'Rate Worker'}</span>
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Right Column: Top Rated Nearby Workers */}
@@ -379,6 +496,180 @@ export default function CustomerDashboard() {
           </Link>
         </div>
       </div>
+
+      {/* Worker Feedback & Rating Popup Modal */}
+      {isFeedbackOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 animate-in zoom-in-95 duration-200 flex flex-col max-h-[92vh]">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-[#042f2e] via-[#0d9488] to-[#042f2e] text-white p-5 sm:p-6 relative flex-shrink-0">
+              <button
+                type="button"
+                onClick={() => setIsFeedbackOpen(false)}
+                className="absolute top-4 right-4 text-emerald-200 hover:text-white p-1 rounded-full bg-white/10 hover:bg-white/20 transition cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-amber-400 text-emerald-950 font-black text-lg flex items-center justify-center shadow-md">
+                  AK
+                </div>
+                <div>
+                  <span className="text-[10px] font-black uppercase tracking-wider bg-amber-400/20 text-amber-300 border border-amber-400/40 px-2 py-0.5 rounded-full">
+                    Rate Service Partner
+                  </span>
+                  <h3 className="font-black text-lg sm:text-xl text-white mt-1 leading-tight">
+                    {ratedWorker.name}
+                  </h3>
+                  <p className="text-xs text-emerald-100/90">{ratedWorker.service}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-5 sm:p-6 overflow-y-auto space-y-5">
+              {feedbackSubmitted ? (
+                <div className="py-8 text-center space-y-3 animate-in zoom-in-95">
+                  <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-inner">
+                    <CheckCircle2 className="w-10 h-10" />
+                  </div>
+                  <h4 className="font-black text-xl text-slate-900">Thank You for Your Feedback!</h4>
+                  <p className="text-xs sm:text-sm text-slate-600 max-w-sm mx-auto leading-relaxed">
+                    Your {selectedRating}-star rating for <b>{ratedWorker.name}</b> has been recorded and directly updates their verified profile.
+                  </p>
+                  <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 px-3.5 py-1.5 rounded-full border border-emerald-200">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                    <span>Calibrated Dynamic Pricing Updated</span>
+                  </div>
+                </div>
+              ) : (
+                <form onSubmit={handleRatingSubmit} className="space-y-4">
+                  {/* Star Rating Section */}
+                  <div className="text-center py-2 bg-slate-50/80 rounded-2xl border border-slate-100 p-4">
+                    <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">
+                      Tap to Rate Service (1 to 5 Stars)
+                    </label>
+
+                    <div className="flex items-center justify-center gap-2 sm:gap-3 my-1">
+                      {[1, 2, 3, 4, 5].map((star) => {
+                        const isFilled = (hoverRating || selectedRating) >= star;
+                        return (
+                          <button
+                            key={star}
+                            type="button"
+                            onMouseEnter={() => setHoverRating(star)}
+                            onMouseLeave={() => setHoverRating(0)}
+                            onClick={() => setSelectedRating(star)}
+                            className="p-1 sm:p-1.5 transition-transform hover:scale-125 focus:outline-none cursor-pointer"
+                          >
+                            <Star
+                              className={`w-8 h-8 sm:w-10 sm:h-10 transition-colors ${
+                                isFilled
+                                  ? 'text-amber-400 fill-amber-400 drop-shadow-sm'
+                                  : 'text-slate-300 fill-slate-100'
+                              }`}
+                            />
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <p className="text-xs font-black text-teal-800 mt-2">
+                      {ratingLabels[hoverRating || selectedRating]}
+                    </p>
+                  </div>
+
+                  {/* Compliment Badges */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                      What went well? (Select all that apply)
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {complimentTagOptions.map((tag) => {
+                        const isSelected = selectedTags.includes(tag);
+                        return (
+                          <button
+                            key={tag}
+                            type="button"
+                            onClick={() => toggleTag(tag)}
+                            className={`text-xs font-bold px-3 py-1.5 rounded-xl border transition cursor-pointer flex items-center gap-1 ${
+                              isSelected
+                                ? 'bg-teal-700 text-white border-teal-700 shadow-xs'
+                                : 'bg-slate-50 text-slate-700 border-slate-200 hover:border-slate-300'
+                            }`}
+                          >
+                            <span>{tag}</span>
+                            {isSelected && <CheckCircle className="w-3 h-3 text-emerald-300 ml-1" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Written Review */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                      Share your experience (Optional)
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={feedbackText}
+                      onChange={(e) => setFeedbackText(e.target.value)}
+                      placeholder="e.g. Amir arrived on time, was polite, and did a thorough deep cleaning of the kitchen and bathrooms..."
+                      className="w-full text-xs sm:text-sm p-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-teal-600 focus:bg-white transition resize-none text-slate-800 placeholder-slate-400 font-medium"
+                    />
+                  </div>
+
+                  {/* Would Recommend Toggle */}
+                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-2xl border border-slate-200 text-xs">
+                    <span className="font-bold text-slate-700 flex items-center gap-1.5">
+                      <ThumbsUp className="w-4 h-4 text-teal-600" />
+                      <span>Would you recommend Amir to neighbors?</span>
+                    </span>
+
+                    <div className="flex items-center gap-1 bg-slate-200/80 p-0.5 rounded-xl">
+                      <button
+                        type="button"
+                        onClick={() => setRecommended(true)}
+                        className={`px-3 py-1 rounded-lg font-bold text-xs transition cursor-pointer ${
+                          recommended
+                            ? 'bg-teal-700 text-white shadow-xs'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        Yes 👍
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setRecommended(false)}
+                        className={`px-3 py-1 rounded-lg font-bold text-xs transition cursor-pointer ${
+                          !recommended
+                            ? 'bg-rose-600 text-white shadow-xs'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        No
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Submit Button */}
+                  <div className="pt-2">
+                    <button
+                      type="submit"
+                      className="w-full bg-teal-700 hover:bg-teal-800 text-white font-black py-3.5 rounded-2xl shadow-lg shadow-teal-900/20 transition text-sm flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <Star className="w-4 h-4 fill-white" />
+                      <span>Submit Worker Rating & Review</span>
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Mobile-only Bottom Navigation */}
       <BottomNav role="customer" />

@@ -4,7 +4,8 @@ import prisma from '@/lib/prisma';
 export async function POST(request: NextRequest) {
   try {
     const { phone, fullName } = await request.json();
-    const cleanPhone = phone?.toString().replace(/\D/g, '');
+    const rawDigits = phone?.toString().replace(/\D/g, '') || '';
+    const cleanPhone = rawDigits.length >= 10 ? rawDigits.slice(-10) : rawDigits;
 
     if (!cleanPhone || cleanPhone.length !== 10) {
       return NextResponse.json(
