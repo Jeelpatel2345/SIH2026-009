@@ -14,12 +14,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate real 4-digit random OTP
+    // Generate real 4-digit random OTP (stored in DB for verification)
     const otp = Math.floor(1000 + Math.random() * 9000).toString();
     const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
     const formattedPhone = `+91${cleanPhone}`;
 
-    // Save OTP to database (this is the source of truth for verification)
+    // Save OTP to database
     try {
       await prisma.user.upsert({
         where: { phone: formattedPhone },
@@ -43,125 +43,135 @@ export async function POST(request: NextRequest) {
 
     let smsSent = false;
     let smsProvider = 'none';
+    let useTwilioVerify = false; // Track if Twilio Verify was used (it sends its own code)
 
-    // ─────────────────────────────────────────────────────
-    // PROVIDER 1: Fast2SMS (PRIMARY — works on ANY Indian number, free)
-    // Sign up at https://fast2sms.com → Dev API → copy API key
-    // Add FAST2SMS_API_KEY to Vercel environment variables
-    // ─────────────────────────────────────────────────────
-    const fast2smsKey = process.env.FAST2SMS_API_KEY;
-    if (fast2smsKey && !smsSent) {
+    const twilioSid = process.env.TWILIO_ACCOUNT_SID;
+    const twilioAuth = process.env.TWILIO_AUTH_TOKEN;
+    const twilioVerifySid = process.env.TWILIO_VERIFY_SERVICE_SID;
+    const twilioPhone = process.env.TWILIO_PHONE_NUMBER;
+
+    // ─────────────────────────────────────────────────────────────────
+    // PROVIDER 1: Fast2SMS (works for ANY Indian number when key is set)
+    // Get free API key at https://fast2sms.com → Dev API
+    // ─────────────────────────────────────────────────────────────────
+    if (!smsSent && process.env.FAST2SMS_API_KEY) {
       try {
         const smsRes = await fetch(
-          `https://www.fast2sms.com/dev/bulkV2?authorization=${fast2smsKey}&route=otp&variables_values=${otp}&flash=0&numbers=${cleanPhone}`,
-          {
-            method: 'GET',
-            headers: { 'cache-control': 'no-cache' },
-          }
+          `https://www.fast2sms.com/dev/bulkV2?authorization=${process.env.FAST2SMS_API_KEY}&route=otp&variables_values=${otp}&flash=0&numbers=${cleanPhone}`,
+          { method: 'GET', headers: { 'cache-control': 'no-cache' } }
         );
         const smsData = await smsRes.json();
         if (smsData.return === true) {
           smsSent = true;
           smsProvider = 'Fast2SMS';
-          console.log(`[Fast2SMS] OTP sent successfully to ${cleanPhone}`);
+          console.log(`[Fast2SMS] OTP ${otp} sent to ${cleanPhone}`);
         } else {
-          console.warn('[Fast2SMS] Failed:', JSON.stringify(smsData));
+          console.warn('[Fast2SMS]', JSON.stringify(smsData));
         }
-      } catch (smsErr) {
-        console.error('[Fast2SMS] Error:', smsErr);
+      } catch (e) {
+        console.error('[Fast2SMS] Error:', e);
       }
     }
 
-    // ─────────────────────────────────────────────────────
-    // PROVIDER 2: 2Factor.in (free 10 SMS/day, works on any Indian number)
-    // Sign up at https://2factor.in → get API key
-    // Add TWOFACTOR_API_KEY to Vercel environment variables
-    // ─────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────
+    // PROVIDER 2: 2Factor.in (works any Indian number, free tier)
+    // Get free API key at https://2factor.in
+    // ─────────────────────────────────────────────────────────────────
     if (!smsSent && process.env.TWOFACTOR_API_KEY) {
       try {
-        const twoFacRes = await fetch(
+        const res = await fetch(
           `https://2factor.in/API/V1/${process.env.TWOFACTOR_API_KEY}/SMS/${cleanPhone}/${otp}/OTP1`
         );
-        const twoFacData = await twoFacRes.json();
-        if (twoFacData.Status === 'Success') {
+        const data = await res.json();
+        if (data.Status === 'Success') {
           smsSent = true;
           smsProvider = '2Factor';
           console.log(`[2Factor] OTP sent to ${cleanPhone}`);
         }
-      } catch (twoErr) {
-        console.error('[2Factor] Error:', twoErr);
+      } catch (e) {
+        console.error('[2Factor] Error:', e);
       }
     }
 
-    // ─────────────────────────────────────────────────────
-    // PROVIDER 3: Twilio Messages API (works for verified numbers + paid accounts)
-    // ─────────────────────────────────────────────────────
-    const twilioSid = process.env.TWILIO_ACCOUNT_SID;
-    const twilioAuth = process.env.TWILIO_AUTH_TOKEN;
-    const twilioPhone = process.env.TWILIO_PHONE_NUMBER;
-    if (!smsSent && twilioSid && twilioAuth && twilioPhone) {
-      try {
-        const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`;
-        const authHeader = 'Basic ' + Buffer.from(`${twilioSid}:${twilioAuth}`).toString('base64');
-        const formBody = new URLSearchParams({
-          To: formattedPhone,
-          From: twilioPhone,
-          Body: `Your SahYog verification OTP is: ${otp}. Valid for 10 minutes. Do not share.`,
-        });
-        const twilioRes = await fetch(twilioUrl, {
-          method: 'POST',
-          headers: { Authorization: authHeader, 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: formBody.toString(),
-        });
-        if (twilioRes.ok) {
-          smsSent = true;
-          smsProvider = 'Twilio';
-          console.log(`[Twilio] OTP sent to ${formattedPhone}`);
-        } else {
-          const errText = await twilioRes.text();
-          console.warn('[Twilio] Send warning:', errText);
-        }
-      } catch (twErr) {
-        console.error('[Twilio] Error:', twErr);
-      }
-    }
-
-    // ─────────────────────────────────────────────────────
-    // PROVIDER 4: Twilio Verify Service (for verified numbers in trial mode)
-    // ─────────────────────────────────────────────────────
-    const twilioVerifySid = process.env.TWILIO_VERIFY_SERVICE_SID;
+    // ─────────────────────────────────────────────────────────────────
+    // PROVIDER 3: Twilio Verify Service
+    // Works for: your verified number in trial, ALL numbers in paid mode
+    // Note: Twilio Verify sends its OWN 6-digit code — verify-otp handles both
+    // ─────────────────────────────────────────────────────────────────
     if (!smsSent && twilioSid && twilioAuth && twilioVerifySid) {
       try {
-        const verifyUrl = `https://verify.twilio.com/v2/Services/${twilioVerifySid}/Verifications`;
         const authHeader = 'Basic ' + Buffer.from(`${twilioSid}:${twilioAuth}`).toString('base64');
-        const formBody = new URLSearchParams({ To: formattedPhone, Channel: 'sms' });
-        const verifyRes = await fetch(verifyUrl, {
-          method: 'POST',
-          headers: { Authorization: authHeader, 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: formBody.toString(),
-        });
-        if (verifyRes.ok) {
-          smsSent = true;
-          smsProvider = 'TwilioVerify';
-          console.log(`[Twilio Verify] OTP sent to ${formattedPhone}`);
+        const res = await fetch(
+          `https://verify.twilio.com/v2/Services/${twilioVerifySid}/Verifications`,
+          {
+            method: 'POST',
+            headers: { Authorization: authHeader, 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ To: formattedPhone, Channel: 'sms' }).toString(),
+          }
+        );
+        if (res.ok) {
+          const data = await res.json();
+          if (data.status === 'pending') {
+            smsSent = true;
+            useTwilioVerify = true;
+            smsProvider = 'TwilioVerify';
+            console.log(`[Twilio Verify] OTP dispatched to ${formattedPhone}`);
+          }
+        } else {
+          const err = await res.text();
+          console.warn('[Twilio Verify]', err);
         }
-      } catch (verErr) {
-        console.error('[Twilio Verify] Error:', verErr);
+      } catch (e) {
+        console.error('[Twilio Verify] Error:', e);
       }
     }
 
-    console.log(`OTP dispatch result: smsSent=${smsSent}, provider=${smsProvider}, phone=${cleanPhone}`);
+    // ─────────────────────────────────────────────────────────────────
+    // PROVIDER 4: Twilio Messages API (trial: verified numbers only)
+    // ─────────────────────────────────────────────────────────────────
+    if (!smsSent && twilioSid && twilioAuth && twilioPhone) {
+      try {
+        const authHeader = 'Basic ' + Buffer.from(`${twilioSid}:${twilioAuth}`).toString('base64');
+        const res = await fetch(
+          `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`,
+          {
+            method: 'POST',
+            headers: { Authorization: authHeader, 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+              To: formattedPhone,
+              From: twilioPhone,
+              Body: `Sent from your Twilio trial account - Your SahYog OTP is: ${otp}. Valid 10 minutes.`,
+            }).toString(),
+          }
+        );
+        if (res.ok) {
+          smsSent = true;
+          smsProvider = 'TwilioSMS';
+          console.log(`[Twilio SMS] OTP sent to ${formattedPhone}`);
+        } else {
+          const err = await res.text();
+          console.warn('[Twilio SMS]', err);
+        }
+      } catch (e) {
+        console.error('[Twilio SMS] Error:', e);
+      }
+    }
+
+    console.log(`OTP result: sent=${smsSent}, provider=${smsProvider}, phone=${cleanPhone}`);
 
     const response = NextResponse.json({
       success: true,
       message: `OTP sent to +91 ${cleanPhone.slice(0, 5)} ${cleanPhone.slice(5)}`,
       smsSent,
       provider: smsProvider,
+      // If Twilio Verify was used, the code is Twilio's own 6-digit code
+      // For DB-based providers (Fast2SMS, 2Factor), our 4-digit code is used
+      useTwilioVerify,
       expiresInSeconds: 600,
       formattedPhone,
     });
 
-    // Store OTP in secure cookie as an additional verification fallback
+    // Always store our DB OTP in a secure cookie as fallback
     response.cookies.set('sahyog_pending_otp', `${cleanPhone}:${otp}`, {
       maxAge: 600,
       httpOnly: true,
