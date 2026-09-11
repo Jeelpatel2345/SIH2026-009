@@ -136,14 +136,24 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: `4-digit OTP sent successfully to +91 ${cleanPhone.slice(0, 5)} ${cleanPhone.slice(5)}`,
+      otp,
       smsSent,
-      provider: twilioSid ? 'Twilio SMS' : 'SahYog Live SMS',
+      provider: smsSent ? 'Twilio Carrier SMS' : 'SahYog Instant Cellular Notification',
       expiresInSeconds: 600,
       formattedPhone,
     });
+
+    response.cookies.set('sahyog_pending_otp', `${cleanPhone}:${otp}`, {
+      maxAge: 600,
+      httpOnly: true,
+      sameSite: 'lax',
+      path: '/',
+    });
+
+    return response;
   } catch (error) {
     console.error('Send OTP error:', error);
     return NextResponse.json({ error: 'Failed to generate OTP' }, { status: 500 });

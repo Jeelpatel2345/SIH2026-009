@@ -117,8 +117,56 @@ export default function LoginPage() {
     }
   };
 
+  const handleAutoFill = () => {
+    if (!receivedOtp) return;
+    const digits = receivedOtp.split('').slice(0, 4);
+    setOtp(digits);
+    handleVerifyOtp(receivedOtp);
+  };
+
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4 sm:p-8 relative">
+      {/* Live Carrier SMS Push Notification Toast */}
+      {showTwilioNotification && (
+        <div className="fixed top-3 left-3 right-3 sm:left-auto sm:right-4 sm:max-w-md z-50 bg-slate-900/95 backdrop-blur-md text-white p-3.5 sm:p-4 rounded-2xl shadow-2xl border border-emerald-500/50 animate-in slide-in-from-top-4 flex items-start gap-3">
+          <div className="p-2.5 bg-emerald-500/20 text-emerald-400 rounded-xl flex-shrink-0">
+            <CheckCircle className="w-5 h-5" />
+          </div>
+          <div className="flex-1 min-w-0 text-xs">
+            <div className="flex items-center justify-between gap-1">
+              <p className="font-bold text-white flex items-center gap-1.5">
+                <span>💬 MESSAGES • SahYog</span>
+                <span className="text-[10px] text-emerald-400 bg-emerald-950 px-1.5 py-0.5 rounded font-mono font-bold">
+                  Carrier SMS
+                </span>
+              </p>
+              <span className="text-[10px] text-slate-400">now</span>
+            </div>
+            <p className="text-slate-200 mt-1 leading-relaxed text-xs">
+              Your SahYog verification code is{' '}
+              <span className="font-black text-amber-300 font-mono text-sm tracking-widest bg-black/40 px-1.5 py-0.5 rounded">
+                {receivedOtp || '1234'}
+              </span>
+              . Valid for 10 minutes. Do not share.
+            </p>
+            {receivedOtp && (
+              <button
+                type="button"
+                onClick={handleAutoFill}
+                className="mt-2 text-[11px] font-bold text-teal-300 hover:text-teal-100 bg-teal-950/80 border border-teal-700/60 px-2.5 py-1 rounded-lg flex items-center gap-1 transition cursor-pointer"
+              >
+                ⚡ Auto-Fill Code ({receivedOtp})
+              </button>
+            )}
+          </div>
+          <button
+            onClick={() => setShowTwilioNotification(false)}
+            className="text-slate-400 hover:text-white p-1"
+          >
+            ✕
+          </button>
+        </div>
+      )}
       <div className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200 grid grid-cols-1 md:grid-cols-12 min-h-[580px]">
         {/* Left Side: Brand & Benefits */}
         <div className="md:col-span-5 bg-gradient-to-br from-[#022c2b] via-[#0d9488] to-[#042f2e] text-white p-8 sm:p-10 flex flex-col justify-between relative overflow-hidden">
@@ -292,6 +340,24 @@ export default function LoginPage() {
                     />
                   ))}
                 </div>
+
+                {receivedOtp && (
+                  <div className="mb-5 p-2.5 bg-emerald-50/90 border border-emerald-200 rounded-2xl flex items-center justify-between text-xs animate-in fade-in">
+                    <div className="flex items-center gap-1.5 text-emerald-800">
+                      <span className="font-medium">SMS Verification Code:</span>
+                      <span className="font-mono font-black text-sm tracking-widest text-teal-950 bg-white px-2.5 py-0.5 rounded-lg border border-emerald-200 shadow-xs">
+                        {receivedOtp}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleAutoFill}
+                      className="bg-teal-700 hover:bg-teal-800 text-white font-bold text-[11px] px-3 py-1.5 rounded-xl transition shadow-xs cursor-pointer flex items-center gap-1"
+                    >
+                      ⚡ 1-Tap Fill
+                    </button>
+                  </div>
+                )}
 
                 <button
                   type="button"

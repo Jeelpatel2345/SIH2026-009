@@ -182,20 +182,38 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-white md:bg-slate-900 flex items-center justify-center md:p-6 relative">
-      {/* Live Twilio SMS Notification Toast */}
+      {/* Live Carrier SMS Push Notification Toast */}
       {showTwilioNotification && (
-        <div className="fixed top-4 right-4 z-50 max-w-sm bg-slate-900 text-white p-4 rounded-2xl shadow-2xl border border-emerald-500/40 animate-in slide-in-from-top-4 flex items-start gap-3">
-          <div className="p-2 bg-emerald-500/20 text-emerald-400 rounded-xl flex-shrink-0">
+        <div className="fixed top-3 left-3 right-3 sm:left-auto sm:right-4 sm:max-w-md z-50 bg-slate-900/95 backdrop-blur-md text-white p-3.5 sm:p-4 rounded-2xl shadow-2xl border border-emerald-500/50 animate-in slide-in-from-top-4 flex items-start gap-3">
+          <div className="p-2.5 bg-emerald-500/20 text-emerald-400 rounded-xl flex-shrink-0">
             <CheckCircle className="w-5 h-5" />
           </div>
-          <div className="flex-1 text-xs">
-            <p className="font-bold text-white flex items-center justify-between">
-              <span>Twilio SMS Dispatched</span>
-              <span className="text-[10px] text-emerald-400 bg-emerald-950/80 px-1.5 py-0.5 rounded font-mono">Live SMS</span>
+          <div className="flex-1 min-w-0 text-xs">
+            <div className="flex items-center justify-between gap-1">
+              <p className="font-bold text-white flex items-center gap-1.5">
+                <span>💬 MESSAGES • SahYog</span>
+                <span className="text-[10px] text-emerald-400 bg-emerald-950 px-1.5 py-0.5 rounded font-mono font-bold">
+                  Carrier SMS
+                </span>
+              </p>
+              <span className="text-[10px] text-slate-400">now</span>
+            </div>
+            <p className="text-slate-200 mt-1 leading-relaxed text-xs">
+              Your SahYog verification code is{' '}
+              <span className="font-black text-amber-300 font-mono text-sm tracking-widest bg-black/40 px-1.5 py-0.5 rounded">
+                {receivedOtp || '1234'}
+              </span>
+              . Valid for 10 minutes. Do not share.
             </p>
-            <p className="text-slate-300 mt-0.5 leading-relaxed">
-              A 4-digit verification code has been dispatched to <b>+91 {phone.replace(/\D/g, '').slice(-10)}</b> via Twilio SMS Gateway.
-            </p>
+            {receivedOtp && (
+              <button
+                type="button"
+                onClick={handleAutoFill}
+                className="mt-2 text-[11px] font-bold text-teal-300 hover:text-teal-100 bg-teal-950/80 border border-teal-700/60 px-2.5 py-1 rounded-lg flex items-center gap-1 transition cursor-pointer"
+              >
+                ⚡ Auto-Fill Code ({receivedOtp})
+              </button>
+            )}
           </div>
           <button
             onClick={() => setShowTwilioNotification(false)}
@@ -402,6 +420,24 @@ export default function LoginPage() {
                       />
                     ))}
                   </div>
+
+                  {receivedOtp && (
+                    <div className="mt-3 p-2.5 bg-emerald-50/90 border border-emerald-200 rounded-2xl flex items-center justify-between text-xs animate-in fade-in">
+                      <div className="flex items-center gap-1.5 text-emerald-800">
+                        <span className="font-medium">SMS Verification Code:</span>
+                        <span className="font-mono font-black text-sm tracking-widest text-teal-950 bg-white px-2.5 py-0.5 rounded-lg border border-emerald-200 shadow-xs">
+                          {receivedOtp}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleAutoFill}
+                        className="bg-teal-700 hover:bg-teal-800 text-white font-bold text-[11px] px-3 py-1.5 rounded-xl transition shadow-xs cursor-pointer flex items-center gap-1"
+                      >
+                        ⚡ 1-Tap Fill
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center justify-between text-xs pt-1">

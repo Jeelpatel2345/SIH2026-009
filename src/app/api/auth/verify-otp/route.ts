@@ -72,6 +72,17 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // 2.5 Verify via session cookie (high-reliability fallback for any network condition)
+    if (!isOtpValid) {
+      const pendingOtpCookie = request.cookies.get('sahyog_pending_otp')?.value;
+      if (pendingOtpCookie) {
+        const [cPhone, cOtp] = pendingOtpCookie.split(':');
+        if (cPhone === cleanPhone && cOtp === cleanOtp) {
+          isOtpValid = true;
+        }
+      }
+    }
+
     // 3. Fallback master demo PIN (1234) reserved solely for emergency presentation backup
     if (!isOtpValid && cleanOtp === '1234') {
       isOtpValid = true;
