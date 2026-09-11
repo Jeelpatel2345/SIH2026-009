@@ -138,10 +138,9 @@ export async function POST(request: NextRequest) {
 
     const response = NextResponse.json({
       success: true,
-      message: `4-digit OTP sent successfully to +91 ${cleanPhone.slice(0, 5)} ${cleanPhone.slice(5)}`,
-      otp,
+      message: `OTP sent to +91 ${cleanPhone.slice(0, 5)} ${cleanPhone.slice(5)}`,
       smsSent,
-      provider: smsSent ? 'Twilio Carrier SMS' : 'SahYog Instant Cellular Notification',
+      provider: smsSent ? 'Twilio Carrier SMS' : 'SahYog Secure Delivery',
       expiresInSeconds: 600,
       formattedPhone,
     });

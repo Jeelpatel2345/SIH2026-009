@@ -52,7 +52,6 @@ export async function POST(
           data: {
             status: 'IN_PROGRESS',
             trackingProgress: 100,
-            otpVerifiedAt: new Date(),
             jobStartedAt: new Date(),
           },
           include: {

@@ -199,21 +199,12 @@ export default function LoginPage() {
               <span className="text-[10px] text-slate-400">now</span>
             </div>
             <p className="text-slate-200 mt-1 leading-relaxed text-xs">
-              Your SahYog verification code is{' '}
-              <span className="font-black text-amber-300 font-mono text-sm tracking-widest bg-black/40 px-1.5 py-0.5 rounded">
-                {receivedOtp || '1234'}
+              ✅ OTP sent to{' '}
+              <span className="font-bold text-emerald-300">
+                +91 {phone.replace(/\D/g,'').slice(-10).slice(0,5)} {phone.replace(/\D/g,'').slice(-10).slice(5)}
               </span>
-              . Valid for 10 minutes. Do not share.
+              . Please check your SMS inbox. Valid for 10 minutes.
             </p>
-            {receivedOtp && (
-              <button
-                type="button"
-                onClick={handleAutoFill}
-                className="mt-2 text-[11px] font-bold text-teal-300 hover:text-teal-100 bg-teal-950/80 border border-teal-700/60 px-2.5 py-1 rounded-lg flex items-center gap-1 transition cursor-pointer"
-              >
-                ⚡ Auto-Fill Code ({receivedOtp})
-              </button>
-            )}
           </div>
           <button
             onClick={() => setShowTwilioNotification(false)}
@@ -421,23 +412,7 @@ export default function LoginPage() {
                     ))}
                   </div>
 
-                  {receivedOtp && (
-                    <div className="mt-3 p-2.5 bg-emerald-50/90 border border-emerald-200 rounded-2xl flex items-center justify-between text-xs animate-in fade-in">
-                      <div className="flex items-center gap-1.5 text-emerald-800">
-                        <span className="font-medium">SMS Verification Code:</span>
-                        <span className="font-mono font-black text-sm tracking-widest text-teal-950 bg-white px-2.5 py-0.5 rounded-lg border border-emerald-200 shadow-xs">
-                          {receivedOtp}
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={handleAutoFill}
-                        className="bg-teal-700 hover:bg-teal-800 text-white font-bold text-[11px] px-3 py-1.5 rounded-xl transition shadow-xs cursor-pointer flex items-center gap-1"
-                      >
-                        ⚡ 1-Tap Fill
-                      </button>
-                    </div>
-                  )}
+
                 </div>
 
                 <div className="flex items-center justify-between text-xs pt-1">
