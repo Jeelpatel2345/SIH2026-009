@@ -51,22 +51,33 @@ export async function POST(request: NextRequest) {
     const twilioPhone = process.env.TWILIO_PHONE_NUMBER;
 
     // ─────────────────────────────────────────────────────────────────
-    // PROVIDER 1: Fast2SMS (works for ANY Indian number when key is set)
-    // Get free API key at https://fast2sms.com → Dev API
+    // PROVIDER 1: Fast2SMS Quick SMS route (ANY Indian number, needs ₹100 balance)
+    // Add ₹50 more to your Fast2SMS wallet to unlock this route
     // ─────────────────────────────────────────────────────────────────
     if (!smsSent && process.env.FAST2SMS_API_KEY) {
       try {
-        const smsRes = await fetch(
-          `https://www.fast2sms.com/dev/bulkV2?authorization=${process.env.FAST2SMS_API_KEY}&route=otp&variables_values=${otp}&flash=0&numbers=${cleanPhone}`,
-          { method: 'GET', headers: { 'cache-control': 'no-cache' } }
-        );
+        const message = encodeURIComponent(`Your SahYog OTP is: ${otp}. Valid for 10 minutes. Do not share.`);
+        const quickUrl = `https://www.fast2sms.com/dev/bulkV2?authorization=${process.env.FAST2SMS_API_KEY}&route=q&message=${message}&language=english&flash=0&numbers=${cleanPhone}`;
+        const smsRes = await fetch(quickUrl, { method: 'GET', headers: { 'cache-control': 'no-cache' } });
         const smsData = await smsRes.json();
         if (smsData.return === true) {
           smsSent = true;
-          smsProvider = 'Fast2SMS';
-          console.log(`[Fast2SMS] OTP ${otp} sent to ${cleanPhone}`);
+          smsProvider = 'Fast2SMS-Quick';
+          console.log(`[Fast2SMS Quick] OTP sent to ${cleanPhone}`);
         } else {
-          console.warn('[Fast2SMS]', JSON.stringify(smsData));
+          console.warn('[Fast2SMS Quick]', JSON.stringify(smsData));
+
+          // Fallback: OTP route (needs website verification at fast2sms.com)
+          const otpUrl = `https://www.fast2sms.com/dev/bulkV2?authorization=${process.env.FAST2SMS_API_KEY}&route=otp&variables_values=${otp}&flash=0&numbers=${cleanPhone}`;
+          const otpRes = await fetch(otpUrl, { method: 'GET', headers: { 'cache-control': 'no-cache' } });
+          const otpData = await otpRes.json();
+          if (otpData.return === true) {
+            smsSent = true;
+            smsProvider = 'Fast2SMS-OTP';
+            console.log(`[Fast2SMS OTP] OTP sent to ${cleanPhone}`);
+          } else {
+            console.warn('[Fast2SMS OTP]', JSON.stringify(otpData));
+          }
         }
       } catch (e) {
         console.error('[Fast2SMS] Error:', e);
