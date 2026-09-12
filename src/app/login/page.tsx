@@ -23,9 +23,23 @@ export default function LoginPage() {
   const [countdown, setCountdown] = useState(30);
   const [canResend, setCanResend] = useState(false);
 
+  // Auto-redirect if already logged in (critical for APK WebView experience)
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const storedRole = localStorage.getItem('sahyog-role');
+      const storedUserId = localStorage.getItem('sahyog-user-phone');
+      if (storedRole && storedUserId) {
+        // Already logged in — redirect to correct dashboard
+        if (storedRole === 'WORKER') {
+          router.replace('/worker/dashboard');
+        } else if (storedRole === 'ADMIN') {
+          router.replace('/admin/overview');
+        } else {
+          router.replace('/customer/dashboard');
+        }
+        return;
+      }
+      // Not logged in — set default role
       if (storedRole === 'WORKER') {
         setSelectedRole('WORKER');
       } else {
